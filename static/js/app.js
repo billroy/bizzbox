@@ -2,13 +2,16 @@
  * BizzBox — Vue 3 root application.
  * Imports all components and mounts the app.
  */
-import { store } from './store.js';
+import { store, urlOverrides } from './store.js';
 import { initSocket } from './socket.js';
+import { initKeyboard } from './keyboard.js';
 
 import AppHeader       from './components/AppHeader.js';
 import BackgroundGrid  from './components/BackgroundGrid.js';
 import ForegroundLayer from './components/ForegroundLayer.js';
 import ActivityWindow  from './components/ActivityWindow.js';
+import HelpOverlay     from './components/HelpOverlay.js';
+import FilterModal     from './components/FilterModal.js';
 
 // Activity renderers
 import ActivityNetworkTopology  from './components/activities/NetworkTopology.js';
@@ -41,6 +44,9 @@ import ActivityTransitMap      from './components/activities/TransitMap.js';
 import ActivityWeatherRadar    from './components/activities/WeatherRadar.js';
 import ActivityStockList       from './components/activities/StockList.js';
 import ActivityStockGraph      from './components/activities/StockGraph.js';
+import ActivityChatIntercept  from './components/activities/ChatIntercept.js';
+import ActivityWireframe3d    from './components/activities/Wireframe3d.js';
+import ActivityPowerGrid      from './components/activities/PowerGrid.js';
 
 const { createApp } = Vue;
 
@@ -50,14 +56,23 @@ const RootComponent = {
     AppHeader,
     BackgroundGrid,
     ForegroundLayer,
+    HelpOverlay,
+    FilterModal,
   },
   setup() {
+    // Apply lock mode from URL override
+    if (urlOverrides.lock) {
+      store.lockMode = true;
+    }
     return { store };
   },
   template: `
     <AppHeader />
     <BackgroundGrid v-if="store.grid" />
     <ForegroundLayer v-if="store.grid" />
+    <HelpOverlay v-if="store.helpOverlay" />
+    <FilterModal v-if="store.filterModalOpen" />
+    <div v-if="store.lockMode" class="lock-overlay"></div>
     <div v-if="!store.connected" class="boot-screen">
       <div class="boot-msg">BIZZBOX INITIALIZING...</div>
     </div>
@@ -97,8 +112,12 @@ app.component('activity-transit-map',      ActivityTransitMap);
 app.component('activity-weather-radar',    ActivityWeatherRadar);
 app.component('activity-stock-list',       ActivityStockList);
 app.component('activity-stock-graph',      ActivityStockGraph);
+app.component('activity-chat-intercept',  ActivityChatIntercept);
+app.component('activity-wireframe-3d',    ActivityWireframe3d);
+app.component('activity-power-grid',      ActivityPowerGrid);
 
 app.mount('#app');
 
-// Initialize socket after mount
+// Initialize socket and keyboard after mount
 initSocket();
+initKeyboard();

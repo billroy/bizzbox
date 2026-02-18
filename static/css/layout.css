@@ -386,6 +386,254 @@ body::after {
   text-align: center;
 }
 
+/* ── Spawn static noise overlay ──────────────────────────────── */
+.spawn-static-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* ── Enhanced spawn/despawn transitions ──────────────────────── */
+
+/* Glitch despawn: horizontal slice displacement */
+@keyframes glitchDespawn {
+  0%   { clip-path: inset(0); transform: translateX(0); opacity: 1; }
+  15%  { clip-path: inset(10% 0 60% 0); transform: translateX(8px); }
+  30%  { clip-path: inset(40% 0 20% 0); transform: translateX(-12px); }
+  45%  { clip-path: inset(20% 0 40% 0); transform: translateX(6px); }
+  60%  { clip-path: inset(50% 0 10% 0); transform: translateX(-8px); }
+  75%  { clip-path: inset(5% 0 70% 0); transform: translateX(4px); opacity: 0.6; }
+  100% { clip-path: inset(0); transform: translateX(0); opacity: 0; }
+}
+
+/* Foreground spawn: scale-up */
+@keyframes fgSpawnScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1.0); }
+}
+
+/* Background: glitch on despawn */
+.bg-slot .activity-window.is-fading-out {
+  animation: glitchDespawn 0.3s ease-out forwards;
+}
+
+/* Foreground: scale-up on spawn, glitch on despawn */
+.foreground-window .activity-window.is-fading-in {
+  animation: fgSpawnScale 0.5s ease-out forwards;
+}
+.foreground-window .activity-window.is-fading-out {
+  animation: glitchDespawn 0.3s ease-out forwards;
+}
+
+/* ── Lock mode overlay ──────────────────────────────────────── */
+.lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: all;
+  cursor: none;
+}
+
+body.lock-mode {
+  cursor: none;
+}
+
+/* ── Help overlay ──────────────────────────────────────────── */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.help-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 24px 32px;
+  min-width: 340px;
+  max-width: 460px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.help-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-accent-1);
+  letter-spacing: 0.15em;
+  text-align: center;
+  margin-bottom: 16px;
+  text-shadow: 0 0 8px var(--color-accent-1);
+}
+
+.help-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.help-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.help-key {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-accent-2);
+  min-width: 70px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.help-desc {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.help-close {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  text-align: center;
+  margin-top: 16px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+.help-close:hover {
+  color: var(--color-accent-1);
+}
+
+/* ── Filter modal overlay ──────────────────────────────────── */
+.filter-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.filter-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 20px 24px;
+  min-width: 500px;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.filter-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-accent-1);
+  letter-spacing: 0.15em;
+  text-align: center;
+  margin-bottom: 12px;
+  text-shadow: 0 0 8px var(--color-accent-1);
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.filter-action-btn {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 3px 12px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: border-color 0.2s, color 0.2s;
+}
+.filter-action-btn:hover {
+  border-color: var(--color-accent-1);
+  color: var(--color-accent-1);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 4px 12px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 4px;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  transition: background 0.15s;
+}
+.filter-item:hover {
+  background: var(--color-surface-2);
+}
+
+.filter-check {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-accent-1);
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+.filter-check.checked {
+  border-color: var(--color-accent-1);
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.filter-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-primary);
+  letter-spacing: 0.03em;
+}
+
+.filter-close {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  text-align: center;
+  margin-top: 14px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+.filter-close:hover {
+  color: var(--color-accent-1);
+}
+
 /* ── Scrollbars (webkit) ─────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }

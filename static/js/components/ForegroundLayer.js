@@ -24,6 +24,7 @@ export default {
     let drag = null;
 
     function onTitlebarPointerDown(evt, act) {
+      if (store.lockMode) return;
       if (!act.position) return;
       if (evt.button !== 0) return;
       evt.preventDefault();
@@ -81,6 +82,7 @@ export default {
     let resize = null;
 
     function onResizePointerDown(evt, act, handle) {
+      if (store.lockMode) return;
       if (!act.position || !act.size) return;
       if (evt.button !== 0) return;
       evt.preventDefault();

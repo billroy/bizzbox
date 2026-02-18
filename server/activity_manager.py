@@ -61,6 +61,8 @@ class ActivityManager:
         self._pending_replacements: list[tuple] = []
         # Pending closures (despawn without replacement): (old_id, remove_at)
         self._pending_closures: list[tuple] = []
+        # Activity type filter (None = all allowed)
+        self._allowed_types: set[str] | None = None
 
     def _draw_update_interval(self) -> float:
         """Draw next update interval from N(1/intensity, 1/(intensity*4)), min 0.05s."""
@@ -87,7 +89,8 @@ class ActivityManager:
     def _spawn_activity(self, slot: int | None, is_foreground: bool,
                         activity_type: str = None, position: dict = None, size: dict = None):
         """Create and register a new activity, emitting activity:spawn."""
-        gen = registry.make_activity(activity_type=activity_type, intensity=self._config.intensity)
+        gen = registry.make_activity(activity_type=activity_type, intensity=self._config.intensity,
+                                     allowed_types=self._allowed_types)
         if position is None or size is None:
             position, size = (self._fg_geometry() if is_foreground else (None, None))
         payload = gen.spawn_payload(slot=slot, is_foreground=is_foreground,
@@ -305,6 +308,10 @@ class ActivityManager:
         # Spawn activities for newly empty slots
         for slot_idx in range(old_count, new_count):
             self._spawn_activity(slot_idx, is_foreground=False)
+
+    def set_activity_filter(self, allowed_types: set[str] | None):
+        """Set the activity type filter. None or empty set means all allowed."""
+        self._allowed_types = allowed_types if allowed_types else None
 
     def get_full_state(self) -> dict:
         """Return complete state for sync:init payload."""

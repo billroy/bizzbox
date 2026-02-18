@@ -13,7 +13,7 @@ export default {
   },
   emits: ['titlebar-pointerdown'],
   setup(props, { emit }) {
-    const { computed } = Vue;
+    const { computed, ref, onMounted, nextTick } = Vue;
     const activityComponent = computed(() =>
       'activity-' + props.activity.type.replace(/_/g, '-')
     );
@@ -21,6 +21,34 @@ export default {
       'is-fading-in':  props.activity.spawning,
       'is-fading-out': props.activity.despawning,
     }));
+
+    // Static noise flash on spawn
+    const showStatic = ref(false);
+    const staticCanvas = ref(null);
+
+    onMounted(() => {
+      if (props.activity.spawning) {
+        showStatic.value = true;
+        nextTick(() => {
+          const canvas = staticCanvas.value;
+          if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = canvas.offsetWidth;
+            const h = canvas.height = canvas.offsetHeight;
+            if (w > 0 && h > 0) {
+              const img = ctx.createImageData(w, h);
+              const data = img.data;
+              for (let i = 0; i < data.length; i += 4) {
+                const v = Math.random() * 255 | 0;
+                data[i] = v; data[i+1] = v; data[i+2] = v; data[i+3] = 200;
+              }
+              ctx.putImageData(img, 0, 0);
+            }
+          }
+        });
+        setTimeout(() => { showStatic.value = false; }, 150);
+      }
+    });
 
     const activityTypes = ACTIVITY_TYPES;
 
@@ -49,7 +77,7 @@ export default {
       sendWindowClose(props.activity.id);
     }
 
-    return { activityComponent, fadeClass, activityTypes, formatTypeName, onTitlebarPointerDown, onTypeChange, onRespawn, onClose };
+    return { activityComponent, fadeClass, activityTypes, formatTypeName, onTitlebarPointerDown, onTypeChange, onRespawn, onClose, showStatic, staticCanvas };
   },
   template: `
     <div class="activity-window" :class="fadeClass">
@@ -72,6 +100,7 @@ export default {
         <div class="titlebar-blink"></div>
       </div>
       <div class="activity-content">
+        <canvas v-if="showStatic" ref="staticCanvas" class="spawn-static-overlay"></canvas>
         <component :is="activityComponent" :activity="activity" />
       </div>
     </div>

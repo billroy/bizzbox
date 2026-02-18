@@ -2,10 +2,11 @@
  * Socket.IO client wrapper.
  * Registers all inbound event handlers and provides outbound helpers.
  */
-import { store, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout } from './store.js';
+import { store, urlOverrides, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout } from './store.js';
 import { audio } from './audio.js';
 
 let _socket = null;
+let _urlOverridesApplied = false;
 
 // Per-activity sound timers: activityId → timeout handle
 const _soundTimers = {};
@@ -50,6 +51,19 @@ export function initSocket() {
     for (const act of payload.activities) {
       scheduleActivitySound(act.id, act.type);
     }
+
+    // Apply URL overrides once on first sync:init
+    if (!_urlOverridesApplied) {
+      _urlOverridesApplied = true;
+      if (urlOverrides.style)     sendStyle(urlOverrides.style);
+      if (urlOverrides.layout) {
+        const parts = urlOverrides.layout.split('x').map(Number);
+        if (parts.length === 2) sendLayout(parts[0], parts[1]);
+      }
+      if (urlOverrides.intensity) sendIntensity(urlOverrides.intensity);
+      if (urlOverrides.windows !== undefined) sendFgTarget(urlOverrides.windows);
+      if (urlOverrides.muted !== undefined) sendMute(urlOverrides.muted);
+    }
   });
 
   _socket.on('activity:spawn', (payload) => {
@@ -77,6 +91,7 @@ export function initSocket() {
 
   _socket.on('configure:intensity', (data) => {
     store.config.intensity = data.value;
+    if (store.ambientEnabled) audio.updateAmbientIntensity(data.value);
   });
 
   _socket.on('configure:fg_count', (data) => {
@@ -154,4 +169,8 @@ export function sendFgTarget(value) {
 
 export function sendLayout(cols, rows) {
   if (_socket) _socket.emit('configure:layout', { cols, rows });
+}
+
+export function sendActivityFilter(allowedTypes) {
+  if (_socket) _socket.emit('configure:activity_filter', { allowed: allowedTypes });
 }

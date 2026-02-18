@@ -9,6 +9,10 @@ class AudioEngine {
     this._masterGain = null;
     this._muted = false;
     this._ready = false;
+    // Ambient state
+    this._ambientNodes = null;
+    this._ambientGain = null;
+    this._ambientActive = false;
   }
 
   _init() {
@@ -95,6 +99,107 @@ class AudioEngine {
 
   setMuted(val) {
     val ? this.mute() : this.unmute();
+  }
+
+  // ── Ambient soundscape ──────────────────────────────────────
+
+  startAmbient(intensity) {
+    this._init();
+    if (this._ambientActive) return;
+    this._resume();
+
+    const ctx = this._ctx;
+    if (!ctx) return;
+
+    // Dedicated gain for ambient
+    this._ambientGain = ctx.createGain();
+    this._ambientGain.gain.setValueAtTime(0, ctx.currentTime);
+    this._ambientGain.connect(this._masterGain);
+
+    const targetVol = this._ambientVolume(intensity);
+
+    // Two detuned 55Hz sine oscillators (beating drone)
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.value = 55;
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.value = 55.5; // slight detune for beating
+
+    // Filtered white noise (server room hum)
+    const bufLen = ctx.sampleRate * 4;
+    const noiseBuf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data = noiseBuf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+    const noiseSrc = ctx.createBufferSource();
+    noiseSrc.buffer = noiseBuf;
+    noiseSrc.loop = true;
+
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.value = 400;
+    noiseFilter.Q.value = 1;
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.3;
+
+    // Connect: osc1/osc2 → ambientGain, noise → filter → noiseGain → ambientGain
+    osc1.connect(this._ambientGain);
+    osc2.connect(this._ambientGain);
+    noiseSrc.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(this._ambientGain);
+
+    osc1.start();
+    osc2.start();
+    noiseSrc.start();
+
+    // Fade in over 2s
+    this._ambientGain.gain.linearRampToValueAtTime(targetVol, ctx.currentTime + 2);
+
+    this._ambientNodes = { osc1, osc2, noiseSrc, noiseFilter, noiseGain };
+    this._ambientActive = true;
+  }
+
+  stopAmbient() {
+    if (!this._ambientActive || !this._ctx) return;
+    const ctx = this._ctx;
+    const now = ctx.currentTime;
+    // Fade out over 2s
+    this._ambientGain.gain.cancelScheduledValues(now);
+    this._ambientGain.gain.setValueAtTime(this._ambientGain.gain.value, now);
+    this._ambientGain.gain.linearRampToValueAtTime(0, now + 2);
+
+    const nodes = this._ambientNodes;
+    setTimeout(() => {
+      try {
+        nodes.osc1.stop();
+        nodes.osc2.stop();
+        nodes.noiseSrc.stop();
+      } catch (e) { /* already stopped */ }
+      try {
+        nodes.osc1.disconnect();
+        nodes.osc2.disconnect();
+        nodes.noiseSrc.disconnect();
+        nodes.noiseFilter.disconnect();
+        nodes.noiseGain.disconnect();
+      } catch (e) { /* already disconnected */ }
+    }, 2200);
+
+    this._ambientNodes = null;
+    this._ambientActive = false;
+  }
+
+  updateAmbientIntensity(intensity) {
+    if (!this._ambientActive || !this._ambientGain || !this._ctx) return;
+    const vol = this._ambientVolume(intensity);
+    this._ambientGain.gain.cancelScheduledValues(this._ctx.currentTime);
+    this._ambientGain.gain.linearRampToValueAtTime(vol, this._ctx.currentTime + 0.5);
+  }
+
+  _ambientVolume(intensity) {
+    // intensity 1 → 0.05, intensity 20 → 0.4
+    return 0.05 + (intensity - 1) * (0.35 / 19);
   }
 
   // ── Spawn / despawn sounds ────────────────────────────────────
@@ -190,6 +295,17 @@ class AudioEngine {
         break;
       case 'globe_arcs':
         this._tone(350, 500, 0.15, 'sine', 0.1);
+        break;
+      case 'chat_intercept':
+        this._noise(0.04, 0.08);
+        this._tone(500, 600, 0.08, 'square', 0.08);
+        break;
+      case 'wireframe_3d':
+        this._tone(110, 110, 0.2, 'sine', 0.08);
+        break;
+      case 'power_grid':
+        this._tone(60, 60, 0.15, 'sawtooth', 0.06);
+        this._noise(0.02, 0.04);
         break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);

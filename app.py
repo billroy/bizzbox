@@ -96,6 +96,12 @@ def create_app(config: AppConfig):
         sync_manager.set_fg_target(request.sid, value)
         emitter.broadcast_fg_target(value, room=room)
 
+    @socketio.on("configure:activity_filter")
+    def on_activity_filter(data):
+        from flask import request
+        allowed = data.get("allowed")  # list of type names or None
+        sync_manager.set_activity_filter(request.sid, allowed)
+
     @socketio.on("window:replace")
     def on_window_replace(data):
         from flask import request

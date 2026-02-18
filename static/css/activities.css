@@ -454,3 +454,87 @@
 .stock-table tbody tr:nth-child(even) td {
   background: var(--color-surface-2);
 }
+
+/* ── Chat/Comms Intercept ──────────────────────────────────── */
+.activity-chat-intercept {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px;
+  overflow: hidden;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.intercept-msg {
+  flex-shrink: 0;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 4px 6px;
+  border-left: 3px solid var(--color-text-dim);
+}
+
+.intercept-msg.cls-unclass  { border-left-color: var(--color-info); }
+.intercept-msg.cls-conf     { border-left-color: var(--color-warn); }
+.intercept-msg.cls-secret   { border-left-color: var(--color-error); }
+.intercept-msg.cls-topsecret { border-left-color: var(--color-crit, #ff2266); }
+
+.intercept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.intercept-cls {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+.intercept-cls.cls-unclass   { color: var(--color-info); background: rgba(0, 150, 255, 0.1); }
+.intercept-cls.cls-conf      { color: var(--color-warn); background: rgba(255, 170, 0, 0.1); }
+.intercept-cls.cls-secret    { color: var(--color-error); background: rgba(255, 50, 50, 0.1); }
+.intercept-cls.cls-topsecret { color: var(--color-crit, #ff2266); background: rgba(255, 30, 80, 0.15); }
+
+.intercept-ts {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-dim);
+}
+
+.intercept-route {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.intercept-callsign {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-accent-2);
+  font-weight: bold;
+}
+
+.intercept-arrow {
+  font-size: 10px;
+  color: var(--color-text-dim);
+}
+
+.intercept-body {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}

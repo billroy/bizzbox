@@ -34,4 +34,7 @@ export const ACTIVITY_TYPES = [
   'weather_radar',
   'stock_list',
   'stock_graph',
+  'chat_intercept',
+  'wireframe_3d',
+  'power_grid',
 ];

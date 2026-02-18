@@ -152,3 +152,14 @@ class SyncManager:
             manager = self._client_managers.get(sid)
             if manager:
                 manager.set_grid(cols, rows)
+
+    def set_activity_filter(self, sid: str, allowed_types: list[str] | None):
+        """Handle a configure:activity_filter event — set type filter on the manager."""
+        allowed = set(allowed_types) if allowed_types else None
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.set_activity_filter(allowed)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.set_activity_filter(allowed)

@@ -30,6 +30,9 @@ from .generators.transit_map import TransitMapActivity
 from .generators.weather_radar import WeatherRadarActivity
 from .generators.stock_list import StockListActivity
 from .generators.stock_graph import StockGraphActivity
+from .generators.chat_intercept import ChatInterceptActivity
+from .generators.wireframe_3d import Wireframe3DActivity
+from .generators.power_grid import PowerGridActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -62,54 +65,67 @@ REGISTRY: dict[str, type] = {
     "weather_radar":      WeatherRadarActivity,
     "stock_list":         StockListActivity,
     "stock_graph":        StockGraphActivity,
+    "chat_intercept":     ChatInterceptActivity,
+    "wireframe_3d":       Wireframe3DActivity,
+    "power_grid":         PowerGridActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
 WEIGHTS: dict[str, float] = {
-    "network_topology":   1.0,
-    "terminal":           1.2,
-    "code_scroll":        1.2,
-    "radar":              1.0,
-    "log_tail":           1.1,
-    "hex_dump":           0.8,
-    "facial_recognition": 1.0,
-    "countdown":          0.6,
-    "oscilloscope":       1.0,
+    "network_topology":   1.2,
+    "terminal":           1.3,
+    "code_scroll":        1.3,
+    "radar":              1.2,
+    "log_tail":           1.0,
+    "hex_dump":           0.7,
+    "facial_recognition": 1.2,
+    "countdown":          0.3,
+    "oscilloscope":       1.2,
     "geo_map":            1.0,
-    "resource_gauges":    0.9,
-    "notifications":      0.7,
-    "sdr_waterfall":      1.1,
+    "resource_gauges":    0.8,
+    "notifications":      0.4,
+    "sdr_waterfall":      1.3,
     "qam_constellation":  1.0,
-    "matrix_rain":        1.3,
-    "audio_spectrum":     1.1,
-    "progress_bars":      1.0,
-    "dna_sequence":       1.2,
-    "graph":              1.1,
-    "orbital_view":       1.2,
+    "matrix_rain":        2.0,
+    "audio_spectrum":     1.2,
+    "progress_bars":      0.5,
+    "dna_sequence":       1.3,
+    "graph":              1.0,
+    "orbital_view":       1.8,
     "camera_feed":        1.0,
-    "cipher_decrypt":     1.3,
-    "data_table":         1.0,
-    "system_topology":    1.1,
-    "globe_arcs":         1.2,
-    "heart_monitor":      1.2,
-    "transit_map":        1.1,
-    "weather_radar":      1.1,
-    "stock_list":         1.1,
-    "stock_graph":        1.2,
+    "cipher_decrypt":     1.6,
+    "data_table":         0.5,
+    "system_topology":    1.2,
+    "globe_arcs":         1.8,
+    "heart_monitor":      1.5,
+    "transit_map":        1.0,
+    "weather_radar":      1.5,
+    "stock_list":         0.8,
+    "stock_graph":        1.5,
+    "chat_intercept":     1.3,
+    "wireframe_3d":       1.4,
+    "power_grid":         1.3,
 }
 
 _types = list(REGISTRY.keys())
 _weights = [WEIGHTS[t] for t in _types]
 
 
-def random_type() -> str:
-    """Return a weighted-random activity type name."""
-    return random.choices(_types, weights=_weights, k=1)[0]
+def random_type(allowed: set[str] | None = None) -> str:
+    """Return a weighted-random activity type name, optionally filtered."""
+    if allowed is None or len(allowed) == 0:
+        return random.choices(_types, weights=_weights, k=1)[0]
+    filtered = [(t, w) for t, w in zip(_types, _weights) if t in allowed]
+    if not filtered:
+        return random.choices(_types, weights=_weights, k=1)[0]
+    types, weights = zip(*filtered)
+    return random.choices(types, weights=weights, k=1)[0]
 
 
-def make_activity(activity_type: str = None, activity_id: str = None, intensity: int = 5):
+def make_activity(activity_type: str = None, activity_id: str = None,
+                  intensity: int = 5, allowed_types: set[str] | None = None):
     """Instantiate an activity generator of the given type (or random if None)."""
     if activity_type is None:
-        activity_type = random_type()
+        activity_type = random_type(allowed=allowed_types)
     cls = REGISTRY[activity_type]
     return cls(activity_id=activity_id, intensity=intensity)

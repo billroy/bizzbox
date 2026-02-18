@@ -7,6 +7,21 @@ import { computeGrid } from './layout.js';
 // Use the global Vue loaded via <script src="vue.global.prod.js">
 const { reactive } = Vue;
 
+// ── URL query parameter overrides ────────────────────────────
+function parseUrlOverrides() {
+  const params = new URLSearchParams(window.location.search);
+  const o = {};
+  if (params.has('style'))     o.style = params.get('style');
+  if (params.has('layout'))    o.layout = params.get('layout');
+  if (params.has('intensity')) o.intensity = parseInt(params.get('intensity'), 10);
+  if (params.has('windows'))   o.windows = parseInt(params.get('windows'), 10);
+  if (params.has('muted'))     o.muted = params.get('muted') === '1';
+  if (params.has('lock'))      o.lock = params.get('lock') === '1';
+  return o;
+}
+
+export const urlOverrides = parseUrlOverrides();
+
 export const store = reactive({
   // Connection
   connected: false,
@@ -27,6 +42,14 @@ export const store = reactive({
 
   // Activities stored as plain reactive object keyed by id
   activities: {},
+
+  // UI state
+  lockMode: false,
+  helpOverlay: false,
+  headerPinned: false,
+  ambientEnabled: false,
+  filterModalOpen: false,
+  activityFilter: {},   // type → boolean, all true by default
 });
 
 // Computed helpers (plain functions — called in templates/setup)
