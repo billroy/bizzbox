@@ -51,7 +51,7 @@ class ActivityManager:
         self._grid_cols = config.grid_cols
         self._grid_rows = config.grid_rows
         self._bg_count = self._grid_cols * self._grid_rows
-        self._fg_count = max(0, random.randint(5, 10) - self._bg_count)
+        self._fg_count = self._config.fg_target
 
         # Slot → activity_id mapping (None = empty)
         self._bg_slots: list[str | None] = [None] * self._bg_count
@@ -59,6 +59,8 @@ class ActivityManager:
         self._activities: dict[str, ActivityRecord] = {}
         # Pending replacements: (slot_or_None, is_foreground, replace_at_time)
         self._pending_replacements: list[tuple] = []
+        # Pending closures (despawn without replacement): (old_id, remove_at)
+        self._pending_closures: list[tuple] = []
 
     def _draw_update_interval(self) -> float:
         """Draw next update interval from N(1/intensity, 1/(intensity*4)), min 0.05s."""
@@ -66,6 +68,11 @@ class ActivityManager:
         mean = 1.0 / intensity
         sd = mean / 4.0
         return max(0.05, random.gauss(mean, sd))
+
+    def _live_fg_count(self) -> int:
+        """Count non-despawning foreground activities."""
+        return sum(1 for rec in self._activities.values()
+                   if rec.is_foreground and not rec.despawning)
 
     def _fg_geometry(self) -> tuple[dict, dict]:
         """Pick random foreground position/size in reference coords."""
@@ -112,6 +119,7 @@ class ActivityManager:
         while self._running:
             now = time.time()
             self._process_replacements(now)
+            self._process_closures(now)
             for act_id, rec in list(self._activities.items()):
                 if rec.despawning:
                     continue
@@ -130,12 +138,21 @@ class ActivityManager:
     def _initiate_despawn(self, rec: ActivityRecord, now: float):
         rec.despawning = True
         self._emitter.emit_despawn(self._room, rec.id)
-        # Schedule replacement after fade completes
-        # Tuple: (slot, is_fg, replace_at, old_id, explicit_type, position, size)
         replace_at = now + REPLACE_DELAY
-        self._pending_replacements.append(
-            (rec.slot, rec.is_foreground, replace_at, rec.id, None, None, None)
-        )
+
+        if rec.is_foreground:
+            # Only auto-replace if we'd be below target after this despawn
+            if self._live_fg_count() < self._config.fg_target:
+                self._pending_replacements.append(
+                    (rec.slot, rec.is_foreground, replace_at, rec.id, None, None, None)
+                )
+            else:
+                self._pending_closures.append((rec.id, replace_at))
+        else:
+            # Background activities always get replaced
+            self._pending_replacements.append(
+                (rec.slot, rec.is_foreground, replace_at, rec.id, None, None, None)
+            )
 
     def _process_replacements(self, now: float):
         remaining = []
@@ -152,6 +169,15 @@ class ActivityManager:
             else:
                 remaining.append(entry)
         self._pending_replacements = remaining
+
+    def _process_closures(self, now: float):
+        remaining = []
+        for old_id, remove_at in self._pending_closures:
+            if now >= remove_at:
+                self._activities.pop(old_id, None)
+            else:
+                remaining.append((old_id, remove_at))
+        self._pending_closures = remaining
 
     def move_window(self, activity_id: str, position: dict):
         """Update stored position for a foreground window and broadcast the move."""
@@ -181,9 +207,49 @@ class ActivityManager:
             (slot, is_fg, replace_at, rec.id, new_type, pos, sz)
         )
 
+    def close_window(self, activity_id: str):
+        """Close a foreground window — despawn without replacement."""
+        rec = self._activities.get(activity_id)
+        if not rec or rec.despawning or not rec.is_foreground:
+            return
+        rec.despawning = True
+        self._emitter.emit_despawn(self._room, rec.id)
+        self._pending_closures.append((rec.id, time.time() + REPLACE_DELAY))
+
     def spawn_foreground(self, activity_type: str = None):
         """Spawn a new foreground window with random geometry."""
         self._spawn_activity(slot=None, is_foreground=True, activity_type=activity_type)
+
+    def set_fg_target(self, target: int):
+        """Set target foreground count. Spawn or close windows to match."""
+        target = max(0, min(20, target))
+        self._config.fg_target = target
+        self._fg_count = target
+
+        # Cancel any pending foreground replacements that would exceed target
+        current = self._live_fg_count()
+        pending_fg = sum(1 for r in self._pending_replacements if r[1] is True)
+        if current + pending_fg > target:
+            self._pending_replacements = [
+                r for r in self._pending_replacements if not r[1]
+            ]
+
+        current = self._live_fg_count()
+        if current > target:
+            # Close excess windows (most recently spawned first)
+            excess = current - target
+            fg_recs = sorted(
+                [r for r in self._activities.values()
+                 if r.is_foreground and not r.despawning],
+                key=lambda r: r.spawn_time,
+                reverse=True
+            )
+            for rec in fg_recs[:excess]:
+                self.close_window(rec.id)
+        elif current < target:
+            # Spawn additional windows
+            for _ in range(target - current):
+                self._spawn_activity(slot=None, is_foreground=True)
 
     def resize_window(self, activity_id: str, size: dict, position: dict):
         """Update stored size/position for a foreground window and broadcast."""
@@ -261,6 +327,7 @@ class ActivityManager:
             "layout": {
                 "background_count": self._bg_count,
                 "foreground_count": self._fg_count,
+                "fg_target": self._config.fg_target,
                 "grid_cols": self._grid_cols,
                 "grid_rows": self._grid_rows,
             },

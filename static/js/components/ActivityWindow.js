@@ -4,7 +4,7 @@
  * Titlebar includes a type-selector dropdown and a respawn button.
  */
 import { ACTIVITY_TYPES } from '../activityTypes.js';
-import { sendWindowReplace } from '../socket.js';
+import { sendWindowReplace, sendWindowClose } from '../socket.js';
 
 export default {
   name: 'ActivityWindow',
@@ -45,7 +45,11 @@ export default {
       sendWindowReplace(props.activity.id, null);
     }
 
-    return { activityComponent, fadeClass, activityTypes, formatTypeName, onTitlebarPointerDown, onTypeChange, onRespawn };
+    function onClose() {
+      sendWindowClose(props.activity.id);
+    }
+
+    return { activityComponent, fadeClass, activityTypes, formatTypeName, onTitlebarPointerDown, onTypeChange, onRespawn, onClose };
   },
   template: `
     <div class="activity-window" :class="fadeClass">
@@ -64,6 +68,7 @@ export default {
           <option v-for="t in activityTypes" :key="t" :value="t">{{ formatTypeName(t) }}</option>
         </select>
         <button class="titlebar-respawn" @click.stop="onRespawn" @pointerdown.stop title="Respawn">&#x21BB;</button>
+        <button class="titlebar-close" @click.stop="onClose" @pointerdown.stop title="Close">&#x2715;</button>
         <div class="titlebar-blink"></div>
       </div>
       <div class="activity-content">

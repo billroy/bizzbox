@@ -2,7 +2,7 @@
  * Auto-hiding page header with all controls.
  */
 import { store } from '../store.js';
-import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn } from '../socket.js';
+import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
 
@@ -76,6 +76,11 @@ export default {
     onMounted(() => document.addEventListener('fullscreenchange', onFullscreenChange));
     onUnmounted(() => document.removeEventListener('fullscreenchange', onFullscreenChange));
 
+    const fgTarget = computed({
+      get: () => store.config.fgTarget,
+      set: (v) => sendFgTarget(Number(v)),
+    });
+
     const spawnType = ref(null);  // null = RANDOM
     const activityTypes = ACTIVITY_TYPES;
 
@@ -83,7 +88,7 @@ export default {
       sendWindowSpawn(spawnType.value);
     }
 
-    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, spawnType, activityTypes, spawnWindow };
+    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow };
   },
 
   template: `
@@ -125,6 +130,13 @@ export default {
       <input class="header-input" type="range" min="1" max="20"
              :value="intensity" @input="intensity = $event.target.value" />
       <span class="intensity-value">{{ intensity }}</span>
+
+      <div class="header-sep"></div>
+
+      <span class="header-label">WINDOWS</span>
+      <input class="header-input" type="range" min="0" max="20"
+             :value="fgTarget" @input="fgTarget = $event.target.value" />
+      <span class="intensity-value">{{ fgTarget }}</span>
 
       <div class="header-spacer"></div>
 

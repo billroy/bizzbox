@@ -79,6 +79,10 @@ export function initSocket() {
     store.config.intensity = data.value;
   });
 
+  _socket.on('configure:fg_count', (data) => {
+    store.config.fgTarget = data.value;
+  });
+
   _socket.on('configure:mute', (data) => {
     store.config.muted = data.muted;
     audio.setMuted(data.muted);
@@ -132,8 +136,16 @@ export function sendWindowReplace(id, type) {
   if (_socket) _socket.emit('window:replace', { id, type });
 }
 
+export function sendWindowClose(id) {
+  if (_socket) _socket.emit('window:close', { id });
+}
+
 export function sendWindowSpawn(type) {
   if (_socket) _socket.emit('window:spawn', { type });
+}
+
+export function sendFgTarget(value) {
+  if (_socket) _socket.emit('configure:fg_count', { value });
 }
 
 export function sendLayout(cols, rows) {

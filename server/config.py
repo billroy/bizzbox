@@ -15,6 +15,7 @@ class AppConfig:
     muted: bool = False         # global mute state
     grid_cols: int = 3          # background grid columns
     grid_rows: int = 2          # background grid rows
+    fg_target: int = 5          # target foreground window count (0-20)
 
 
 # Module-level singleton, replaced at app startup

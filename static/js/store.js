@@ -18,6 +18,7 @@ export const store = reactive({
     intensity: 5,
     muted: false,
     syncMode: 'synced',
+    fgTarget: 5,
   },
 
   // Layout (fixed for session)
@@ -52,6 +53,7 @@ export function initFromServer(payload) {
   store.config.muted    = session.muted;
   store.config.syncMode = session.sync_mode;
 
+  store.config.fgTarget = layout.fg_target ?? 5;
   store.backgroundCount = layout.background_count;
   store.grid = computeGrid(layout.grid_cols || 3, layout.grid_rows || 2);
 

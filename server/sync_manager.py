@@ -93,6 +93,16 @@ class SyncManager:
             if manager:
                 manager.replace_window(activity_id, new_type)
 
+    def close_window(self, sid: str, activity_id: str):
+        """Handle a window:close event — despawn without replacement."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.close_window(activity_id)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.close_window(activity_id)
+
     def spawn_window(self, sid: str, activity_type: str = None):
         """Handle a window:spawn event — spawn a new foreground window."""
         if self._config.sync_mode == "synced":
@@ -102,6 +112,16 @@ class SyncManager:
             manager = self._client_managers.get(sid)
             if manager:
                 manager.spawn_foreground(activity_type)
+
+    def set_fg_target(self, sid: str, target: int):
+        """Handle a configure:fg_count event — adjust foreground window count."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.set_fg_target(target)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.set_fg_target(target)
 
     def resize_window(self, sid: str, activity_id: str, size: dict, position: dict):
         """Handle a window:resize event — update size/position in the appropriate manager."""

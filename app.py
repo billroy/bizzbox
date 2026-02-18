@@ -87,6 +87,15 @@ def create_app(config: AppConfig):
         sync_manager.set_layout(request.sid, cols, rows)
         emitter.broadcast_layout(cols, rows, room=room)
 
+    @socketio.on("configure:fg_count")
+    def on_fg_count(data):
+        from flask import request
+        value = max(0, min(20, int(data.get("value", config.fg_target))))
+        config.fg_target = value
+        room = sync_manager.get_room_for_client(request.sid)
+        sync_manager.set_fg_target(request.sid, value)
+        emitter.broadcast_fg_target(value, room=room)
+
     @socketio.on("window:replace")
     def on_window_replace(data):
         from flask import request
@@ -94,6 +103,13 @@ def create_app(config: AppConfig):
         new_type = data.get("type")  # None means random
         if activity_id:
             sync_manager.replace_window(request.sid, activity_id, new_type)
+
+    @socketio.on("window:close")
+    def on_window_close(data):
+        from flask import request
+        activity_id = data.get("id", "")
+        if activity_id:
+            sync_manager.close_window(request.sid, activity_id)
 
     @socketio.on("window:spawn")
     def on_window_spawn(data):
@@ -132,6 +148,8 @@ def main():
     parser.add_argument("--port",       type=int,
                         default=int(os.environ.get("PORT", 5000)),
                         help="Bind port (defaults to $PORT env or 5000)")
+    parser.add_argument("--fg-target",  type=int, default=5,
+                        help="Target foreground window count (0-20)")
     parser.add_argument("--style",      default="dark",
                         choices=["dark", "light", "brutalist", "rainbow", "sunshine", "red", "black"],
                         help="Initial styling mode")
@@ -143,6 +161,7 @@ def main():
         host=args.host,
         port=args.port,
         style=args.style,
+        fg_target=args.fg_target,
     )
 
     print(f"🎬 BizzBox starting — intensity={config.intensity}, "
