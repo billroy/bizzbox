@@ -99,7 +99,7 @@ def main():
                         default=int(os.environ.get("PORT", 5000)),
                         help="Bind port (defaults to $PORT env or 5000)")
     parser.add_argument("--style",      default="dark",
-                        choices=["dark", "light", "brutalist", "rainbow", "sunshine"],
+                        choices=["dark", "light", "brutalist", "rainbow", "sunshine", "red"],
                         help="Initial styling mode")
     args = parser.parse_args()
 

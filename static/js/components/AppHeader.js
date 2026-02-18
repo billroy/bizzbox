@@ -87,6 +87,7 @@ export default {
         <option value="brutalist">BRUTALIST</option>
         <option value="rainbow">RAINBOW</option>
         <option value="sunshine">SUNSHINE</option>
+        <option value="red">RED</option>
       </select>
 
       <div class="header-sep"></div>

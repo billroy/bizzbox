@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    BizzBox — Theme System
-   Five themes via CSS custom properties.
+   Six themes via CSS custom properties.
    Applied by setting: document.documentElement.dataset.theme = "name"
    ═══════════════════════════════════════════════════════════════ */
 
@@ -198,4 +198,39 @@
                           0 6px 20px rgba(192, 80, 16, 0.2);
   --scan-line-color:      rgba(192, 80, 16, 0.03);
   --grid-dot-color:       rgba(192, 80, 16, 0.05);
+}
+
+/* ── RED (DEFCON / military alert) ───────────────────────────── */
+:root[data-theme="red"] {
+  --color-bg:             #0a0000;
+  --color-surface:        #140000;
+  --color-surface-2:      #1c0500;
+  --color-border:         #3a0000;
+  --color-border-bright:  #660000;
+  --color-text-primary:   #ff9999;
+  --color-text-dim:       #661515;
+  --color-text-bright:    #ffdddd;
+  --color-accent-1:       #ff2020;
+  --color-accent-2:       #ff6020;
+  --color-accent-3:       #cc0000;
+  --color-warn:           #ffcc00;
+  --color-error:          #ff0000;
+  --color-crit:           #ff00ff;
+  --color-debug:          #441010;
+  --color-info:           #ff4444;
+  --color-glow-1:         rgba(255, 32, 32, 0.12);
+  --color-glow-2:         rgba(200, 0, 0, 0.08);
+
+  --titlebar-bg:          #1a0000;
+  --titlebar-border:      #3a0000;
+  --titlebar-text:        #ff2020;
+  --titlebar-dot-color:   #ff2020;
+  --header-bg:            rgba(10, 0, 0, 0.94);
+  --header-border:        #3a0000;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 8px 32px rgba(0, 0, 0, 0.7),
+                          0 0 24px rgba(200, 0, 0, 0.15);
+  --scan-line-color:      rgba(255, 0, 0, 0.04);
+  --grid-dot-color:       rgba(255, 0, 0, 0.06);
 }
