@@ -33,6 +33,7 @@ from .generators.stock_graph import StockGraphActivity
 from .generators.chat_intercept import ChatInterceptActivity
 from .generators.wireframe_3d import Wireframe3DActivity
 from .generators.power_grid import PowerGridActivity
+from .generators.game_of_life import GameOfLifeActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -68,6 +69,7 @@ REGISTRY: dict[str, type] = {
     "chat_intercept":     ChatInterceptActivity,
     "wireframe_3d":       Wireframe3DActivity,
     "power_grid":         PowerGridActivity,
+    "game_of_life":       GameOfLifeActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -105,6 +107,7 @@ WEIGHTS: dict[str, float] = {
     "chat_intercept":     1.3,
     "wireframe_3d":       1.4,
     "power_grid":         1.3,
+    "game_of_life":       1.5,
 }
 
 _types = list(REGISTRY.keys())

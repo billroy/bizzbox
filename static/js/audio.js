@@ -294,6 +294,10 @@ class AudioEngine {
         this._tone(60, 60, 0.15, 'sawtooth', 0.06);
         this._noise(0.02, 0.04);
         break;
+      case 'game_of_life':
+        this._tone(800, 800, 0.03, 'sine', 0.08);
+        this._tone(600, 600, 0.03, 'sine', 0.06);
+        break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);
     }

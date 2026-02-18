@@ -37,4 +37,5 @@ export const ACTIVITY_TYPES = [
   'chat_intercept',
   'wireframe_3d',
   'power_grid',
+  'game_of_life',
 ];

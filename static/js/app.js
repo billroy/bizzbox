@@ -47,6 +47,7 @@ import ActivityStockGraph      from './components/activities/StockGraph.js';
 import ActivityChatIntercept  from './components/activities/ChatIntercept.js';
 import ActivityWireframe3d    from './components/activities/Wireframe3d.js';
 import ActivityPowerGrid      from './components/activities/PowerGrid.js';
+import ActivityGameOfLife    from './components/activities/GameOfLife.js';
 
 const { createApp } = Vue;
 
@@ -115,6 +116,7 @@ app.component('activity-stock-graph',      ActivityStockGraph);
 app.component('activity-chat-intercept',  ActivityChatIntercept);
 app.component('activity-wireframe-3d',    ActivityWireframe3d);
 app.component('activity-power-grid',      ActivityPowerGrid);
+app.component('activity-game-of-life',   ActivityGameOfLife);
 
 app.mount('#app');
 
