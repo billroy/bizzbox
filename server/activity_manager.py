@@ -47,10 +47,11 @@ class ActivityManager:
         self._room = room
         self._running = False
 
-        # Fixed session parameters
-        self._bg_count = random.randint(2, 6)
-        self._total_count = random.randint(5, 10)
-        self._fg_count = max(0, self._total_count - self._bg_count)
+        # Grid-based background count from config
+        self._grid_cols = config.grid_cols
+        self._grid_rows = config.grid_rows
+        self._bg_count = self._grid_cols * self._grid_rows
+        self._fg_count = max(0, random.randint(5, 10) - self._bg_count)
 
         # Slot → activity_id mapping (None = empty)
         self._bg_slots: list[str | None] = [None] * self._bg_count
@@ -155,6 +156,41 @@ class ActivityManager:
             rec.position = {"x": x, "y": y}
             self._emitter.broadcast_window_move(activity_id, rec.position, room=self._room)
 
+    def set_grid(self, cols: int, rows: int):
+        """Resize the background grid, despawning excess or spawning new slots."""
+        new_count = cols * rows
+        old_count = self._bg_count
+
+        # Despawn activities in slots beyond the new count
+        for slot_idx in range(new_count, old_count):
+            act_id = self._bg_slots[slot_idx] if slot_idx < len(self._bg_slots) else None
+            if act_id and act_id in self._activities:
+                rec = self._activities[act_id]
+                if not rec.despawning:
+                    rec.despawning = True
+                    self._emitter.emit_despawn(self._room, rec.id)
+                    # Remove immediately (no replacement scheduled)
+                    self._activities.pop(act_id, None)
+            # Also remove any pending replacements for removed slots
+            self._pending_replacements = [
+                r for r in self._pending_replacements
+                if not (r[0] is not None and r[0] >= new_count)
+            ]
+
+        # Resize the slots list
+        if new_count > old_count:
+            self._bg_slots = self._bg_slots[:old_count] + [None] * (new_count - old_count)
+        else:
+            self._bg_slots = self._bg_slots[:new_count]
+
+        self._bg_count = new_count
+        self._grid_cols = cols
+        self._grid_rows = rows
+
+        # Spawn activities for newly empty slots
+        for slot_idx in range(old_count, new_count):
+            self._spawn_activity(slot_idx, is_foreground=False)
+
     def get_full_state(self) -> dict:
         """Return complete state for sync:init payload."""
         activities = []
@@ -182,6 +218,8 @@ class ActivityManager:
             "layout": {
                 "background_count": self._bg_count,
                 "foreground_count": self._fg_count,
+                "grid_cols": self._grid_cols,
+                "grid_rows": self._grid_rows,
             },
             "activities": activities,
         }

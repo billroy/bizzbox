@@ -13,6 +13,8 @@ class AppConfig:
     port: int = 5000
     style: str = "dark"         # current global style
     muted: bool = False         # global mute state
+    grid_cols: int = 3          # background grid columns
+    grid_rows: int = 2          # background grid rows
 
 
 # Module-level singleton, replaced at app startup

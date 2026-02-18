@@ -53,7 +53,7 @@ export function initFromServer(payload) {
   store.config.syncMode = session.sync_mode;
 
   store.backgroundCount = layout.background_count;
-  store.grid = computeGrid(layout.background_count);
+  store.grid = computeGrid(layout.grid_cols || 3, layout.grid_rows || 2);
 
   // Clear and reload
   store.activities = {};
@@ -103,6 +103,11 @@ export function beginDespawn(id) {
 export function applyStyle(style) {
   document.documentElement.dataset.theme = style;
   store.config.style = style;
+}
+
+export function setLayout(cols, rows) {
+  store.backgroundCount = cols * rows;
+  store.grid = computeGrid(cols, rows);
 }
 
 export function moveActivity(id, position) {

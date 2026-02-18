@@ -2,7 +2,7 @@
  * Socket.IO client wrapper.
  * Registers all inbound event handlers and provides outbound helpers.
  */
-import { store, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity } from './store.js';
+import { store, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, setLayout } from './store.js';
 import { audio } from './audio.js';
 
 let _socket = null;
@@ -88,6 +88,10 @@ export function initSocket() {
     store.clientCount = data.count;
   });
 
+  _socket.on('configure:layout', (data) => {
+    setLayout(data.cols, data.rows);
+  });
+
   _socket.on('window:move', (data) => {
     // Update window position from another client's drag (or echo of our own)
     moveActivity(data.id, data.position);
@@ -114,4 +118,8 @@ export function sendMute(muted) {
 
 export function sendWindowMove(id, position) {
   if (_socket) _socket.emit('window:move', { id, position });
+}
+
+export function sendLayout(cols, rows) {
+  if (_socket) _socket.emit('configure:layout', { cols, rows });
 }

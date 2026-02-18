@@ -2,7 +2,8 @@
  * Auto-hiding page header with all controls.
  */
 import { store } from '../store.js';
-import { sendStyle, sendIntensity, sendMute } from '../socket.js';
+import { sendStyle, sendIntensity, sendMute, sendLayout } from '../socket.js';
+import { GRID_PRESETS } from '../layout.js';
 
 export default {
   name: 'AppHeader',
@@ -46,6 +47,16 @@ export default {
       set: (v) => sendMute(v),  // store updated via server echo on 'configure:mute'
     });
 
+    const gridPresets = GRID_PRESETS;
+
+    const layout = computed({
+      get: () => store.grid ? `${store.grid.cols}x${store.grid.rows}` : '3x2',
+      set: (v) => {
+        const [cols, rows] = v.split('x').map(Number);
+        sendLayout(cols, rows);
+      },
+    });
+
     const connected = computed(() => store.connected);
     const clientCount = computed(() => store.clientCount || 0);
 
@@ -64,7 +75,7 @@ export default {
     onMounted(() => document.addEventListener('fullscreenchange', onFullscreenChange));
     onUnmounted(() => document.removeEventListener('fullscreenchange', onFullscreenChange));
 
-    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen };
+    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets };
   },
 
   template: `
@@ -88,6 +99,15 @@ export default {
         <option value="rainbow">RAINBOW</option>
         <option value="sunshine">SUNSHINE</option>
         <option value="red">RED</option>
+      </select>
+
+      <div class="header-sep"></div>
+
+      <span class="header-label">LAYOUT</span>
+      <select class="header-select" v-model="layout">
+        <option v-for="p in gridPresets" :key="p.label" :value="p.cols + 'x' + p.rows">
+          {{ p.label }}
+        </option>
       </select>
 
       <div class="header-sep"></div>

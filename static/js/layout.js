@@ -1,23 +1,24 @@
 /**
- * Background grid layout computation.
- * Given N background activities (2-6), returns grid config and slot descriptors.
+ * Background grid layout computation and presets.
  */
 
-const GRID_CONFIGS = {
-  2: { cols: 2, rows: 1 },
-  3: { cols: 3, rows: 1 },
-  4: { cols: 2, rows: 2 },
-  5: { cols: 3, rows: 2 },
-  6: { cols: 3, rows: 2 },
-};
+export const GRID_PRESETS = [
+  { label: '2×1', cols: 2, rows: 1 },
+  { label: '3×1', cols: 3, rows: 1 },
+  { label: '2×2', cols: 2, rows: 2 },
+  { label: '3×2', cols: 3, rows: 2 },
+  { label: '4×2', cols: 4, rows: 2 },
+  { label: '3×3', cols: 3, rows: 3 },
+  { label: '4×3', cols: 4, rows: 3 },
+];
 
-export function computeGrid(n) {
-  const { cols, rows } = GRID_CONFIGS[n] || { cols: 2, rows: 2 };
+export function computeGrid(cols, rows) {
+  const n = cols * rows;
   const slots = [];
-  for (let i = 0; i < cols * rows; i++) {
+  for (let i = 0; i < n; i++) {
     slots.push({
       index: i,
-      active: i < n,
+      active: true,
       gridColumn: (i % cols) + 1,
       gridRow: Math.floor(i / cols) + 1,
     });

@@ -76,6 +76,17 @@ def create_app(config: AppConfig):
         # Sync mode changes are informational only at runtime (mode is set at startup)
         pass
 
+    @socketio.on("configure:layout")
+    def on_layout(data):
+        from flask import request
+        cols = max(1, min(6, int(data.get("cols", config.grid_cols))))
+        rows = max(1, min(4, int(data.get("rows", config.grid_rows))))
+        config.grid_cols = cols
+        config.grid_rows = rows
+        room = sync_manager.get_room_for_client(request.sid)
+        sync_manager.set_layout(request.sid, cols, rows)
+        emitter.broadcast_layout(cols, rows, room=room)
+
     @socketio.on("window:move")
     def on_window_move(data):
         from flask import request
