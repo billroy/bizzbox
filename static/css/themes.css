@@ -125,8 +125,8 @@
   --grid-dot-color:       transparent;
 }
 
-/* ── RAINBOW ───────────────────────────────────────────────── */
-:root[data-theme="rainbow"] {
+/* ── NEON (formerly Rainbow — electric neon glow) ─────────── */
+:root[data-theme="neon"] {
   --color-bg:             #08001a;
   --color-surface:        #120028;
   --color-surface-2:      #1a0035;
@@ -160,6 +160,43 @@
                           0 0 40px var(--color-glow-2);
   --scan-line-color:      rgba(255, 0, 128, 0.04);
   --grid-dot-color:       rgba(128, 0, 255, 0.08);
+}
+
+/* ── RAINBOW (true ROYGBIV spectrum) ──────────────────────── */
+:root[data-theme="rainbow"] {
+  --color-bg:             #0c0c18;
+  --color-surface:        #14142a;
+  --color-surface-2:      #1c1c36;
+  --color-border:         #ff6600;
+  --color-border-bright:  #ffaa00;
+  --color-text-primary:   #ffe8cc;
+  --color-text-dim:       #886644;
+  --color-text-bright:    #ffffff;
+  --color-accent-1:       #ff2200;
+  --color-accent-2:       #00cc44;
+  --color-accent-3:       #2266ff;
+  --color-warn:           #ff8800;
+  --color-error:          #ff2222;
+  --color-crit:           #8800ff;
+  --color-debug:          #554433;
+  --color-info:           #4400ff;
+  --color-glow-1:         rgba(255, 102, 0, 0.12);
+  --color-glow-2:         rgba(34, 102, 255, 0.10);
+
+  --border-radius:        5px;
+  --border-radius-lg:     10px;
+  --titlebar-bg:          #1a1430;
+  --titlebar-border:      #ff6600;
+  --titlebar-text:        #ffcc44;
+  --titlebar-dot-color:   #ff2200;
+  --header-bg:            rgba(12, 12, 24, 0.93);
+  --header-border:        #ff6600;
+
+  --window-shadow:        0 0 0 1px var(--color-border),
+                          0 0 16px var(--color-glow-1),
+                          0 0 32px var(--color-glow-2);
+  --scan-line-color:      rgba(255, 102, 0, 0.03);
+  --grid-dot-color:       rgba(255, 102, 0, 0.06);
 }
 
 /* ── SUNSHINE ──────────────────────────────────────────────── */

@@ -25,6 +25,9 @@ from .generators.cipher_decrypt import CipherDecryptActivity
 from .generators.data_table import DataTableActivity
 from .generators.system_topology import SystemTopologyActivity
 from .generators.globe_arcs import GlobeArcsActivity
+from .generators.heart_monitor import HeartMonitorActivity
+from .generators.transit_map import TransitMapActivity
+from .generators.weather_radar import WeatherRadarActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -52,6 +55,9 @@ REGISTRY: dict[str, type] = {
     "data_table":         DataTableActivity,
     "system_topology":    SystemTopologyActivity,
     "globe_arcs":         GlobeArcsActivity,
+    "heart_monitor":      HeartMonitorActivity,
+    "transit_map":        TransitMapActivity,
+    "weather_radar":      WeatherRadarActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -81,6 +87,9 @@ WEIGHTS: dict[str, float] = {
     "data_table":         1.0,
     "system_topology":    1.1,
     "globe_arcs":         1.2,
+    "heart_monitor":      1.2,
+    "transit_map":        1.1,
+    "weather_radar":      1.1,
 }
 
 _types = list(REGISTRY.keys())

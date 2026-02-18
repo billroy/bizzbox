@@ -109,6 +109,7 @@ export default {
         <option value="dark">DARK</option>
         <option value="light">LIGHT</option>
         <option value="brutalist">BRUTALIST</option>
+        <option value="neon">NEON</option>
         <option value="rainbow">RAINBOW</option>
         <option value="sunshine">SUNSHINE</option>
         <option value="red">RED</option>

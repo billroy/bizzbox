@@ -36,6 +36,9 @@ import ActivityCipherDecrypt   from './components/activities/CipherDecrypt.js';
 import ActivityDataTable       from './components/activities/DataTable.js';
 import ActivitySystemTopology  from './components/activities/SystemTopology.js';
 import ActivityGlobeArcs       from './components/activities/GlobeArcs.js';
+import ActivityHeartMonitor    from './components/activities/HeartMonitor.js';
+import ActivityTransitMap      from './components/activities/TransitMap.js';
+import ActivityWeatherRadar    from './components/activities/WeatherRadar.js';
 
 const { createApp } = Vue;
 
@@ -87,6 +90,9 @@ app.component('activity-cipher-decrypt',     ActivityCipherDecrypt);
 app.component('activity-data-table',        ActivityDataTable);
 app.component('activity-system-topology',   ActivitySystemTopology);
 app.component('activity-globe-arcs',        ActivityGlobeArcs);
+app.component('activity-heart-monitor',    ActivityHeartMonitor);
+app.component('activity-transit-map',      ActivityTransitMap);
+app.component('activity-weather-radar',    ActivityWeatherRadar);
 
 app.mount('#app');
 

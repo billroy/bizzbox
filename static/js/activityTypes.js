@@ -29,4 +29,7 @@ export const ACTIVITY_TYPES = [
   'data_table',
   'system_topology',
   'globe_arcs',
+  'heart_monitor',
+  'transit_map',
+  'weather_radar',
 ];

@@ -151,7 +151,7 @@ def main():
     parser.add_argument("--fg-target",  type=int, default=5,
                         help="Target foreground window count (0-20)")
     parser.add_argument("--style",      default="dark",
-                        choices=["dark", "light", "brutalist", "rainbow", "sunshine", "red", "black"],
+                        choices=["dark", "light", "brutalist", "neon", "rainbow", "sunshine", "red", "black"],
                         help="Initial styling mode")
     args = parser.parse_args()
 
