@@ -111,14 +111,15 @@ class AudioEngine {
     const ctx = this._ctx;
     if (!ctx) return;
 
-    // Dedicated gain for ambient
-    this._ambientGain = ctx.createGain();
-    this._ambientGain.gain.setValueAtTime(0, ctx.currentTime);
-    this._ambientGain.connect(this._masterGain);
-
+    const now = ctx.currentTime;
     const targetVol = this._ambientVolume(intensity);
 
-    // Two detuned 55Hz sine oscillators (beating drone)
+    // Dedicated gain for ambient — start at 0, ramp up
+    this._ambientGain = ctx.createGain();
+    this._ambientGain.gain.value = 0;
+    this._ambientGain.connect(this._masterGain);
+
+    // Two detuned low sine oscillators (beating drone)
     const osc1 = ctx.createOscillator();
     osc1.type = 'sine';
     osc1.frequency.value = 55;
@@ -129,8 +130,8 @@ class AudioEngine {
     // Filtered white noise (server room hum)
     const bufLen = ctx.sampleRate * 4;
     const noiseBuf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
-    const data = noiseBuf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+    const noiseData = noiseBuf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) noiseData[i] = Math.random() * 2 - 1;
     const noiseSrc = ctx.createBufferSource();
     noiseSrc.buffer = noiseBuf;
     noiseSrc.loop = true;
@@ -150,15 +151,23 @@ class AudioEngine {
     noiseFilter.connect(noiseGain);
     noiseGain.connect(this._ambientGain);
 
-    osc1.start();
-    osc2.start();
-    noiseSrc.start();
+    osc1.start(now);
+    osc2.start(now);
+    noiseSrc.start(now);
 
-    // Fade in over 2s
-    this._ambientGain.gain.linearRampToValueAtTime(targetVol, ctx.currentTime + 2);
+    // Fade in over 2s — setValueAtTime anchors the ramp start
+    this._ambientGain.gain.setValueAtTime(0.001, now);
+    this._ambientGain.gain.linearRampToValueAtTime(targetVol, now + 2);
 
     this._ambientNodes = { osc1, osc2, noiseSrc, noiseFilter, noiseGain };
     this._ambientActive = true;
+
+    // If currently muted, temporarily unmute masterGain is not our job —
+    // ambient will become audible once user unmutes.  But if NOT muted,
+    // ensure masterGain is up (it should already be 0.4).
+    if (!this._muted && this._masterGain) {
+      this._masterGain.gain.value = 0.4;
+    }
   }
 
   stopAmbient() {
@@ -171,30 +180,31 @@ class AudioEngine {
     this._ambientGain.gain.linearRampToValueAtTime(0, now + 2);
 
     const nodes = this._ambientNodes;
+    const gain = this._ambientGain;
     setTimeout(() => {
-      try {
-        nodes.osc1.stop();
-        nodes.osc2.stop();
-        nodes.noiseSrc.stop();
-      } catch (e) { /* already stopped */ }
-      try {
-        nodes.osc1.disconnect();
-        nodes.osc2.disconnect();
-        nodes.noiseSrc.disconnect();
-        nodes.noiseFilter.disconnect();
-        nodes.noiseGain.disconnect();
-      } catch (e) { /* already disconnected */ }
-    }, 2200);
+      try { nodes.osc1.stop(); } catch (e) {}
+      try { nodes.osc2.stop(); } catch (e) {}
+      try { nodes.noiseSrc.stop(); } catch (e) {}
+      try { nodes.osc1.disconnect(); } catch (e) {}
+      try { nodes.osc2.disconnect(); } catch (e) {}
+      try { nodes.noiseSrc.disconnect(); } catch (e) {}
+      try { nodes.noiseFilter.disconnect(); } catch (e) {}
+      try { nodes.noiseGain.disconnect(); } catch (e) {}
+      try { gain.disconnect(); } catch (e) {}
+    }, 2500);
 
     this._ambientNodes = null;
+    this._ambientGain = null;
     this._ambientActive = false;
   }
 
   updateAmbientIntensity(intensity) {
     if (!this._ambientActive || !this._ambientGain || !this._ctx) return;
+    const now = this._ctx.currentTime;
     const vol = this._ambientVolume(intensity);
-    this._ambientGain.gain.cancelScheduledValues(this._ctx.currentTime);
-    this._ambientGain.gain.linearRampToValueAtTime(vol, this._ctx.currentTime + 0.5);
+    this._ambientGain.gain.cancelScheduledValues(now);
+    this._ambientGain.gain.setValueAtTime(this._ambientGain.gain.value, now);
+    this._ambientGain.gain.linearRampToValueAtTime(vol, now + 0.5);
   }
 
   _ambientVolume(intensity) {
