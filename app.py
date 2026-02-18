@@ -87,6 +87,14 @@ def create_app(config: AppConfig):
         sync_manager.set_layout(request.sid, cols, rows)
         emitter.broadcast_layout(cols, rows, room=room)
 
+    @socketio.on("window:replace")
+    def on_window_replace(data):
+        from flask import request
+        activity_id = data.get("id", "")
+        new_type = data.get("type")  # None means random
+        if activity_id:
+            sync_manager.replace_window(request.sid, activity_id, new_type)
+
     @socketio.on("window:resize")
     def on_window_resize(data):
         from flask import request

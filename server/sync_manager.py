@@ -83,6 +83,16 @@ class SyncManager:
             if manager:
                 manager.move_window(activity_id, position)
 
+    def replace_window(self, sid: str, activity_id: str, new_type: str = None):
+        """Handle a window:replace event — replace activity type in the appropriate manager."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.replace_window(activity_id, new_type)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.replace_window(activity_id, new_type)
+
     def resize_window(self, sid: str, activity_id: str, size: dict, position: dict):
         """Handle a window:resize event — update size/position in the appropriate manager."""
         if self._config.sync_mode == "synced":

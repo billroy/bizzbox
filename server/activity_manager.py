@@ -77,10 +77,12 @@ class ActivityManager:
         y = random.randint(0, REF_H - h)
         return {"x": x, "y": y}, {"w": w, "h": h}
 
-    def _spawn_activity(self, slot: int | None, is_foreground: bool):
+    def _spawn_activity(self, slot: int | None, is_foreground: bool,
+                        activity_type: str = None, position: dict = None, size: dict = None):
         """Create and register a new activity, emitting activity:spawn."""
-        gen = registry.make_activity(intensity=self._config.intensity)
-        position, size = (self._fg_geometry() if is_foreground else (None, None))
+        gen = registry.make_activity(activity_type=activity_type, intensity=self._config.intensity)
+        if position is None or size is None:
+            position, size = (self._fg_geometry() if is_foreground else (None, None))
         payload = gen.spawn_payload(slot=slot, is_foreground=is_foreground,
                                     position=position, size=size)
         rec = ActivityRecord(gen, slot, is_foreground, position, size)
@@ -129,21 +131,26 @@ class ActivityManager:
         rec.despawning = True
         self._emitter.emit_despawn(self._room, rec.id)
         # Schedule replacement after fade completes
+        # Tuple: (slot, is_fg, replace_at, old_id, explicit_type, position, size)
         replace_at = now + REPLACE_DELAY
-        self._pending_replacements.append((rec.slot, rec.is_foreground, replace_at, rec.id))
+        self._pending_replacements.append(
+            (rec.slot, rec.is_foreground, replace_at, rec.id, None, None, None)
+        )
 
     def _process_replacements(self, now: float):
         remaining = []
-        for slot, is_fg, replace_at, old_id in self._pending_replacements:
+        for entry in self._pending_replacements:
+            slot, is_fg, replace_at, old_id, explicit_type, pos, sz = entry
             if now >= replace_at:
                 # Remove old activity from records
                 self._activities.pop(old_id, None)
                 if slot is not None:
                     self._bg_slots[slot] = None
-                # Spawn replacement
-                self._spawn_activity(slot, is_fg)
+                # Spawn replacement (with optional explicit type and geometry)
+                self._spawn_activity(slot, is_fg, activity_type=explicit_type,
+                                     position=pos, size=sz)
             else:
-                remaining.append((slot, is_fg, replace_at, old_id))
+                remaining.append(entry)
         self._pending_replacements = remaining
 
     def move_window(self, activity_id: str, position: dict):
@@ -155,6 +162,24 @@ class ActivityManager:
             y = max(0, min(REF_H - 50,  int(position.get("y", 0))))
             rec.position = {"x": x, "y": y}
             self._emitter.broadcast_window_move(activity_id, rec.position, room=self._room)
+
+    def replace_window(self, activity_id: str, new_type: str = None):
+        """Replace an activity with a new one of the specified (or random) type,
+        preserving slot, position, and size."""
+        rec = self._activities.get(activity_id)
+        if not rec or rec.despawning:
+            return
+        slot = rec.slot
+        is_fg = rec.is_foreground
+        pos = dict(rec.position) if rec.position else None
+        sz = dict(rec.size) if rec.size else None
+
+        rec.despawning = True
+        self._emitter.emit_despawn(self._room, rec.id)
+        replace_at = time.time() + REPLACE_DELAY
+        self._pending_replacements.append(
+            (slot, is_fg, replace_at, rec.id, new_type, pos, sz)
+        )
 
     def resize_window(self, activity_id: str, size: dict, position: dict):
         """Update stored size/position for a foreground window and broadcast."""

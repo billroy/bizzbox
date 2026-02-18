@@ -168,6 +168,45 @@ body::after {
   white-space: nowrap;
 }
 
+/* ── Titlebar controls (type selector + respawn) ─────────────── */
+.titlebar-select {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--titlebar-border);
+  color: var(--titlebar-text);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  border-radius: var(--border-radius);
+  padding: 0 3px;
+  height: 18px;
+  cursor: pointer;
+  outline: none;
+  max-width: 80px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.titlebar-select:hover { opacity: 1; }
+
+.titlebar-respawn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--titlebar-border);
+  color: var(--titlebar-text);
+  font-size: 13px;
+  line-height: 1;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.titlebar-respawn:hover { opacity: 1; }
+
 .titlebar-blink {
   width: 6px;
   height: 6px;

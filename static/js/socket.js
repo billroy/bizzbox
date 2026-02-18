@@ -128,6 +128,10 @@ export function sendWindowResize(id, size, position) {
   if (_socket) _socket.emit('window:resize', { id, size, position });
 }
 
+export function sendWindowReplace(id, type) {
+  if (_socket) _socket.emit('window:replace', { id, type });
+}
+
 export function sendLayout(cols, rows) {
   if (_socket) _socket.emit('configure:layout', { cols, rows });
 }
