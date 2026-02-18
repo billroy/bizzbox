@@ -272,6 +272,50 @@
   --grid-dot-color:       rgba(255, 0, 0, 0.06);
 }
 
+/* ── LCARS (Star Trek control panel) ──────────────────────── */
+:root[data-theme="lcars"] {
+  --color-bg:             #000000;
+  --color-surface:        #000000;
+  --color-surface-2:      #0a0608;
+  --color-border:         #cc6699;
+  --color-border-bright:  #ff9966;
+  --color-text-primary:   #ff9966;
+  --color-text-dim:       #664433;
+  --color-text-bright:    #ffcc99;
+  --color-accent-1:       #ff9933;
+  --color-accent-2:       #cc6699;
+  --color-accent-3:       #9999cc;
+  --color-warn:           #ffcc66;
+  --color-error:          #cc3333;
+  --color-crit:           #ff6666;
+  --color-debug:          #554444;
+  --color-info:           #9999ff;
+  --color-glow-1:         rgba(255, 153, 51, 0.10);
+  --color-glow-2:         rgba(204, 102, 153, 0.08);
+
+  --font-mono:            'Courier New', monospace;
+  --font-ui:              'Century Gothic', 'Futura', 'Trebuchet MS', sans-serif;
+  --font-display:         'Century Gothic', 'Futura', 'Trebuchet MS', sans-serif;
+  --font-size-base:       13px;
+  --font-size-sm:         11px;
+  --font-size-lg:         15px;
+
+  --border-radius:        16px;
+  --border-radius-lg:     24px;
+  --titlebar-height:      28px;
+  --titlebar-bg:          #cc6699;
+  --titlebar-border:      #cc6699;
+  --titlebar-text:        #000000;
+  --titlebar-dot-color:   #ff9933;
+  --header-bg:            rgba(0, 0, 0, 0.96);
+  --header-border:        #cc6699;
+
+  --window-shadow:        0 0 0 2px var(--color-border),
+                          0 4px 12px rgba(0, 0, 0, 0.6);
+  --scan-line-color:      rgba(255, 153, 51, 0.02);
+  --grid-dot-color:       rgba(204, 102, 153, 0.04);
+}
+
 /* ── BLACK (pure black, muted green) ──────────────────────── */
 :root[data-theme="black"] {
   --color-bg:             #000000;

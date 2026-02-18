@@ -160,6 +160,7 @@ export default {
         <option value="sunshine">SUNSHINE</option>
         <option value="red">RED</option>
         <option value="black">BLACK</option>
+        <option value="lcars">LCARS</option>
       </select>
 
       <div class="header-sep"></div>
