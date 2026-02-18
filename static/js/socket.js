@@ -91,7 +91,7 @@ export function initSocket() {
 
   _socket.on('configure:intensity', (data) => {
     store.config.intensity = data.value;
-    if (store.ambientEnabled) audio.updateAmbientIntensity(data.value);
+    if (store.ambientPreset) audio.updateAmbientIntensity(data.value);
   });
 
   _socket.on('configure:fg_count', (data) => {

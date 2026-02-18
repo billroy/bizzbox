@@ -47,7 +47,7 @@ export const store = reactive({
   lockMode: false,
   helpOverlay: false,
   headerPinned: false,
-  ambientEnabled: false,
+  ambientPreset: null,    // null = off, or one of AMBIENT_PRESET_LIST keys
   filterModalOpen: false,
   activityFilter: {},   // type → boolean, all true by default
 });

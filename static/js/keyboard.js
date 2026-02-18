@@ -3,7 +3,7 @@
  */
 import { store } from './store.js';
 import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget } from './socket.js';
-import { audio } from './audio.js';
+import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 
 let _cursorHideTimer = null;
 
@@ -112,16 +112,21 @@ function onKeyDown(evt) {
       break;
 
     case 'a':
-    case 'A':
-      // Toggle ambient
-      store.ambientEnabled = !store.ambientEnabled;
-      if (store.ambientEnabled) {
-        audio.startAmbient(store.config.intensity);
+    case 'A': {
+      // Cycle ambient presets: null → first → second → ... → last → null
+      const keys = AMBIENT_PRESET_LIST.map(p => p.key);
+      const idx = store.ambientPreset ? keys.indexOf(store.ambientPreset) : -1;
+      const next = idx + 1 >= keys.length ? null : keys[idx + 1];
+      if (next) {
+        store.ambientPreset = next;
+        audio.startAmbient(next, store.config.intensity);
       } else {
+        store.ambientPreset = null;
         audio.stopAmbient();
       }
       evt.preventDefault();
       break;
+    }
   }
 }
 

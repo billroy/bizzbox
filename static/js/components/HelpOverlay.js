@@ -13,7 +13,7 @@ const SHORTCUTS = [
   [']',       'Increase window count'],
   ['Space',   'Pin / unpin header'],
   ['L',       'Enter lock mode'],
-  ['A',       'Toggle ambient audio'],
+  ['A',       'Cycle ambient preset'],
   ['? / H',   'Toggle this help'],
   ['Esc',     'Exit lock mode'],
 ];

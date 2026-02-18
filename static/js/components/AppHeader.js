@@ -6,7 +6,7 @@ import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFg
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
 import { SCENES } from '../scenes.js';
-import { audio } from '../audio.js';
+import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
 
 export default {
   name: 'AppHeader',
@@ -115,18 +115,22 @@ export default {
       store.filterModalOpen = true;
     }
 
-    function toggleAmbient() {
-      store.ambientEnabled = !store.ambientEnabled;
-      if (store.ambientEnabled) {
-        audio.startAmbient(store.config.intensity);
-      } else {
-        audio.stopAmbient();
-      }
-    }
+    const ambientPresets = AMBIENT_PRESET_LIST;
 
-    const ambientEnabled = computed(() => store.ambientEnabled);
+    const ambientPreset = computed({
+      get: () => store.ambientPreset || '',
+      set: (v) => {
+        const key = v || null;
+        store.ambientPreset = key;
+        if (key) {
+          audio.startAmbient(key, store.config.intensity);
+        } else {
+          audio.stopAmbient();
+        }
+      },
+    });
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, applyScene, openFilter, toggleAmbient, ambientEnabled };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, applyScene, openFilter, ambientPresets, ambientPreset };
   },
 
   template: `
@@ -205,10 +209,13 @@ export default {
         {{ muted ? 'MUTED' : 'SOUND' }}
       </button>
 
-      <button class="header-btn" @click="toggleAmbient"
-              :class="{ active: ambientEnabled }">
-        AMBIENCE
-      </button>
+      <span class="header-label">AMBIENT</span>
+      <select class="header-select" v-model="ambientPreset">
+        <option value="">NONE</option>
+        <option v-for="p in ambientPresets" :key="p.key" :value="p.key">
+          {{ p.label.toUpperCase() }}
+        </option>
+      </select>
 
       <button class="header-btn" @click="toggleFullscreen">
         {{ isFullscreen ? 'EXIT FS' : 'FULLSCR' }}

@@ -45,6 +45,7 @@ class AudioEngine {
   _tone(freq, freq2, duration, type = 'sine', volume = 0.3) {
     if (!this._ready || this._muted) return;
     this._resume();
+    const vol = volume * 0.316;   // event sounds −10 dB
     const now = this._ctx.currentTime;
     const osc = this._ctx.createOscillator();
     const gain = this._ctx.createGain();
@@ -54,8 +55,8 @@ class AudioEngine {
       osc.frequency.linearRampToValueAtTime(freq2, now + duration);
     }
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(volume, now + 0.01);
-    gain.gain.setValueAtTime(volume, now + duration - 0.05);
+    gain.gain.linearRampToValueAtTime(vol, now + 0.01);
+    gain.gain.setValueAtTime(vol, now + duration - 0.05);
     gain.gain.linearRampToValueAtTime(0, now + duration);
     osc.connect(gain);
     gain.connect(this._masterGain);
@@ -66,6 +67,7 @@ class AudioEngine {
   _noise(duration, volume = 0.05) {
     if (!this._ready || this._muted) return;
     this._resume();
+    const vol = volume * 0.316;   // event sounds −10 dB
     const now = this._ctx.currentTime;
     const bufLen = Math.floor(this._ctx.sampleRate * duration);
     const buf = this._ctx.createBuffer(1, bufLen, this._ctx.sampleRate);
@@ -74,7 +76,7 @@ class AudioEngine {
     const src = this._ctx.createBufferSource();
     src.buffer = buf;
     const gain = this._ctx.createGain();
-    gain.gain.setValueAtTime(volume, now);
+    gain.gain.setValueAtTime(vol, now);
     gain.gain.linearRampToValueAtTime(0, now + duration);
     src.connect(gain);
     gain.connect(this._masterGain);
@@ -101,101 +103,76 @@ class AudioEngine {
     val ? this.mute() : this.unmute();
   }
 
-  // ── Ambient soundscape ──────────────────────────────────────
+  // ── Ambient soundscape presets ──────────────────────────────
 
-  startAmbient(intensity) {
+  /**
+   * Start an ambient preset by name, or stop if already playing the same preset.
+   * @param {string} preset  One of AMBIENT_PRESETS keys
+   * @param {number} intensity  Current activity intensity (1-20)
+   */
+  startAmbient(preset, intensity) {
     this._init();
-    if (this._ambientActive) return;
     this._resume();
+    // If already running, stop first (crossfade)
+    if (this._ambientActive) this._teardownAmbient();
 
     const ctx = this._ctx;
     if (!ctx) return;
 
+    const builder = AMBIENT_PRESETS[preset];
+    if (!builder) return;
+
     const now = ctx.currentTime;
     const targetVol = this._ambientVolume(intensity);
 
-    // Dedicated gain for ambient — start at 0, ramp up
+    // Master ambient gain — fade in
     this._ambientGain = ctx.createGain();
     this._ambientGain.gain.value = 0;
     this._ambientGain.connect(this._masterGain);
 
-    // Two detuned low sine oscillators (beating drone)
-    const osc1 = ctx.createOscillator();
-    osc1.type = 'sine';
-    osc1.frequency.value = 55;
-    const osc2 = ctx.createOscillator();
-    osc2.type = 'sine';
-    osc2.frequency.value = 55.5; // slight detune for beating
+    // Build the preset's node graph; collect stoppable/disconnectable nodes
+    const nodes = builder(ctx, this._ambientGain, now);
+    this._ambientStoppables = nodes;
 
-    // Filtered white noise (server room hum)
-    const bufLen = ctx.sampleRate * 4;
-    const noiseBuf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
-    const noiseData = noiseBuf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) noiseData[i] = Math.random() * 2 - 1;
-    const noiseSrc = ctx.createBufferSource();
-    noiseSrc.buffer = noiseBuf;
-    noiseSrc.loop = true;
-
-    const noiseFilter = ctx.createBiquadFilter();
-    noiseFilter.type = 'lowpass';
-    noiseFilter.frequency.value = 400;
-    noiseFilter.Q.value = 1;
-
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.3;
-
-    // Connect: osc1/osc2 → ambientGain, noise → filter → noiseGain → ambientGain
-    osc1.connect(this._ambientGain);
-    osc2.connect(this._ambientGain);
-    noiseSrc.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(this._ambientGain);
-
-    osc1.start(now);
-    osc2.start(now);
-    noiseSrc.start(now);
-
-    // Fade in over 2s — setValueAtTime anchors the ramp start
+    // Fade in over 2s
     this._ambientGain.gain.setValueAtTime(0.001, now);
     this._ambientGain.gain.linearRampToValueAtTime(targetVol, now + 2);
 
-    this._ambientNodes = { osc1, osc2, noiseSrc, noiseFilter, noiseGain };
     this._ambientActive = true;
-
-    // If currently muted, temporarily unmute masterGain is not our job —
-    // ambient will become audible once user unmutes.  But if NOT muted,
-    // ensure masterGain is up (it should already be 0.4).
-    if (!this._muted && this._masterGain) {
-      this._masterGain.gain.value = 0.4;
-    }
+    this._ambientPreset = preset;
   }
 
   stopAmbient() {
     if (!this._ambientActive || !this._ctx) return;
+    this._teardownAmbient();
+  }
+
+  _teardownAmbient() {
+    if (!this._ambientGain || !this._ctx) {
+      this._ambientActive = false;
+      return;
+    }
     const ctx = this._ctx;
     const now = ctx.currentTime;
-    // Fade out over 2s
+    // Fade out
     this._ambientGain.gain.cancelScheduledValues(now);
     this._ambientGain.gain.setValueAtTime(this._ambientGain.gain.value, now);
-    this._ambientGain.gain.linearRampToValueAtTime(0, now + 2);
+    this._ambientGain.gain.linearRampToValueAtTime(0, now + 1.5);
 
-    const nodes = this._ambientNodes;
+    const stoppables = this._ambientStoppables || [];
     const gain = this._ambientGain;
     setTimeout(() => {
-      try { nodes.osc1.stop(); } catch (e) {}
-      try { nodes.osc2.stop(); } catch (e) {}
-      try { nodes.noiseSrc.stop(); } catch (e) {}
-      try { nodes.osc1.disconnect(); } catch (e) {}
-      try { nodes.osc2.disconnect(); } catch (e) {}
-      try { nodes.noiseSrc.disconnect(); } catch (e) {}
-      try { nodes.noiseFilter.disconnect(); } catch (e) {}
-      try { nodes.noiseGain.disconnect(); } catch (e) {}
+      for (const n of stoppables) {
+        try { n.stop(); } catch (e) {}
+        try { n.disconnect(); } catch (e) {}
+      }
       try { gain.disconnect(); } catch (e) {}
-    }, 2500);
+    }, 1800);
 
-    this._ambientNodes = null;
+    this._ambientStoppables = null;
     this._ambientGain = null;
     this._ambientActive = false;
+    this._ambientPreset = null;
   }
 
   updateAmbientIntensity(intensity) {
@@ -208,8 +185,8 @@ class AudioEngine {
   }
 
   _ambientVolume(intensity) {
-    // intensity 1 → 0.05, intensity 20 → 0.4
-    return 0.05 + (intensity - 1) * (0.35 / 19);
+    // intensity 1 → 0.113, intensity 20 → 0.708  (+7 dB over original)
+    return 0.113 + (intensity - 1) * (0.595 / 19);
   }
 
   // ── Spawn / despawn sounds ────────────────────────────────────
@@ -322,5 +299,171 @@ class AudioEngine {
     }
   }
 }
+
+// ── Ambient Preset Helpers ──────────────────────────────────────
+// Each returns an array of stoppable AudioNodes (oscillators, buffer sources).
+// All connect to the provided `dest` gain node.
+
+function makeNoise(ctx, dest, now, filterFreq, filterQ, vol, filterType = 'lowpass') {
+  const bufLen = ctx.sampleRate * 4;
+  const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.loop = true;
+  const filter = ctx.createBiquadFilter();
+  filter.type = filterType;
+  filter.frequency.value = filterFreq;
+  filter.Q.value = filterQ;
+  const gain = ctx.createGain();
+  gain.gain.value = vol;
+  src.connect(filter);
+  filter.connect(gain);
+  gain.connect(dest);
+  src.start(now);
+  return src;
+}
+
+function makeOsc(ctx, dest, now, freq, type, vol) {
+  const osc = ctx.createOscillator();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const gain = ctx.createGain();
+  gain.gain.value = vol;
+  osc.connect(gain);
+  gain.connect(dest);
+  osc.start(now);
+  return osc;
+}
+
+function makeLFO(ctx, target, now, freq, amount) {
+  const lfo = ctx.createOscillator();
+  lfo.type = 'sine';
+  lfo.frequency.value = freq;
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.value = amount;
+  lfo.connect(lfoGain);
+  lfoGain.connect(target);
+  lfo.start(now);
+  return lfo;
+}
+
+// ── Preset Definitions ─────────────────────────────────────────
+
+const AMBIENT_PRESETS = {
+  // Original server room: detuned 55Hz drone + filtered noise
+  server_room(ctx, dest, now) {
+    const o1 = makeOsc(ctx, dest, now, 55, 'sine', 0.6);
+    const o2 = makeOsc(ctx, dest, now, 55.5, 'sine', 0.6);
+    const n = makeNoise(ctx, dest, now, 400, 1, 0.3);
+    return [o1, o2, n];
+  },
+
+  // Forest rain: pink-ish filtered noise (low rumble + high patter)
+  forest_rain(ctx, dest, now) {
+    const low = makeNoise(ctx, dest, now, 200, 0.5, 0.4);        // distant thunder rumble
+    const mid = makeNoise(ctx, dest, now, 1200, 0.7, 0.25);      // leaf patter
+    const high = makeNoise(ctx, dest, now, 4000, 2.0, 0.15);     // rain hiss
+    // Slow LFO on low filter for rolling thunder
+    const lowFilter = low; // can't LFO a buffer source directly — but the noise itself fluctuates
+    const wind = makeOsc(ctx, dest, now, 0.3, 'sine', 0.08);     // very low sub-rumble
+    return [low, mid, high, wind];
+  },
+
+  // Drone approaching: rising sawtooth sweep + rotorblade chop
+  drone_approaching(ctx, dest, now) {
+    const motor = makeOsc(ctx, dest, now, 85, 'sawtooth', 0.25);
+    const motor2 = makeOsc(ctx, dest, now, 170, 'sawtooth', 0.12);
+    // Blade chop: amplitude-modulated noise
+    const chop = makeNoise(ctx, dest, now, 600, 2, 0.2);
+    const chopLfo = makeLFO(ctx, chop.context ? dest : dest, now, 12, 0.08); // ~12 Hz chop
+    const wind = makeNoise(ctx, dest, now, 2000, 0.5, 0.1);
+    return [motor, motor2, chop, chopLfo, wind];
+  },
+
+  // Bunker with countdown: deep sub-bass pulse + ticking + distant rumble
+  bunker_countdown(ctx, dest, now) {
+    const sub = makeOsc(ctx, dest, now, 30, 'sine', 0.5);        // deep sub-bass
+    const hum = makeOsc(ctx, dest, now, 60, 'triangle', 0.2);    // fluorescent hum
+    const hum2 = makeOsc(ctx, dest, now, 120, 'sine', 0.08);     // harmonic
+    const rumble = makeNoise(ctx, dest, now, 150, 0.5, 0.2);     // distant shaking
+    // Ticking: square wave pulse at 1Hz
+    const tick = makeOsc(ctx, dest, now, 1.0, 'square', 0.03);
+    const tickTone = makeOsc(ctx, dest, now, 1000, 'sine', 0.0);
+    // Modulate tick tone amplitude with tick
+    const tickMod = makeLFO(ctx, dest, now, 1.0, 0.04);
+    return [sub, hum, hum2, rumble, tick, tickTone, tickMod];
+  },
+
+  // Deep space: very slow detuned pads + cosmic crackle
+  deep_space(ctx, dest, now) {
+    const pad1 = makeOsc(ctx, dest, now, 65, 'sine', 0.35);
+    const pad2 = makeOsc(ctx, dest, now, 65.2, 'sine', 0.35);
+    const pad3 = makeOsc(ctx, dest, now, 97.5, 'sine', 0.15);    // fifth
+    const pad4 = makeOsc(ctx, dest, now, 130.5, 'sine', 0.08);   // octave
+    const crackle = makeNoise(ctx, dest, now, 8000, 5, 0.04);    // sparse crackle
+    const sub = makeOsc(ctx, dest, now, 20, 'sine', 0.2);        // infrasonic rumble
+    return [pad1, pad2, pad3, pad4, crackle, sub];
+  },
+
+  // War room: tense low brass + radio static + heartbeat pulse
+  war_room(ctx, dest, now) {
+    const brass1 = makeOsc(ctx, dest, now, 73.4, 'sawtooth', 0.12);  // D2
+    const brass2 = makeOsc(ctx, dest, now, 82.4, 'sawtooth', 0.08);  // E2
+    const static1 = makeNoise(ctx, dest, now, 3000, 3, 0.06);
+    const sub = makeOsc(ctx, dest, now, 36.7, 'sine', 0.25);    // sub D1
+    // Heartbeat LFO ~ 1.1Hz
+    const pulse = makeLFO(ctx, dest, now, 1.1, 0.06);
+    const hum = makeOsc(ctx, dest, now, 50, 'sine', 0.15);      // electrical hum
+    return [brass1, brass2, static1, sub, pulse, hum];
+  },
+
+  // Ocean depth: underwater rumble + whale-like slow sweeps
+  ocean_depth(ctx, dest, now) {
+    const rumble = makeNoise(ctx, dest, now, 120, 0.3, 0.35);
+    const bubble = makeNoise(ctx, dest, now, 800, 8, 0.06);     // bubble pops
+    const whale1 = makeOsc(ctx, dest, now, 140, 'sine', 0.12);
+    const whale2 = makeOsc(ctx, dest, now, 142, 'sine', 0.12);  // slow beat
+    const deep = makeOsc(ctx, dest, now, 25, 'sine', 0.3);      // abyss
+    const current = makeNoise(ctx, dest, now, 300, 1, 0.15);
+    return [rumble, bubble, whale1, whale2, deep, current];
+  },
+
+  // Power plant: 60Hz transformer hum + steam + machinery
+  power_plant(ctx, dest, now) {
+    const hum60 = makeOsc(ctx, dest, now, 60, 'sine', 0.4);
+    const hum120 = makeOsc(ctx, dest, now, 120, 'sine', 0.2);   // 2nd harmonic
+    const hum180 = makeOsc(ctx, dest, now, 180, 'sine', 0.08);  // 3rd harmonic
+    const steam = makeNoise(ctx, dest, now, 2500, 2, 0.1);
+    const machinery = makeNoise(ctx, dest, now, 500, 1, 0.15);
+    const throb = makeLFO(ctx, dest, now, 0.5, 0.05);           // slow throb
+    return [hum60, hum120, hum180, steam, machinery, throb];
+  },
+
+  // Arctic wind: howling bandpassed wind + ice creak
+  arctic_wind(ctx, dest, now) {
+    const wind1 = makeNoise(ctx, dest, now, 600, 3, 0.3);
+    const wind2 = makeNoise(ctx, dest, now, 1500, 2, 0.2);
+    const gust = makeNoise(ctx, dest, now, 300, 1, 0.15);       // low gusts
+    const creak = makeOsc(ctx, dest, now, 2200, 'sine', 0.02);  // ice stress
+    const creak2 = makeOsc(ctx, dest, now, 2203, 'sine', 0.02); // beating creak
+    const sub = makeOsc(ctx, dest, now, 40, 'sine', 0.15);      // pressure
+    return [wind1, wind2, gust, creak, creak2, sub];
+  },
+};
+
+/** Ordered list of ambient preset names for UI */
+export const AMBIENT_PRESET_LIST = [
+  { key: 'server_room',      label: 'Server Room' },
+  { key: 'forest_rain',      label: 'Forest Rain' },
+  { key: 'drone_approaching', label: 'Drone Approaching' },
+  { key: 'bunker_countdown', label: 'Bunker Countdown' },
+  { key: 'deep_space',       label: 'Deep Space' },
+  { key: 'war_room',         label: 'War Room' },
+  { key: 'ocean_depth',      label: 'Ocean Depth' },
+  { key: 'power_plant',      label: 'Power Plant' },
+  { key: 'arctic_wind',      label: 'Arctic Wind' },
+];
 
 export const audio = new AudioEngine();
