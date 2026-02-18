@@ -29,6 +29,10 @@ import ActivityMatrixRain       from './components/activities/MatrixRain.js';
 import ActivityAudioSpectrum    from './components/activities/AudioSpectrum.js';
 import ActivityProgressBars     from './components/activities/ProgressBars.js';
 import ActivityDnaSequence      from './components/activities/DnaSequence.js';
+import ActivityGraph            from './components/activities/Graph.js';
+import ActivityOrbitalView     from './components/activities/OrbitalView.js';
+import ActivityCameraFeed      from './components/activities/CameraFeed.js';
+import ActivityCipherDecrypt   from './components/activities/CipherDecrypt.js';
 
 const { createApp } = Vue;
 
@@ -73,6 +77,10 @@ app.component('activity-matrix-rain',        ActivityMatrixRain);
 app.component('activity-audio-spectrum',     ActivityAudioSpectrum);
 app.component('activity-progress-bars',      ActivityProgressBars);
 app.component('activity-dna-sequence',       ActivityDnaSequence);
+app.component('activity-graph',              ActivityGraph);
+app.component('activity-orbital-view',       ActivityOrbitalView);
+app.component('activity-camera-feed',        ActivityCameraFeed);
+app.component('activity-cipher-decrypt',     ActivityCipherDecrypt);
 
 app.mount('#app');
 

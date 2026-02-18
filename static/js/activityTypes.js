@@ -22,4 +22,8 @@ export const ACTIVITY_TYPES = [
   'audio_spectrum',
   'progress_bars',
   'dna_sequence',
+  'graph',
+  'orbital_view',
+  'camera_feed',
+  'cipher_decrypt',
 ];

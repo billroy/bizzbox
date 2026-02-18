@@ -167,6 +167,20 @@ class AudioEngine {
         this._tone(300, 350, 0.1, 'sine', 0.1);
         this._noise(0.03, 0.04);
         break;
+      case 'graph':
+        this._tone(392, 392, 0.15, 'sine', 0.1);
+        break;
+      case 'orbital_view':
+        this._tone(260, 340, 0.2, 'sine', 0.08);
+        this._tone(520, 680, 0.15, 'triangle', 0.05);
+        break;
+      case 'camera_feed':
+        this._noise(0.06, 0.04);
+        break;
+      case 'cipher_decrypt':
+        this._noise(0.02, 0.06);
+        this._tone(600, 800, 0.08, 'square', 0.08);
+        break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);
     }

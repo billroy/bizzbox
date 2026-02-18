@@ -18,6 +18,10 @@ from .generators.matrix_rain import MatrixRainActivity
 from .generators.audio_spectrum import AudioSpectrumActivity
 from .generators.progress_bars import ProgressBarsActivity
 from .generators.dna_sequence import DnaSequenceActivity
+from .generators.graph import GraphActivity
+from .generators.orbital_view import OrbitalViewActivity
+from .generators.camera_feed import CameraFeedActivity
+from .generators.cipher_decrypt import CipherDecryptActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -38,6 +42,10 @@ REGISTRY: dict[str, type] = {
     "audio_spectrum":     AudioSpectrumActivity,
     "progress_bars":      ProgressBarsActivity,
     "dna_sequence":       DnaSequenceActivity,
+    "graph":              GraphActivity,
+    "orbital_view":       OrbitalViewActivity,
+    "camera_feed":        CameraFeedActivity,
+    "cipher_decrypt":     CipherDecryptActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -60,6 +68,10 @@ WEIGHTS: dict[str, float] = {
     "audio_spectrum":     1.1,
     "progress_bars":      1.0,
     "dna_sequence":       1.2,
+    "graph":              1.1,
+    "orbital_view":       1.2,
+    "camera_feed":        1.0,
+    "cipher_decrypt":     1.3,
 }
 
 _types = list(REGISTRY.keys())
