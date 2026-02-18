@@ -32,7 +32,7 @@ class ActivityRecord:
         self.position = position           # {x, y} in ref coords or None
         self.size = size                   # {w, h} in ref coords or None
         self.spawn_time = time.time()
-        self.lifespan = max(5.0, random.gauss(30.0, 15.0))
+        self.lifespan = max(5.0, random.gauss(120.0, 15.0))
         self.despawning = False
         self.last_update = time.time()
         self.next_update_interval = 0.0   # set on first tick
@@ -219,6 +219,12 @@ class ActivityManager:
     def spawn_foreground(self, activity_type: str = None):
         """Spawn a new foreground window with random geometry."""
         self._spawn_activity(slot=None, is_foreground=True, activity_type=activity_type)
+
+    def randomize_all(self):
+        """Replace every activity with a new random type, preserving slot/position/size."""
+        for rec in list(self._activities.values()):
+            if not rec.despawning:
+                self.replace_window(rec.id, None)
 
     def set_fg_target(self, target: int):
         """Set target foreground count. Spawn or close windows to match."""

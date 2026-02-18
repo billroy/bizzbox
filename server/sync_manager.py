@@ -103,6 +103,16 @@ class SyncManager:
             if manager:
                 manager.close_window(activity_id)
 
+    def randomize_all(self, sid: str):
+        """Handle a window:randomize event — replace all activities with random types."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.randomize_all()
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.randomize_all()
+
     def spawn_window(self, sid: str, activity_type: str = None):
         """Handle a window:spawn event — spawn a new foreground window."""
         if self._config.sync_mode == "synced":

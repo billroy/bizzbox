@@ -32,4 +32,6 @@ export const ACTIVITY_TYPES = [
   'heart_monitor',
   'transit_map',
   'weather_radar',
+  'stock_list',
+  'stock_graph',
 ];

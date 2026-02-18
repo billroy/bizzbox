@@ -132,9 +132,9 @@ export default {
       ];
 
       const colW = W / vitals.length;
-      const labelSize = Math.max(8, vitalsH * 0.18) | 0;
-      const valueSize = Math.max(14, vitalsH * 0.45) | 0;
-      const unitSize = Math.max(7, vitalsH * 0.14) | 0;
+      const labelSize = Math.min(14, Math.max(8, vitalsH * 0.18)) | 0;
+      const valueSize = Math.min(colW * 0.45, Math.min(32, Math.max(11, vitalsH * 0.35))) | 0;
+      const unitSize = Math.min(10, Math.max(6, vitalsH * 0.12)) | 0;
 
       for (let i = 0; i < vitals.length; i++) {
         const vx = i * colW + colW / 2;

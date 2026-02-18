@@ -2,7 +2,7 @@
  * Auto-hiding page header with all controls.
  */
 import { store } from '../store.js';
-import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget } from '../socket.js';
+import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
 
@@ -88,7 +88,11 @@ export default {
       sendWindowSpawn(spawnType.value);
     }
 
-    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow };
+    function randomize() {
+      sendRandomize();
+    }
+
+    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize };
   },
 
   template: `
@@ -148,6 +152,7 @@ export default {
         </option>
       </select>
       <button class="header-btn" @click="spawnWindow" title="Spawn new window">+</button>
+      <button class="header-btn" @click="randomize" title="Randomize all activities">SHUFFLE</button>
 
       <div class="header-sep"></div>
 

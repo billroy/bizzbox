@@ -39,6 +39,8 @@ import ActivityGlobeArcs       from './components/activities/GlobeArcs.js';
 import ActivityHeartMonitor    from './components/activities/HeartMonitor.js';
 import ActivityTransitMap      from './components/activities/TransitMap.js';
 import ActivityWeatherRadar    from './components/activities/WeatherRadar.js';
+import ActivityStockList       from './components/activities/StockList.js';
+import ActivityStockGraph      from './components/activities/StockGraph.js';
 
 const { createApp } = Vue;
 
@@ -93,6 +95,8 @@ app.component('activity-globe-arcs',        ActivityGlobeArcs);
 app.component('activity-heart-monitor',    ActivityHeartMonitor);
 app.component('activity-transit-map',      ActivityTransitMap);
 app.component('activity-weather-radar',    ActivityWeatherRadar);
+app.component('activity-stock-list',       ActivityStockList);
+app.component('activity-stock-graph',      ActivityStockGraph);
 
 app.mount('#app');
 

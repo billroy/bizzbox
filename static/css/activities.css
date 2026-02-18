@@ -383,3 +383,74 @@
   padding-top: 2px;
   letter-spacing: 0.05em;
 }
+
+/* ── Stock list ───────────────────────────────────────────────── */
+.stock-list-wrap {
+  height: 100%;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  table-layout: fixed;
+}
+
+.stock-table thead th {
+  color: var(--color-text-dim);
+  font-weight: bold;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-align: right;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stock-table thead th.st-ticker {
+  text-align: left;
+}
+
+.stock-table tbody td {
+  padding: 1px 4px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  transition: color 0.3s;
+}
+
+.stock-table tbody td.st-ticker {
+  text-align: left;
+  font-weight: bold;
+  color: var(--color-text-bright);
+}
+
+.stock-table tbody tr.stock-gain td.st-price,
+.stock-table tbody tr.stock-gain td.st-change,
+.stock-table tbody tr.stock-gain td.st-pct {
+  color: #00cc44;
+}
+
+.stock-table tbody tr.stock-loss td.st-price,
+.stock-table tbody tr.stock-loss td.st-change,
+.stock-table tbody tr.stock-loss td.st-pct {
+  color: #ee3333;
+}
+
+.stock-table tbody tr.stock-gain td.st-high,
+.stock-table tbody tr.stock-gain td.st-low,
+.stock-table tbody tr.stock-loss td.st-high,
+.stock-table tbody tr.stock-loss td.st-low {
+  color: var(--color-text-dim);
+}
+
+.stock-table tbody tr:nth-child(even) td {
+  background: var(--color-surface-2);
+}

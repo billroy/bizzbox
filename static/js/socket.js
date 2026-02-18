@@ -144,6 +144,10 @@ export function sendWindowSpawn(type) {
   if (_socket) _socket.emit('window:spawn', { type });
 }
 
+export function sendRandomize() {
+  if (_socket) _socket.emit('window:randomize');
+}
+
 export function sendFgTarget(value) {
   if (_socket) _socket.emit('configure:fg_count', { value });
 }

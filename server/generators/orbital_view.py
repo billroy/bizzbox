@@ -20,7 +20,7 @@ def _make_satellite(orbit_type: str) -> dict:
         "arg_perigee": round(random.uniform(0, _TWO_PI), 4),
         "altitude": round(alt, 4),
         "phase": round(random.uniform(0, _TWO_PI), 4),  # current orbital position
-        "speed": round(random.uniform(0.02, 0.08) / max(0.1, alt), 4),
+        "speed": round(random.uniform(0.002, 0.008) / max(0.1, alt), 4),
         "label": f"SAT-{random.randint(100, 999)}",
         "orbit_type": orbit_type,
     }

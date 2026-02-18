@@ -111,6 +111,11 @@ def create_app(config: AppConfig):
         if activity_id:
             sync_manager.close_window(request.sid, activity_id)
 
+    @socketio.on("window:randomize")
+    def on_window_randomize(data=None):
+        from flask import request
+        sync_manager.randomize_all(request.sid)
+
     @socketio.on("window:spawn")
     def on_window_spawn(data):
         from flask import request
