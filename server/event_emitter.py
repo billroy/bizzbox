@@ -35,5 +35,8 @@ class EventEmitter:
     def broadcast_window_move(self, activity_id: str, position: dict, room: str = "broadcast"):
         self._sio.emit("window:move", {"id": activity_id, "position": position}, room=room)
 
+    def broadcast_window_resize(self, activity_id: str, size: dict, position: dict, room: str = "broadcast"):
+        self._sio.emit("window:resize", {"id": activity_id, "size": size, "position": position}, room=room)
+
     def broadcast_layout(self, cols: int, rows: int, room: str = "broadcast"):
         self._sio.emit("configure:layout", {"cols": cols, "rows": rows}, room=room)

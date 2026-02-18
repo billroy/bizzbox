@@ -83,6 +83,16 @@ class SyncManager:
             if manager:
                 manager.move_window(activity_id, position)
 
+    def resize_window(self, sid: str, activity_id: str, size: dict, position: dict):
+        """Handle a window:resize event — update size/position in the appropriate manager."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.resize_window(activity_id, size, position)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.resize_window(activity_id, size, position)
+
     def set_layout(self, sid: str, cols: int, rows: int):
         """Handle a configure:layout event — resize grid in the appropriate manager."""
         if self._config.sync_mode == "synced":

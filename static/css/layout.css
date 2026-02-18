@@ -79,6 +79,21 @@ body::after {
   pointer-events: auto;
 }
 
+/* ── Resize handles ──────────────────────────────────────────── */
+.resize-handle {
+  position: absolute;
+  z-index: 20;
+  background: transparent;
+}
+.resize-handle.corner-se { bottom: 0; right: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+.resize-handle.corner-sw { bottom: 0; left: 0;  width: 14px; height: 14px; cursor: nesw-resize; }
+.resize-handle.corner-ne { top: 0;    right: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+.resize-handle.corner-nw { top: 0;    left: 0;  width: 14px; height: 14px; cursor: nwse-resize; }
+.resize-handle.edge-e  { top: 14px; right: 0; bottom: 14px; width: 6px;  cursor: ew-resize; }
+.resize-handle.edge-w  { top: 14px; left: 0;  bottom: 14px; width: 6px;  cursor: ew-resize; }
+.resize-handle.edge-s  { bottom: 0; left: 14px; right: 14px; height: 6px; cursor: ns-resize; }
+.resize-handle.edge-n  { top: 0;    left: 14px; right: 14px; height: 6px; cursor: ns-resize; }
+
 /* ── Activity window chrome ──────────────────────────────────── */
 .activity-window {
   display: flex;

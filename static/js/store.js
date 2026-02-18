@@ -110,6 +110,24 @@ export function setLayout(cols, rows) {
   store.grid = computeGrid(cols, rows);
 }
 
+export function resizeActivity(id, size, position) {
+  const act = store.activities[id];
+  if (act && act.is_foreground) {
+    if (act.size) {
+      act.size.w = size.w;
+      act.size.h = size.h;
+    } else {
+      act.size = size;
+    }
+    if (act.position) {
+      act.position.x = position.x;
+      act.position.y = position.y;
+    } else {
+      act.position = position;
+    }
+  }
+}
+
 export function moveActivity(id, position) {
   const act = store.activities[id];
   if (act && act.is_foreground) {

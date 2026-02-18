@@ -156,6 +156,20 @@ class ActivityManager:
             rec.position = {"x": x, "y": y}
             self._emitter.broadcast_window_move(activity_id, rec.position, room=self._room)
 
+    def resize_window(self, activity_id: str, size: dict, position: dict):
+        """Update stored size/position for a foreground window and broadcast."""
+        rec = self._activities.get(activity_id)
+        if rec and rec.is_foreground:
+            w = max(200, min(REF_W, int(size.get("w", rec.size["w"]))))
+            h = max(120, min(REF_H, int(size.get("h", rec.size["h"]))))
+            x = max(0, min(REF_W - w, int(position.get("x", rec.position["x"]))))
+            y = max(0, min(REF_H - h, int(position.get("y", rec.position["y"]))))
+            rec.size = {"w": w, "h": h}
+            rec.position = {"x": x, "y": y}
+            self._emitter.broadcast_window_resize(
+                activity_id, rec.size, rec.position, room=self._room
+            )
+
     def set_grid(self, cols: int, rows: int):
         """Resize the background grid, despawning excess or spawning new slots."""
         new_count = cols * rows
