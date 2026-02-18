@@ -12,20 +12,24 @@ from .generators.oscilloscope import OscilloscopeActivity
 from .generators.geo_map import GeoMapActivity
 from .generators.resource_gauges import ResourceGaugesActivity
 from .generators.notifications import NotificationsActivity
+from .generators.sdr_waterfall import SdrWaterfallActivity
+from .generators.qam_constellation import QamConstellationActivity
 
 REGISTRY: dict[str, type] = {
-    "network_topology":  NetworkTopologyActivity,
-    "terminal":          TerminalActivity,
-    "code_scroll":       CodeScrollActivity,
-    "radar":             RadarActivity,
-    "log_tail":          LogTailActivity,
-    "hex_dump":          HexDumpActivity,
+    "network_topology":   NetworkTopologyActivity,
+    "terminal":           TerminalActivity,
+    "code_scroll":        CodeScrollActivity,
+    "radar":              RadarActivity,
+    "log_tail":           LogTailActivity,
+    "hex_dump":           HexDumpActivity,
     "facial_recognition": FacialRecognitionActivity,
-    "countdown":         CountdownActivity,
-    "oscilloscope":      OscilloscopeActivity,
-    "geo_map":           GeoMapActivity,
-    "resource_gauges":   ResourceGaugesActivity,
-    "notifications":     NotificationsActivity,
+    "countdown":          CountdownActivity,
+    "oscilloscope":       OscilloscopeActivity,
+    "geo_map":            GeoMapActivity,
+    "resource_gauges":    ResourceGaugesActivity,
+    "notifications":      NotificationsActivity,
+    "sdr_waterfall":      SdrWaterfallActivity,
+    "qam_constellation":  QamConstellationActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -42,6 +46,8 @@ WEIGHTS: dict[str, float] = {
     "geo_map":            1.0,
     "resource_gauges":    0.9,
     "notifications":      0.7,
+    "sdr_waterfall":      1.1,
+    "qam_constellation":  1.0,
 }
 
 _types = list(REGISTRY.keys())

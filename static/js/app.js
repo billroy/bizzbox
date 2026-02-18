@@ -23,6 +23,8 @@ import ActivityOscilloscope     from './components/activities/Oscilloscope.js';
 import ActivityGeoMap           from './components/activities/GeoMap.js';
 import ActivityResourceGauges   from './components/activities/ResourceGauges.js';
 import ActivityNotifications    from './components/activities/Notifications.js';
+import ActivitySdrWaterfall     from './components/activities/SdrWaterfall.js';
+import ActivityQamConstellation from './components/activities/QamConstellation.js';
 
 const { createApp } = Vue;
 
@@ -61,6 +63,8 @@ app.component('activity-oscilloscope',       ActivityOscilloscope);
 app.component('activity-geo-map',            ActivityGeoMap);
 app.component('activity-resource-gauges',    ActivityResourceGauges);
 app.component('activity-notifications',      ActivityNotifications);
+app.component('activity-sdr-waterfall',      ActivitySdrWaterfall);
+app.component('activity-qam-constellation',  ActivityQamConstellation);
 
 app.mount('#app');
 

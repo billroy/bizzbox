@@ -76,7 +76,7 @@ body::after {
 
 .foreground-window {
   position: absolute;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 /* ── Activity window chrome ──────────────────────────────────── */
@@ -124,6 +124,11 @@ body::after {
   border-bottom: 1px solid var(--titlebar-border);
   flex-shrink: 0;
   user-select: none;
+  cursor: grab;
+}
+
+.window-titlebar:active {
+  cursor: grabbing;
 }
 
 .titlebar-dot {

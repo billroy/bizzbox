@@ -104,3 +104,9 @@ export function applyStyle(style) {
   document.documentElement.dataset.theme = style;
   store.config.style = style;
 }
+
+export function moveActivity(id, position) {
+  if (store.activities[id] && store.activities[id].is_foreground) {
+    store.activities[id].position = position;
+  }
+}

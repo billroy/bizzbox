@@ -145,6 +145,16 @@ class ActivityManager:
                 remaining.append((slot, is_fg, replace_at, old_id))
         self._pending_replacements = remaining
 
+    def move_window(self, activity_id: str, position: dict):
+        """Update stored position for a foreground window and broadcast the move."""
+        rec = self._activities.get(activity_id)
+        if rec and rec.is_foreground:
+            # Clamp to reference viewport
+            x = max(0, min(REF_W - 100, int(position.get("x", 0))))
+            y = max(0, min(REF_H - 50,  int(position.get("y", 0))))
+            rec.position = {"x": x, "y": y}
+            self._emitter.broadcast_window_move(activity_id, rec.position, room=self._room)
+
     def get_full_state(self) -> dict:
         """Return complete state for sync:init payload."""
         activities = []

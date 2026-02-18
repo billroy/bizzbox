@@ -72,3 +72,13 @@ class SyncManager:
         if self._config.sync_mode == "synced":
             return "broadcast"
         return sid
+
+    def move_window(self, sid: str, activity_id: str, position: dict):
+        """Handle a window:move event — update position in the appropriate manager."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.move_window(activity_id, position)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.move_window(activity_id, position)

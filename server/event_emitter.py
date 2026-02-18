@@ -31,3 +31,6 @@ class EventEmitter:
 
     def emit_client_count(self, count: int, room: str = "broadcast"):
         self._sio.emit("client:connect", {"count": count}, room=room)
+
+    def broadcast_window_move(self, activity_id: str, position: dict, room: str = "broadcast"):
+        self._sio.emit("window:move", {"id": activity_id, "position": position}, room=room)

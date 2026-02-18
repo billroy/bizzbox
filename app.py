@@ -76,6 +76,14 @@ def create_app(config: AppConfig):
         # Sync mode changes are informational only at runtime (mode is set at startup)
         pass
 
+    @socketio.on("window:move")
+    def on_window_move(data):
+        from flask import request
+        activity_id = data.get("id", "")
+        position = data.get("position", {})
+        if activity_id and isinstance(position, dict):
+            sync_manager.move_window(request.sid, activity_id, position)
+
     return app, socketio
 
 
