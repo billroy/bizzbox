@@ -80,7 +80,7 @@ def create_app(config: AppConfig):
     def on_layout(data):
         from flask import request
         cols = max(1, min(6, int(data.get("cols", config.grid_cols))))
-        rows = max(1, min(4, int(data.get("rows", config.grid_rows))))
+        rows = max(1, min(8, int(data.get("rows", config.grid_rows))))
         config.grid_cols = cols
         config.grid_rows = rows
         room = sync_manager.get_room_for_client(request.sid)
@@ -133,7 +133,7 @@ def main():
                         default=int(os.environ.get("PORT", 5000)),
                         help="Bind port (defaults to $PORT env or 5000)")
     parser.add_argument("--style",      default="dark",
-                        choices=["dark", "light", "brutalist", "rainbow", "sunshine", "red"],
+                        choices=["dark", "light", "brutalist", "rainbow", "sunshine", "red", "black"],
                         help="Initial styling mode")
     args = parser.parse_args()
 

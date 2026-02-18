@@ -107,6 +107,7 @@ export default {
         <option value="rainbow">RAINBOW</option>
         <option value="sunshine">SUNSHINE</option>
         <option value="red">RED</option>
+        <option value="black">BLACK</option>
       </select>
 
       <div class="header-sep"></div>

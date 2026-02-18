@@ -10,6 +10,20 @@ export const GRID_PRESETS = [
   { label: '4×2', cols: 4, rows: 2 },
   { label: '3×3', cols: 3, rows: 3 },
   { label: '4×3', cols: 4, rows: 3 },
+  { label: '5×2', cols: 5, rows: 2 },
+  { label: '5×3', cols: 5, rows: 3 },
+  { label: '5×4', cols: 5, rows: 4 },
+  { label: '5×5', cols: 5, rows: 5 },
+  { label: '5×6', cols: 5, rows: 6 },
+  { label: '5×7', cols: 5, rows: 7 },
+  { label: '5×8', cols: 5, rows: 8 },
+  { label: '6×2', cols: 6, rows: 2 },
+  { label: '6×3', cols: 6, rows: 3 },
+  { label: '6×4', cols: 6, rows: 4 },
+  { label: '6×5', cols: 6, rows: 5 },
+  { label: '6×6', cols: 6, rows: 6 },
+  { label: '6×7', cols: 6, rows: 7 },
+  { label: '6×8', cols: 6, rows: 8 },
 ];
 
 export function computeGrid(cols, rows) {
