@@ -153,6 +153,20 @@ class AudioEngine {
         this._tone(880, 1108, 0.08, 'sine', 0.2);
         setTimeout(() => this._tone(1108, 880, 0.08, 'sine', 0.15), 100);
         break;
+      case 'matrix_rain':
+        this._noise(0.04, 0.05);
+        this._tone(200, 150, 0.15, 'sine', 0.08);
+        break;
+      case 'audio_spectrum':
+        this._tone(220, 440, 0.12, 'triangle', 0.12);
+        break;
+      case 'progress_bars':
+        this._tone(550, 550, 0.06, 'square', 0.08);
+        break;
+      case 'dna_sequence':
+        this._tone(300, 350, 0.1, 'sine', 0.1);
+        this._noise(0.03, 0.04);
+        break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);
     }

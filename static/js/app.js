@@ -25,6 +25,10 @@ import ActivityResourceGauges   from './components/activities/ResourceGauges.js'
 import ActivityNotifications    from './components/activities/Notifications.js';
 import ActivitySdrWaterfall     from './components/activities/SdrWaterfall.js';
 import ActivityQamConstellation from './components/activities/QamConstellation.js';
+import ActivityMatrixRain       from './components/activities/MatrixRain.js';
+import ActivityAudioSpectrum    from './components/activities/AudioSpectrum.js';
+import ActivityProgressBars     from './components/activities/ProgressBars.js';
+import ActivityDnaSequence      from './components/activities/DnaSequence.js';
 
 const { createApp } = Vue;
 
@@ -65,6 +69,10 @@ app.component('activity-resource-gauges',    ActivityResourceGauges);
 app.component('activity-notifications',      ActivityNotifications);
 app.component('activity-sdr-waterfall',      ActivitySdrWaterfall);
 app.component('activity-qam-constellation',  ActivityQamConstellation);
+app.component('activity-matrix-rain',        ActivityMatrixRain);
+app.component('activity-audio-spectrum',     ActivityAudioSpectrum);
+app.component('activity-progress-bars',      ActivityProgressBars);
+app.component('activity-dna-sequence',       ActivityDnaSequence);
 
 app.mount('#app');
 

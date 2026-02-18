@@ -14,6 +14,10 @@ from .generators.resource_gauges import ResourceGaugesActivity
 from .generators.notifications import NotificationsActivity
 from .generators.sdr_waterfall import SdrWaterfallActivity
 from .generators.qam_constellation import QamConstellationActivity
+from .generators.matrix_rain import MatrixRainActivity
+from .generators.audio_spectrum import AudioSpectrumActivity
+from .generators.progress_bars import ProgressBarsActivity
+from .generators.dna_sequence import DnaSequenceActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -30,6 +34,10 @@ REGISTRY: dict[str, type] = {
     "notifications":      NotificationsActivity,
     "sdr_waterfall":      SdrWaterfallActivity,
     "qam_constellation":  QamConstellationActivity,
+    "matrix_rain":        MatrixRainActivity,
+    "audio_spectrum":     AudioSpectrumActivity,
+    "progress_bars":      ProgressBarsActivity,
+    "dna_sequence":       DnaSequenceActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -48,6 +56,10 @@ WEIGHTS: dict[str, float] = {
     "notifications":      0.7,
     "sdr_waterfall":      1.1,
     "qam_constellation":  1.0,
+    "matrix_rain":        1.3,
+    "audio_spectrum":     1.1,
+    "progress_bars":      1.0,
+    "dna_sequence":       1.2,
 }
 
 _types = list(REGISTRY.keys())

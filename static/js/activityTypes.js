@@ -18,4 +18,8 @@ export const ACTIVITY_TYPES = [
   'notifications',
   'sdr_waterfall',
   'qam_constellation',
+  'matrix_rain',
+  'audio_spectrum',
+  'progress_bars',
+  'dna_sequence',
 ];
