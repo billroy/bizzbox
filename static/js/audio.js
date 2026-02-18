@@ -181,6 +181,16 @@ class AudioEngine {
         this._noise(0.02, 0.06);
         this._tone(600, 800, 0.08, 'square', 0.08);
         break;
+      case 'data_table':
+        this._tone(700, 700, 0.04, 'square', 0.06);
+        break;
+      case 'system_topology':
+        this._tone(440, 480, 0.1, 'sine', 0.08);
+        this._noise(0.02, 0.03);
+        break;
+      case 'globe_arcs':
+        this._tone(350, 500, 0.15, 'sine', 0.1);
+        break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);
     }

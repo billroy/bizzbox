@@ -26,4 +26,7 @@ export const ACTIVITY_TYPES = [
   'orbital_view',
   'camera_feed',
   'cipher_decrypt',
+  'data_table',
+  'system_topology',
+  'globe_arcs',
 ];

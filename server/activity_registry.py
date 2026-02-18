@@ -22,6 +22,9 @@ from .generators.graph import GraphActivity
 from .generators.orbital_view import OrbitalViewActivity
 from .generators.camera_feed import CameraFeedActivity
 from .generators.cipher_decrypt import CipherDecryptActivity
+from .generators.data_table import DataTableActivity
+from .generators.system_topology import SystemTopologyActivity
+from .generators.globe_arcs import GlobeArcsActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -46,6 +49,9 @@ REGISTRY: dict[str, type] = {
     "orbital_view":       OrbitalViewActivity,
     "camera_feed":        CameraFeedActivity,
     "cipher_decrypt":     CipherDecryptActivity,
+    "data_table":         DataTableActivity,
+    "system_topology":    SystemTopologyActivity,
+    "globe_arcs":         GlobeArcsActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -72,6 +78,9 @@ WEIGHTS: dict[str, float] = {
     "orbital_view":       1.2,
     "camera_feed":        1.0,
     "cipher_decrypt":     1.3,
+    "data_table":         1.0,
+    "system_topology":    1.1,
+    "globe_arcs":         1.2,
 }
 
 _types = list(REGISTRY.keys())

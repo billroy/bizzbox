@@ -320,3 +320,66 @@
   margin-top: auto;
   letter-spacing: 0.05em;
 }
+
+/* ── Data table ─────────────────────────────────────────────── */
+.activity-data-table {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.dtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  table-layout: fixed;
+}
+
+.dtable thead th {
+  color: var(--color-accent-1);
+  font-weight: bold;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dtable tbody td {
+  color: var(--color-text-primary);
+  padding: 1px 4px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.3s;
+}
+
+.dtable tbody tr:nth-child(even) td {
+  background: var(--color-surface-2);
+}
+
+.dtable tbody tr:first-child td {
+  background: var(--color-accent-1);
+  background: rgba(var(--color-accent-1-rgb, 0, 255, 136), 0.08);
+}
+
+.dtable td.cell-error { color: var(--color-error); font-weight: bold; }
+.dtable td.cell-warn  { color: var(--color-warn); }
+.dtable td.cell-ok    { color: var(--color-info); }
+.dtable td.cell-dim   { color: var(--color-text-dim); }
+
+.dtable-strategy {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-dim);
+  margin-top: auto;
+  padding-top: 2px;
+  letter-spacing: 0.05em;
+}

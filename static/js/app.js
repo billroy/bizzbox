@@ -33,6 +33,9 @@ import ActivityGraph            from './components/activities/Graph.js';
 import ActivityOrbitalView     from './components/activities/OrbitalView.js';
 import ActivityCameraFeed      from './components/activities/CameraFeed.js';
 import ActivityCipherDecrypt   from './components/activities/CipherDecrypt.js';
+import ActivityDataTable       from './components/activities/DataTable.js';
+import ActivitySystemTopology  from './components/activities/SystemTopology.js';
+import ActivityGlobeArcs       from './components/activities/GlobeArcs.js';
 
 const { createApp } = Vue;
 
@@ -81,6 +84,9 @@ app.component('activity-graph',              ActivityGraph);
 app.component('activity-orbital-view',       ActivityOrbitalView);
 app.component('activity-camera-feed',        ActivityCameraFeed);
 app.component('activity-cipher-decrypt',     ActivityCipherDecrypt);
+app.component('activity-data-table',        ActivityDataTable);
+app.component('activity-system-topology',   ActivitySystemTopology);
+app.component('activity-globe-arcs',        ActivityGlobeArcs);
 
 app.mount('#app');
 
