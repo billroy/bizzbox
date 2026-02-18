@@ -181,6 +181,10 @@ class ActivityManager:
             (slot, is_fg, replace_at, rec.id, new_type, pos, sz)
         )
 
+    def spawn_foreground(self, activity_type: str = None):
+        """Spawn a new foreground window with random geometry."""
+        self._spawn_activity(slot=None, is_foreground=True, activity_type=activity_type)
+
     def resize_window(self, activity_id: str, size: dict, position: dict):
         """Update stored size/position for a foreground window and broadcast."""
         rec = self._activities.get(activity_id)

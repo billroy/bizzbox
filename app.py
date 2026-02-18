@@ -95,6 +95,12 @@ def create_app(config: AppConfig):
         if activity_id:
             sync_manager.replace_window(request.sid, activity_id, new_type)
 
+    @socketio.on("window:spawn")
+    def on_window_spawn(data):
+        from flask import request
+        new_type = data.get("type")  # None means random
+        sync_manager.spawn_window(request.sid, new_type)
+
     @socketio.on("window:resize")
     def on_window_resize(data):
         from flask import request

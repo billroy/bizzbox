@@ -2,8 +2,9 @@
  * Auto-hiding page header with all controls.
  */
 import { store } from '../store.js';
-import { sendStyle, sendIntensity, sendMute, sendLayout } from '../socket.js';
+import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
+import { ACTIVITY_TYPES } from '../activityTypes.js';
 
 export default {
   name: 'AppHeader',
@@ -75,7 +76,14 @@ export default {
     onMounted(() => document.addEventListener('fullscreenchange', onFullscreenChange));
     onUnmounted(() => document.removeEventListener('fullscreenchange', onFullscreenChange));
 
-    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets };
+    const spawnType = ref(null);  // null = RANDOM
+    const activityTypes = ACTIVITY_TYPES;
+
+    function spawnWindow() {
+      sendWindowSpawn(spawnType.value);
+    }
+
+    return { visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, spawnType, activityTypes, spawnWindow };
   },
 
   template: `
@@ -118,6 +126,16 @@ export default {
       <span class="intensity-value">{{ intensity }}</span>
 
       <div class="header-spacer"></div>
+
+      <select class="header-select" v-model="spawnType">
+        <option :value="null">RANDOM</option>
+        <option v-for="t in activityTypes" :key="t" :value="t">
+          {{ t.toUpperCase().replace(/_/g, ' ') }}
+        </option>
+      </select>
+      <button class="header-btn" @click="spawnWindow" title="Spawn new window">+</button>
+
+      <div class="header-sep"></div>
 
       <button class="header-btn" @click="muted = !muted"
               :class="{ active: muted }">

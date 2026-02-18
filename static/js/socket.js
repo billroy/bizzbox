@@ -132,6 +132,10 @@ export function sendWindowReplace(id, type) {
   if (_socket) _socket.emit('window:replace', { id, type });
 }
 
+export function sendWindowSpawn(type) {
+  if (_socket) _socket.emit('window:spawn', { type });
+}
+
 export function sendLayout(cols, rows) {
   if (_socket) _socket.emit('configure:layout', { cols, rows });
 }
