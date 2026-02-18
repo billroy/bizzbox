@@ -1,0 +1,74 @@
+"""
+Manages per-client vs. shared ActivityManager instances based on sync mode.
+
+Synced mode:  one global ActivityManager, all clients in room "broadcast"
+Unsynced mode: each client sid gets its own ActivityManager instance
+"""
+from flask_socketio import join_room
+from .activity_manager import ActivityManager
+from .event_emitter import EventEmitter
+
+
+class SyncManager:
+    def __init__(self, socketio, emitter: EventEmitter, config):
+        self._sio = socketio
+        self._emitter = emitter
+        self._config = config
+        self._client_count = 0
+
+        # Synced mode: single global manager
+        self._global_manager: ActivityManager | None = None
+        # Unsynced mode: per-sid managers
+        self._client_managers: dict[str, ActivityManager] = {}
+
+        if config.sync_mode == "synced":
+            self._init_global()
+
+    def _init_global(self):
+        self._global_manager = ActivityManager(
+            self._sio, self._emitter, self._config, room="broadcast"
+        )
+        self._global_manager.start()
+
+    def handle_connect(self, sid: str):
+        self._client_count += 1
+
+        if self._config.sync_mode == "synced":
+            # Add client to broadcast room (must be called within Flask-SocketIO request context)
+            join_room("broadcast")
+            # Send current state to just this client
+            state = self._global_manager.get_full_state()
+            self._emitter.emit_sync_init(sid, state)
+        else:
+            # Unsynced: each client gets own manager in their own room (sid is also a room)
+            manager = ActivityManager(
+                self._sio, self._emitter, self._config, room=sid
+            )
+            self._client_managers[sid] = manager
+            manager.start()
+            state = manager.get_full_state()
+            self._emitter.emit_sync_init(sid, state)
+
+        # Broadcast updated client count
+        self._emitter.emit_client_count(
+            self._client_count,
+            room="broadcast" if self._config.sync_mode == "synced" else sid
+        )
+
+    def handle_disconnect(self, sid: str):
+        self._client_count = max(0, self._client_count - 1)
+
+        if self._config.sync_mode == "unsynced":
+            manager = self._client_managers.pop(sid, None)
+            if manager:
+                manager.stop()
+
+        # Mirror handle_connect: broadcast updated count to remaining clients
+        room = "broadcast" if self._config.sync_mode == "synced" else sid
+        self._emitter.emit_client_count(self._client_count, room=room)
+
+    def get_room_for_client(self, sid: str) -> str:
+        """Return the effective emit room for a configure event from this sid."""
+        if self._config.sync_mode == "synced":
+            return "broadcast"
+        return sid

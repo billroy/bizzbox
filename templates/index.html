@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>BizzBox</title>
+
+  <!-- Themes and layout -->
+  <link rel="stylesheet" href="/static/css/themes.css" />
+  <link rel="stylesheet" href="/static/css/layout.css" />
+  <link rel="stylesheet" href="/static/css/activities.css" />
+
+  <style>
+    .boot-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-bg);
+      z-index: 5000;
+    }
+    .boot-msg {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--color-accent-1);
+      letter-spacing: 0.2em;
+      animation: pulse-crit 1s step-start infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app"></div>
+
+  <!-- Socket.IO 4.x client — served locally -->
+  <script src="/static/js/socket.io.min.js"></script>
+
+  <!-- Vue 3.5 global build — served locally, no build step -->
+  <script src="/static/js/vue.global.prod.js"></script>
+
+  <!-- BizzBox app (ES module) -->
+  <script type="module" src="/static/js/app.js"></script>
+
+</body>
+</html>
