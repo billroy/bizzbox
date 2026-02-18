@@ -106,7 +106,17 @@ export function applyStyle(style) {
 }
 
 export function moveActivity(id, position) {
-  if (store.activities[id] && store.activities[id].is_foreground) {
-    store.activities[id].position = position;
+  const act = store.activities[id];
+  if (act && act.is_foreground) {
+    // Mutate x/y in-place on the existing reactive object rather than replacing
+    // the whole position reference — ensures Vue's proxy sees the change on all
+    // browsers including Safari, which may not observe object-reference swaps
+    // on nested reactive properties as reliably.
+    if (act.position) {
+      act.position.x = position.x;
+      act.position.y = position.y;
+    } else {
+      act.position = position;
+    }
   }
 }
