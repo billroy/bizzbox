@@ -81,7 +81,11 @@ const RootComponent = {
     <FilterModal v-if="store.filterModalOpen" />
     <Toast />
     <div v-if="store.lockMode" class="lock-overlay"></div>
-    <div v-if="!store.connected" class="boot-screen">
+    <div v-if="store.reconnecting" class="boot-screen reconnect-screen">
+      <div class="boot-msg reconnect-pulse">RECONNECTING...</div>
+      <div class="reconnect-attempt">ATTEMPT {{ store.reconnectAttempts }}</div>
+    </div>
+    <div v-else-if="!store.connected" class="boot-screen">
       <div class="boot-msg">BIZZBOX INITIALIZING...</div>
     </div>
   `,

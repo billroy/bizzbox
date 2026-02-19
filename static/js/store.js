@@ -93,6 +93,10 @@ export const store = reactive({
   // Pinned background slots: slot index → activity type string
   pinnedSlots: {},
 
+  // Reconnection state
+  reconnecting: false,
+  reconnectAttempts: 0,
+
   // Toast notification
   toastMessage: null,
 });

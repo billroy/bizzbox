@@ -2,7 +2,7 @@
  * Socket.IO client wrapper.
  * Registers all inbound event handlers and provides outbound helpers.
  */
-import { store, urlOverrides, initFromServer, addActivity, updateActivity, mergeActivityDelta, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs, bringToFront, pinSlot, unpinSlot } from './store.js';
+import { store, urlOverrides, initFromServer, addActivity, updateActivity, mergeActivityDelta, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs, bringToFront, pinSlot, unpinSlot, showToast } from './store.js';
 import { audio } from './audio.js';
 
 let _socket = null;
@@ -36,11 +36,25 @@ export function initSocket() {
 
   _socket.on('connect', () => {
     store.connected = true;
+    if (store.reconnecting) {
+      store.reconnecting = false;
+      store.reconnectAttempts = 0;
+      showToast('RECONNECTED');
+    }
     audio.unlock();
   });
 
   _socket.on('disconnect', () => {
     store.connected = false;
+  });
+
+  _socket.io.on('reconnect_attempt', (attempt) => {
+    store.reconnecting = true;
+    store.reconnectAttempts = attempt;
+  });
+
+  _socket.io.on('reconnect_failed', () => {
+    store.reconnecting = false;
   });
 
   _socket.on('sync:init', (payload) => {

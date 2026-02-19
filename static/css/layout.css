@@ -589,6 +589,29 @@ body.lock-mode {
   text-shadow: 0 0 8px var(--color-accent-1);
 }
 
+.filter-search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  outline: none;
+  letter-spacing: 0.04em;
+  transition: border-color 0.2s;
+}
+.filter-search:focus {
+  border-color: var(--color-accent-1);
+}
+.filter-search::placeholder {
+  color: var(--color-text-dim);
+}
+
 .filter-actions {
   display: flex;
   justify-content: center;
@@ -611,6 +634,26 @@ body.lock-mode {
 .filter-action-btn:hover {
   border-color: var(--color-accent-1);
   color: var(--color-accent-1);
+}
+
+.filter-scroll {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.filter-category {
+  margin-bottom: 12px;
+}
+
+.filter-category-header {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--color-text-dim);
+  letter-spacing: 0.12em;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .filter-grid {

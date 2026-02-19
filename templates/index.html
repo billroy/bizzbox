@@ -28,6 +28,23 @@
       letter-spacing: 0.2em;
       animation: pulse-crit 1s step-start infinite;
     }
+    .reconnect-screen {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .reconnect-pulse {
+      animation: reconnect-pulse 1.5s ease-in-out infinite;
+    }
+    .reconnect-attempt {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-dim);
+      letter-spacing: 0.15em;
+    }
+    @keyframes reconnect-pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.3; }
+    }
   </style>
 </head>
 <body>
