@@ -92,7 +92,27 @@ export const store = reactive({
 
   // Pinned background slots: slot index → activity type string
   pinnedSlots: {},
+
+  // Toast notification
+  toastMessage: null,
 });
+
+// ── Theme list for cycling ──────────────────────────────────
+export const THEME_LIST = [
+  'dark', 'light', 'brutalist', 'neon', 'rainbow',
+  'sunshine', 'red', 'black', 'lcars', 'amber', 'arctic',
+];
+
+// ── Toast helper ────────────────────────────────────────────
+let _toastTimer = null;
+export function showToast(msg, durationMs = 1500) {
+  if (_toastTimer) clearTimeout(_toastTimer);
+  store.toastMessage = msg;
+  _toastTimer = setTimeout(() => {
+    store.toastMessage = null;
+    _toastTimer = null;
+  }, durationMs);
+}
 
 // Computed helpers (plain functions — called in templates/setup)
 export function getBackgroundSlots() {

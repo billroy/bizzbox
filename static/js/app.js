@@ -12,6 +12,7 @@ import ForegroundLayer from './components/ForegroundLayer.js';
 import ActivityWindow  from './components/ActivityWindow.js';
 import HelpOverlay     from './components/HelpOverlay.js';
 import FilterModal     from './components/FilterModal.js';
+import Toast           from './components/Toast.js';
 
 // Activity renderers
 import ActivityNetworkTopology  from './components/activities/NetworkTopology.js';
@@ -63,6 +64,7 @@ const RootComponent = {
     ForegroundLayer,
     HelpOverlay,
     FilterModal,
+    Toast,
   },
   setup() {
     // Apply lock mode from URL override
@@ -77,6 +79,7 @@ const RootComponent = {
     <ForegroundLayer v-if="store.grid" />
     <HelpOverlay v-if="store.helpOverlay" />
     <FilterModal v-if="store.filterModalOpen" />
+    <Toast />
     <div v-if="store.lockMode" class="lock-overlay"></div>
     <div v-if="!store.connected" class="boot-screen">
       <div class="boot-msg">BIZZBOX INITIALIZING...</div>

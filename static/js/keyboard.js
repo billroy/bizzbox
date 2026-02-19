@@ -1,7 +1,7 @@
 /**
  * Keyboard shortcut handler + lock mode.
  */
-import { store, savePrefs } from './store.js';
+import { store, savePrefs, showToast, THEME_LIST } from './store.js';
 import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget } from './socket.js';
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 
@@ -44,6 +44,7 @@ function onKeyDown(evt) {
   if (store.lockMode) {
     if (key === 'l' || key === 'L' || key === 'Escape') {
       exitLockMode();
+      showToast('UNLOCKED');
       evt.preventDefault();
     }
     return;
@@ -53,6 +54,7 @@ function onKeyDown(evt) {
     case 'm':
     case 'M':
       sendMute(!store.config.muted);
+      showToast(store.config.muted ? 'SOUND ON' : 'MUTED');
       evt.preventDefault();
       break;
 
@@ -69,38 +71,53 @@ function onKeyDown(evt) {
     case 'r':
     case 'R':
       sendRandomize();
+      showToast('SHUFFLE');
       evt.preventDefault();
       break;
 
     case '+':
-    case '=':
-      sendIntensity(Math.min(20, store.config.intensity + 1));
+    case '=': {
+      const newInt = Math.min(20, store.config.intensity + 1);
+      sendIntensity(newInt);
+      showToast('INTENSITY ' + newInt);
       evt.preventDefault();
       break;
+    }
 
-    case '-':
-      sendIntensity(Math.max(1, store.config.intensity - 1));
+    case '-': {
+      const newInt = Math.max(1, store.config.intensity - 1);
+      sendIntensity(newInt);
+      showToast('INTENSITY ' + newInt);
       evt.preventDefault();
       break;
+    }
 
-    case '[':
-      sendFgTarget(Math.max(0, store.config.fgTarget - 1));
+    case '[': {
+      const newFg = Math.max(0, store.config.fgTarget - 1);
+      sendFgTarget(newFg);
+      showToast('WINDOWS ' + newFg);
       evt.preventDefault();
       break;
+    }
 
-    case ']':
-      sendFgTarget(Math.min(20, store.config.fgTarget + 1));
+    case ']': {
+      const newFg = Math.min(20, store.config.fgTarget + 1);
+      sendFgTarget(newFg);
+      showToast('WINDOWS ' + newFg);
       evt.preventDefault();
       break;
+    }
 
     case ' ':
       store.headerPinned = !store.headerPinned;
       savePrefs();
+      showToast(store.headerPinned ? 'HEADER PINNED' : 'HEADER AUTO-HIDE');
       evt.preventDefault();
       break;
 
     case 'l':
     case 'L':
+      showToast('LOCK MODE');
       enterLockMode();
       evt.preventDefault();
       break;
@@ -112,18 +129,32 @@ function onKeyDown(evt) {
       evt.preventDefault();
       break;
 
+    case 't':
+    case 'T': {
+      const idx = THEME_LIST.indexOf(store.config.style);
+      const next = THEME_LIST[(idx + 1) % THEME_LIST.length];
+      sendStyle(next);
+      showToast('THEME: ' + next.toUpperCase());
+      evt.preventDefault();
+      break;
+    }
+
     case 'a':
     case 'A': {
       // Cycle ambient presets: null → first → second → ... → last → null
       const keys = AMBIENT_PRESET_LIST.map(p => p.key);
+      const labels = AMBIENT_PRESET_LIST.map(p => p.label);
       const idx = store.ambientPreset ? keys.indexOf(store.ambientPreset) : -1;
       const next = idx + 1 >= keys.length ? null : keys[idx + 1];
       if (next) {
         store.ambientPreset = next;
         audio.startAmbient(next, store.config.intensity);
+        const label = labels[keys.indexOf(next)] || next;
+        showToast('AMBIENT: ' + label.toUpperCase());
       } else {
         store.ambientPreset = null;
         audio.stopAmbient();
+        showToast('AMBIENT OFF');
       }
       savePrefs();
       evt.preventDefault();
