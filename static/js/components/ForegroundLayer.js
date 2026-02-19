@@ -3,9 +3,9 @@
  * Windows are draggable (via titlebar) and resizable (via edge/corner handles).
  * Both operations are broadcast to all connected clients via socket events.
  */
-import { store, getForegroundActivities, moveActivity, resizeActivity } from '../store.js';
+import { store, getForegroundActivities, moveActivity, resizeActivity, bringToFront } from '../store.js';
 import { scalePosition } from '../layout.js';
-import { sendWindowMove, sendWindowResize } from '../socket.js';
+import { sendWindowMove, sendWindowResize, sendWindowFocus } from '../socket.js';
 import ActivityWindow from './ActivityWindow.js';
 
 export default {
@@ -17,7 +17,15 @@ export default {
 
     function windowStyle(act) {
       if (!act.position || !act.size) return {};
-      return scalePosition(act.position, act.size);
+      const s = scalePosition(act.position, act.size);
+      s.zIndex = act.zIndex || 100;
+      return s;
+    }
+
+    function onWindowPointerDown(act) {
+      if (store.lockMode) return;
+      bringToFront(act.id);
+      sendWindowFocus(act.id);
     }
 
     // ── Drag state ─────────────────────────────────────────────
@@ -164,7 +172,7 @@ export default {
       window.removeEventListener('pointerup',   onResizeUp);
     }
 
-    return { activities, windowStyle, onTitlebarPointerDown, onResizePointerDown };
+    return { activities, windowStyle, onTitlebarPointerDown, onResizePointerDown, onWindowPointerDown };
   },
   template: `
     <div class="foreground-layer">
@@ -173,6 +181,7 @@ export default {
         :key="act.id"
         class="foreground-window"
         :style="windowStyle(act)"
+        @pointerdown="onWindowPointerDown(act)"
       >
         <ActivityWindow
           :activity="act"

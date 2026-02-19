@@ -86,6 +86,12 @@ export const store = reactive({
 
   // Custom scenes (loaded from localStorage)
   customScenes: [],
+
+  // Z-ordering for foreground windows
+  _nextZIndex: 100,
+
+  // Pinned background slots: slot index → activity type string
+  pinnedSlots: {},
 });
 
 // Computed helpers (plain functions — called in templates/setup)
@@ -122,7 +128,32 @@ export function initFromServer(payload) {
     addActivity(act);
   }
 
+  // Sync pinned slots from server
+  if (payload.pinned_slots) {
+    store.pinnedSlots = {};
+    for (const [k, v] of Object.entries(payload.pinned_slots)) {
+      store.pinnedSlots[parseInt(k, 10)] = v;
+    }
+  }
+
   applyStyle(session.style);
+}
+
+export function bringToFront(id) {
+  const act = store.activities[id];
+  if (act && act.is_foreground) {
+    store._nextZIndex++;
+    act.zIndex = store._nextZIndex;
+  }
+  return store._nextZIndex;
+}
+
+export function pinSlot(slotIndex, type) {
+  store.pinnedSlots[slotIndex] = type;
+}
+
+export function unpinSlot(slotIndex) {
+  delete store.pinnedSlots[slotIndex];
 }
 
 export function addActivity(payload) {
@@ -136,6 +167,7 @@ export function addActivity(payload) {
     size:          payload.size,
     strategy:      payload.strategy,
     state:         payload.state,
+    zIndex:        payload.is_foreground ? ++store._nextZIndex : 0,
     despawning:    false,
     spawning:      true,
   };

@@ -2,7 +2,7 @@
  * Socket.IO client wrapper.
  * Registers all inbound event handlers and provides outbound helpers.
  */
-import { store, urlOverrides, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs } from './store.js';
+import { store, urlOverrides, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs, bringToFront, pinSlot, unpinSlot } from './store.js';
 import { audio } from './audio.js';
 
 let _socket = null;
@@ -152,6 +152,18 @@ export function initSocket() {
     moveActivity(data.id, data.position);
   });
 
+  _socket.on('window:focus', (data) => {
+    bringToFront(data.id);
+  });
+
+  _socket.on('window:pin', (data) => {
+    pinSlot(data.slot, data.type);
+  });
+
+  _socket.on('window:unpin', (data) => {
+    unpinSlot(data.slot);
+  });
+
   return _socket;
 }
 
@@ -205,4 +217,16 @@ export function sendLayout(cols, rows) {
 
 export function sendActivityFilter(allowedTypes) {
   if (_socket) _socket.emit('configure:activity_filter', { allowed: allowedTypes });
+}
+
+export function sendWindowFocus(id) {
+  if (_socket) _socket.emit('window:focus', { id });
+}
+
+export function sendPinSlot(slot, type) {
+  if (_socket) _socket.emit('window:pin', { slot, type });
+}
+
+export function sendUnpinSlot(slot) {
+  if (_socket) _socket.emit('window:unpin', { slot });
 }

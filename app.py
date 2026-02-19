@@ -145,6 +145,33 @@ def create_app(config: AppConfig):
         if activity_id and isinstance(position, dict):
             sync_manager.move_window(request.sid, activity_id, position)
 
+    @socketio.on("window:focus")
+    def on_window_focus(data):
+        from flask import request
+        activity_id = data.get("id", "")
+        if activity_id:
+            room = sync_manager.get_room_for_client(request.sid)
+            socketio.emit("window:focus", {"id": activity_id}, room=room)
+
+    @socketio.on("window:pin")
+    def on_window_pin(data):
+        from flask import request
+        slot = data.get("slot")
+        type_name = data.get("type")
+        if slot is not None and type_name:
+            sync_manager.pin_slot(request.sid, int(slot), type_name)
+            room = sync_manager.get_room_for_client(request.sid)
+            socketio.emit("window:pin", {"slot": int(slot), "type": type_name}, room=room)
+
+    @socketio.on("window:unpin")
+    def on_window_unpin(data):
+        from flask import request
+        slot = data.get("slot")
+        if slot is not None:
+            sync_manager.unpin_slot(request.sid, int(slot))
+            room = sync_manager.get_room_for_client(request.sid)
+            socketio.emit("window:unpin", {"slot": int(slot)}, room=room)
+
     return app, socketio
 
 

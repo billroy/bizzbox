@@ -63,6 +63,8 @@ class ActivityManager:
         self._pending_closures: list[tuple] = []
         # Activity type filter (None = all allowed)
         self._allowed_types: set[str] | None = None
+        # Pinned background slots: slot_index → activity type name
+        self._pinned_slots: dict[int, str] = {}
 
     def _draw_update_interval(self) -> float:
         """Draw next update interval from N(1/intensity, 1/(intensity*4)), min 0.05s."""
@@ -152,9 +154,10 @@ class ActivityManager:
             else:
                 self._pending_closures.append((rec.id, replace_at))
         else:
-            # Background activities always get replaced
+            # Background activities always get replaced; use pinned type if set
+            pinned_type = self._pinned_slots.get(rec.slot)
             self._pending_replacements.append(
-                (rec.slot, rec.is_foreground, replace_at, rec.id, None, None, None)
+                (rec.slot, rec.is_foreground, replace_at, rec.id, pinned_type, None, None)
             )
 
     def _process_replacements(self, now: float):
@@ -194,7 +197,7 @@ class ActivityManager:
 
     def replace_window(self, activity_id: str, new_type: str = None):
         """Replace an activity with a new one of the specified (or random) type,
-        preserving slot, position, and size."""
+        preserving slot, position, and size. Respects pinned slot types."""
         rec = self._activities.get(activity_id)
         if not rec or rec.despawning:
             return
@@ -203,11 +206,16 @@ class ActivityManager:
         pos = dict(rec.position) if rec.position else None
         sz = dict(rec.size) if rec.size else None
 
+        # If no explicit type requested and slot is pinned, use pinned type
+        effective_type = new_type
+        if effective_type is None and slot is not None:
+            effective_type = self._pinned_slots.get(slot)
+
         rec.despawning = True
         self._emitter.emit_despawn(self._room, rec.id)
         replace_at = time.time() + REPLACE_DELAY
         self._pending_replacements.append(
-            (slot, is_fg, replace_at, rec.id, new_type, pos, sz)
+            (slot, is_fg, replace_at, rec.id, effective_type, pos, sz)
         )
 
     def close_window(self, activity_id: str):
@@ -309,6 +317,14 @@ class ActivityManager:
         for slot_idx in range(old_count, new_count):
             self._spawn_activity(slot_idx, is_foreground=False)
 
+    def pin_slot(self, slot: int, type_name: str):
+        """Pin a background slot to always respawn with the given activity type."""
+        self._pinned_slots[slot] = type_name
+
+    def unpin_slot(self, slot: int):
+        """Remove pin from a background slot."""
+        self._pinned_slots.pop(slot, None)
+
     def set_activity_filter(self, allowed_types: set[str] | None):
         """Set the activity type filter. None or empty set means all allowed."""
         self._allowed_types = allowed_types if allowed_types else None
@@ -345,4 +361,5 @@ class ActivityManager:
                 "grid_rows": self._grid_rows,
             },
             "activities": activities,
+            "pinned_slots": {str(k): v for k, v in self._pinned_slots.items()},
         }

@@ -163,3 +163,23 @@ class SyncManager:
             manager = self._client_managers.get(sid)
             if manager:
                 manager.set_activity_filter(allowed)
+
+    def pin_slot(self, sid: str, slot: int, type_name: str):
+        """Pin a background slot to a specific activity type."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.pin_slot(slot, type_name)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.pin_slot(slot, type_name)
+
+    def unpin_slot(self, sid: str, slot: int):
+        """Remove pin from a background slot."""
+        if self._config.sync_mode == "synced":
+            if self._global_manager:
+                self._global_manager.unpin_slot(slot)
+        else:
+            manager = self._client_managers.get(sid)
+            if manager:
+                manager.unpin_slot(slot)

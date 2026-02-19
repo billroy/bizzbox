@@ -634,6 +634,76 @@ body.lock-mode {
   color: var(--color-accent-1);
 }
 
+/* ── Pin indicator on background slots ────────────────────────── */
+.pin-indicator {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.5;
+  z-index: 5;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+.bg-slot--pinned {
+  outline: 1px solid var(--color-accent-2);
+  outline-offset: -1px;
+}
+
+/* ── Slot context menu ───────────────────────────────────────── */
+.slot-ctx-menu {
+  position: fixed;
+  z-index: 5000;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  min-width: 180px;
+  max-height: 340px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ctx-menu-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-dim);
+  letter-spacing: 0.1em;
+  padding: 6px 10px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ctx-menu-scroll {
+  overflow-y: auto;
+  max-height: 260px;
+}
+
+.ctx-menu-item {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-primary);
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.ctx-menu-item:hover {
+  background: var(--color-accent-1);
+  color: var(--color-bg);
+}
+
+.ctx-menu-unpin {
+  border-top: 1px solid var(--color-border);
+  color: var(--color-error);
+}
+.ctx-menu-unpin:hover {
+  background: var(--color-error);
+  color: var(--color-bg);
+}
+
 /* ── Scrollbars (webkit) ─────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
