@@ -2,10 +2,13 @@
  * Keyboard shortcut handler + lock mode.
  */
 import { store, savePrefs, showToast, THEME_LIST } from './store.js';
-import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget } from './socket.js';
+import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendActivityFilter } from './socket.js';
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
+import { SCENES } from './scenes.js';
+import { ACTIVITY_TYPES } from './activityTypes.js';
 
 let _cursorHideTimer = null;
+let _sceneIndex = -1;
 
 function enterLockMode() {
   store.lockMode = true;
@@ -31,6 +34,35 @@ function scheduleCursorHide() {
       document.body.style.cursor = 'none';
     }
   }, 2000);
+}
+
+function applyScene(scene) {
+  sendStyle(scene.style);
+  sendLayout(scene.cols, scene.rows);
+  sendIntensity(scene.intensity);
+  sendFgTarget(scene.fgTarget);
+  if (scene.ambientPreset !== undefined) {
+    const key = scene.ambientPreset || null;
+    store.ambientPreset = key;
+    if (key) {
+      audio.startAmbient(key, scene.intensity);
+    } else {
+      audio.stopAmbient();
+    }
+  }
+  if (scene.filter && Array.isArray(scene.filter)) {
+    const filterObj = {};
+    for (const t of ACTIVITY_TYPES) filterObj[t] = false;
+    for (const t of scene.filter) filterObj[t] = true;
+    store.activityFilter = filterObj;
+    sendActivityFilter(scene.filter);
+  } else if (scene.filter === null) {
+    const filterObj = {};
+    for (const t of ACTIVITY_TYPES) filterObj[t] = true;
+    store.activityFilter = filterObj;
+    sendActivityFilter(ACTIVITY_TYPES);
+  }
+  savePrefs();
 }
 
 function onKeyDown(evt) {
@@ -165,6 +197,17 @@ function onKeyDown(evt) {
         showToast('AMBIENT OFF');
       }
       savePrefs();
+      evt.preventDefault();
+      break;
+    }
+
+    case 's':
+    case 'S': {
+      // Cycle scenes
+      _sceneIndex = (_sceneIndex + 1) % SCENES.length;
+      const scene = SCENES[_sceneIndex];
+      applyScene(scene);
+      showToast('SCENE: ' + scene.name.toUpperCase());
       evt.preventDefault();
       break;
     }

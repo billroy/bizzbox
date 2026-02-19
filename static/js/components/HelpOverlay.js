@@ -13,6 +13,7 @@ const SHORTCUTS = [
   [']',       'Increase window count'],
   ['Space',   'Pin / unpin header'],
   ['L',       'Enter lock mode'],
+  ['S',       'Cycle scene'],
   ['T',       'Cycle theme'],
   ['A',       'Cycle ambient preset'],
   ['? / H',   'Toggle this help'],
