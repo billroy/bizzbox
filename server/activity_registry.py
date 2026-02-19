@@ -38,6 +38,9 @@ from .generators.satellite_telemetry import SatelliteTelemetryActivity
 from .generators.packet_sniffer import PacketSnifferActivity
 from .generators.seismograph import SeismographActivity
 from .generators.access_control import AccessControlActivity
+from .generators.blockchain import BlockchainActivity
+from .generators.flight_tracker import FlightTrackerActivity
+from .generators.server_rack import ServerRackActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -78,6 +81,9 @@ REGISTRY: dict[str, type] = {
     "packet_sniffer":         PacketSnifferActivity,
     "seismograph":            SeismographActivity,
     "access_control":         AccessControlActivity,
+    "blockchain":                 BlockchainActivity,
+    "flight_tracker":             FlightTrackerActivity,
+    "server_rack":                ServerRackActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -120,6 +126,9 @@ WEIGHTS: dict[str, float] = {
     "packet_sniffer":         1.3,
     "seismograph":            1.4,
     "access_control":         1.2,
+    "blockchain":                 1.4,
+    "flight_tracker":             1.4,
+    "server_rack":                1.3,
 }
 
 _types = list(REGISTRY.keys())

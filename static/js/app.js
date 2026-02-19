@@ -53,6 +53,9 @@ import ActivitySatelliteTelemetry from './components/activities/SatelliteTelemet
 import ActivityPacketSniffer      from './components/activities/PacketSniffer.js';
 import ActivitySeismograph        from './components/activities/Seismograph.js';
 import ActivityAccessControl      from './components/activities/AccessControl.js';
+import ActivityBlockchain         from './components/activities/Blockchain.js';
+import ActivityFlightTracker     from './components/activities/FlightTracker.js';
+import ActivityServerRack        from './components/activities/ServerRack.js';
 
 const { createApp } = Vue;
 
@@ -132,6 +135,9 @@ app.component('activity-satellite-telemetry',  ActivitySatelliteTelemetry);
 app.component('activity-packet-sniffer',       ActivityPacketSniffer);
 app.component('activity-seismograph',          ActivitySeismograph);
 app.component('activity-access-control',       ActivityAccessControl);
+app.component('activity-blockchain',              ActivityBlockchain);
+app.component('activity-flight-tracker',         ActivityFlightTracker);
+app.component('activity-server-rack',            ActivityServerRack);
 
 app.mount('#app');
 

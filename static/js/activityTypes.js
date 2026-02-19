@@ -42,4 +42,7 @@ export const ACTIVITY_TYPES = [
   'packet_sniffer',
   'seismograph',
   'access_control',
+  'blockchain',
+  'flight_tracker',
+  'server_rack',
 ];
