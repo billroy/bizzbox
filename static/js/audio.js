@@ -471,6 +471,32 @@ const AMBIENT_PRESETS = {
     const sub = makeOsc(ctx, dest, now, 40, 'sine', 0.15);      // pressure
     return [wind1, wind2, gust, creak, creak2, sub];
   },
+
+  // Coral reef: underwater bubbles + whale calls + gentle current
+  coral_reef(ctx, dest, now) {
+    const rumble = makeOsc(ctx, dest, now, 30, 'sine', 0.25);       // deep water
+    const current = makeNoise(ctx, dest, now, 500, 1.5, 0.15);      // gentle current
+    const bubbles = makeNoise(ctx, dest, now, 2000, 8, 0.08);       // bubble pops
+    const bubbleLfo = makeLFO(ctx, dest, now, 0.3, 0.03);           // bubble rhythm
+    const whale1 = makeOsc(ctx, dest, now, 120, 'sine', 0.1);       // whale call low
+    const whale2 = makeOsc(ctx, dest, now, 180, 'sine', 0.06);      // whale call high
+    const whaleBeat = makeOsc(ctx, dest, now, 121, 'sine', 0.08);   // slow beat with whale1
+    const shimmer = makeNoise(ctx, dest, now, 4000, 4, 0.03);       // surface light shimmer
+    return [rumble, current, bubbles, bubbleLfo, whale1, whale2, whaleBeat, shimmer];
+  },
+
+  // Thunderstorm: rain + wind gusts + distant thunder rumble
+  thunderstorm(ctx, dest, now) {
+    const rain = makeNoise(ctx, dest, now, 3000, 1.5, 0.3);         // continuous rain
+    const rainLow = makeNoise(ctx, dest, now, 800, 0.8, 0.15);      // heavy rain body
+    const wind = makeNoise(ctx, dest, now, 400, 2, 0.12);           // wind
+    const windLfo = makeLFO(ctx, dest, now, 0.15, 0.06);            // wind gusts
+    const thunder = makeOsc(ctx, dest, now, 40, 'sine', 0.2);       // rumble base
+    const thunder2 = makeOsc(ctx, dest, now, 42, 'sine', 0.18);     // rumble beat
+    const crackle = makeNoise(ctx, dest, now, 6000, 6, 0.03);       // lightning crackle
+    const sub = makeOsc(ctx, dest, now, 22, 'sine', 0.15);          // sub-bass pressure
+    return [rain, rainLow, wind, windLfo, thunder, thunder2, crackle, sub];
+  },
 };
 
 /** Ordered list of ambient preset names for UI */
@@ -484,6 +510,8 @@ export const AMBIENT_PRESET_LIST = [
   { key: 'ocean_depth',      label: 'Ocean Depth' },
   { key: 'power_plant',      label: 'Power Plant' },
   { key: 'arctic_wind',      label: 'Arctic Wind' },
+  { key: 'coral_reef',       label: 'Coral Reef' },
+  { key: 'thunderstorm',     label: 'Thunderstorm' },
 ];
 
 export const audio = new AudioEngine();

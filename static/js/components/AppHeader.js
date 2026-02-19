@@ -235,6 +235,8 @@ export default {
           <option value="lcars">LCARS</option>
           <option value="amber">AMBER</option>
           <option value="arctic">ARCTIC</option>
+          <option value="synthwave">SYNTHWAVE</option>
+          <option value="military">MILITARY</option>
         </select>
 
         <div class="header-sep"></div>

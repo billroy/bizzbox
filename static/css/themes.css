@@ -443,3 +443,93 @@
   --scan-line-color:      rgba(136, 204, 255, 0.015);
   --grid-dot-color:       rgba(68, 255, 204, 0.03);
 }
+
+/* ── SYNTHWAVE — Retro 80s neon sunset ─────────────────────── */
+:root[data-theme="synthwave"] {
+  --color-bg:             #1a0a2e;
+  --color-surface:        #2d1450;
+  --color-surface-2:      #3a1a6a;
+  --color-border:         #5a2a8a;
+  --color-border-bright:  #7a3ab0;
+  --color-text-primary:   #ff71ce;
+  --color-text-dim:       #8040a0;
+  --color-text-bright:    #ffa4e0;
+  --color-accent-1:       #01cdfe;
+  --color-accent-2:       #05ffa1;
+  --color-accent-3:       #fffb96;
+  --color-warn:           #fffb96;
+  --color-error:          #ff3366;
+  --color-crit:           #b967ff;
+  --color-debug:          #5a2a8a;
+  --color-info:           #01cdfe;
+  --color-glow-1:         rgba(1, 205, 254, 0.15);
+  --color-glow-2:         rgba(5, 255, 161, 0.10);
+
+  --font-mono:            'Courier New', Courier, monospace;
+  --font-ui:              'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+  --font-display:         var(--font-ui);
+  --font-size-base:       12px;
+  --font-size-sm:         11px;
+  --font-size-lg:         14px;
+
+  --border-radius:        8px;
+  --border-radius-lg:     12px;
+  --titlebar-height:      26px;
+  --titlebar-bg:          #2d1450;
+  --titlebar-border:      #5a2a8a;
+  --titlebar-text:        #01cdfe;
+  --titlebar-dot-color:   #ff71ce;
+  --header-bg:            rgba(26, 10, 46, 0.94);
+  --header-border:        #5a2a8a;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 8px 32px rgba(0, 0, 0, 0.6),
+                          0 0 30px var(--color-glow-1),
+                          0 0 60px rgba(255, 113, 206, 0.08);
+  --scan-line-color:      rgba(1, 205, 254, 0.02);
+  --grid-dot-color:       rgba(255, 113, 206, 0.04);
+}
+
+/* ── MILITARY — Olive drab tactical ────────────────────────── */
+:root[data-theme="military"] {
+  --color-bg:             #0a0d08;
+  --color-surface:        #1a2010;
+  --color-surface-2:      #243018;
+  --color-border:         #3a4828;
+  --color-border-bright:  #4a5a38;
+  --color-text-primary:   #b8c4a0;
+  --color-text-dim:       #5a6840;
+  --color-text-bright:    #d0dcc0;
+  --color-accent-1:       #c8d080;
+  --color-accent-2:       #40a040;
+  --color-accent-3:       #ff4040;
+  --color-warn:           #d0a030;
+  --color-error:          #ff4040;
+  --color-crit:           #ff2020;
+  --color-debug:          #3a4828;
+  --color-info:           #80a060;
+  --color-glow-1:         rgba(200, 208, 128, 0.06);
+  --color-glow-2:         rgba(64, 160, 64, 0.04);
+
+  --font-mono:            'Courier New', Courier, monospace;
+  --font-ui:              'Courier New', Courier, monospace;
+  --font-display:         'Courier New', Courier, monospace;
+  --font-size-base:       12px;
+  --font-size-sm:         11px;
+  --font-size-lg:         14px;
+
+  --border-radius:        0px;
+  --border-radius-lg:     0px;
+  --titlebar-height:      26px;
+  --titlebar-bg:          #1a2010;
+  --titlebar-border:      #3a4828;
+  --titlebar-text:        #c8d080;
+  --titlebar-dot-color:   #40a040;
+  --header-bg:            rgba(10, 13, 8, 0.94);
+  --header-border:        #3a4828;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 4px 16px rgba(0, 0, 0, 0.8);
+  --scan-line-color:      rgba(200, 208, 128, 0.015);
+  --grid-dot-color:       rgba(64, 160, 64, 0.03);
+}

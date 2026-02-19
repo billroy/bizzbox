@@ -105,6 +105,7 @@ export const store = reactive({
 export const THEME_LIST = [
   'dark', 'light', 'brutalist', 'neon', 'rainbow',
   'sunshine', 'red', 'black', 'lcars', 'amber', 'arctic',
+  'synthwave', 'military',
 ];
 
 // ── Toast helper ────────────────────────────────────────────
