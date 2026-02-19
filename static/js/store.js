@@ -22,6 +22,39 @@ function parseUrlOverrides() {
 
 export const urlOverrides = parseUrlOverrides();
 
+// ── localStorage persistence ─────────────────────────────────
+const PREFS_KEY = 'bizzbox_prefs';
+
+export function savePrefs() {
+  try {
+    const p = {
+      style: store.config.style,
+      layout: store.grid ? `${store.grid.cols}x${store.grid.rows}` : null,
+      intensity: store.config.intensity,
+      muted: store.config.muted,
+      ambientPreset: store.ambientPreset,
+      activityFilter: store.activityFilter,
+      fgTarget: store.config.fgTarget,
+      headerPinned: store.headerPinned,
+    };
+    localStorage.setItem(PREFS_KEY, JSON.stringify(p));
+  } catch (_) { /* storage full or unavailable */ }
+}
+
+export function loadPrefs() {
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) { return null; }
+}
+
+export function clearPrefs() {
+  try {
+    localStorage.removeItem(PREFS_KEY);
+    localStorage.removeItem('bizzbox_custom_scenes');
+  } catch (_) { /* ignore */ }
+}
+
 export const store = reactive({
   // Connection
   connected: false,
@@ -50,6 +83,9 @@ export const store = reactive({
   ambientPreset: null,    // null = off, or one of AMBIENT_PRESET_LIST keys
   filterModalOpen: false,
   activityFilter: {},   // type → boolean, all true by default
+
+  // Custom scenes (loaded from localStorage)
+  customScenes: [],
 });
 
 // Computed helpers (plain functions — called in templates/setup)

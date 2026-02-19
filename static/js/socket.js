@@ -2,7 +2,7 @@
  * Socket.IO client wrapper.
  * Registers all inbound event handlers and provides outbound helpers.
  */
-import { store, urlOverrides, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout } from './store.js';
+import { store, urlOverrides, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs } from './store.js';
 import { audio } from './audio.js';
 
 let _socket = null;
@@ -52,9 +52,36 @@ export function initSocket() {
       scheduleActivitySound(act.id, act.type);
     }
 
-    // Apply URL overrides once on first sync:init
+    // Apply saved prefs + URL overrides once on first sync:init
+    // Priority: URL params > localStorage > server defaults
     if (!_urlOverridesApplied) {
       _urlOverridesApplied = true;
+      const saved = loadPrefs();
+
+      // Apply localStorage prefs first (lower priority)
+      if (saved) {
+        if (!urlOverrides.style && saved.style)         sendStyle(saved.style);
+        if (!urlOverrides.layout && saved.layout) {
+          const sp = saved.layout.split('x').map(Number);
+          if (sp.length === 2) sendLayout(sp[0], sp[1]);
+        }
+        if (!urlOverrides.intensity && saved.intensity)  sendIntensity(saved.intensity);
+        if (urlOverrides.windows === undefined && saved.fgTarget !== undefined) sendFgTarget(saved.fgTarget);
+        if (urlOverrides.muted === undefined && saved.muted !== undefined)      sendMute(saved.muted);
+        if (saved.headerPinned) store.headerPinned = true;
+        if (saved.ambientPreset) {
+          store.ambientPreset = saved.ambientPreset;
+          audio.startAmbient(saved.ambientPreset, store.config.intensity);
+        }
+        if (saved.activityFilter && Object.keys(saved.activityFilter).length > 0) {
+          store.activityFilter = saved.activityFilter;
+          const allowed = Object.entries(saved.activityFilter)
+            .filter(([_, v]) => v).map(([k]) => k);
+          sendActivityFilter(allowed);
+        }
+      }
+
+      // URL overrides win (higher priority)
       if (urlOverrides.style)     sendStyle(urlOverrides.style);
       if (urlOverrides.layout) {
         const parts = urlOverrides.layout.split('x').map(Number);
@@ -87,20 +114,24 @@ export function initSocket() {
 
   _socket.on('configure:style', (data) => {
     applyStyle(data.style);
+    savePrefs();
   });
 
   _socket.on('configure:intensity', (data) => {
     store.config.intensity = data.value;
     if (store.ambientPreset) audio.updateAmbientIntensity(data.value);
+    savePrefs();
   });
 
   _socket.on('configure:fg_count', (data) => {
     store.config.fgTarget = data.value;
+    savePrefs();
   });
 
   _socket.on('configure:mute', (data) => {
     store.config.muted = data.muted;
     audio.setMuted(data.muted);
+    savePrefs();
   });
 
   _socket.on('client:connect', (data) => {
@@ -109,6 +140,7 @@ export function initSocket() {
 
   _socket.on('configure:layout', (data) => {
     setLayout(data.cols, data.rows);
+    savePrefs();
   });
 
   _socket.on('window:resize', (data) => {

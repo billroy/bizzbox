@@ -1,7 +1,7 @@
 /**
  * Keyboard shortcut handler + lock mode.
  */
-import { store } from './store.js';
+import { store, savePrefs } from './store.js';
 import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget } from './socket.js';
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 
@@ -95,6 +95,7 @@ function onKeyDown(evt) {
 
     case ' ':
       store.headerPinned = !store.headerPinned;
+      savePrefs();
       evt.preventDefault();
       break;
 
@@ -124,6 +125,7 @@ function onKeyDown(evt) {
         store.ambientPreset = null;
         audio.stopAmbient();
       }
+      savePrefs();
       evt.preventDefault();
       break;
     }

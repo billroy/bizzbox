@@ -1,0 +1,334 @@
+FEATURES-6 — Forward Feature Trajectory
+========================================
+
+Assessment of the current state: BizzBox has 34 activity types, 9 themes,
+9 ambient soundscapes, 6 preset scenes, full keyboard control, lock mode,
+URL overrides, activity filtering, drag/resize foreground windows, and
+per-activity sound effects. All server state is ephemeral. There is zero
+persistence (no localStorage, no database). The weakest activities
+(countdown, hex dump, notifications, progress bars, data table, stock list)
+are all purely DOM/text with no canvas rendering or animation.
+
+The trajectory below is ordered by impact and roughly grouped into tiers.
+
+
+TIER 1 — Polish and persistence
+--------------------------------
+
+1. localStorage persistence
+
+   Save user preferences to localStorage so they survive page reload:
+   - Last selected theme
+   - Last grid layout (cols x rows)
+   - Last intensity value
+   - Muted state
+   - Ambient preset selection
+   - Activity filter (enabled/disabled types)
+   - Foreground window target count
+   - Header pinned state
+
+   On load, apply saved preferences before the first sync:init from
+   the server. URL query params should override saved preferences
+   (URL > localStorage > server defaults). Add a "RESET" button in the
+   header that clears saved preferences and reloads.
+
+   Files: static/js/store.js (read/write localStorage), static/js/socket.js
+   (apply saved prefs on connect), static/js/components/AppHeader.js
+   (reset button)
+
+2. Enrich scenes with ambient audio + activity filter
+
+   Scenes currently control: style, cols, rows, intensity, fgTarget.
+   Add two optional fields:
+   - ambientPreset: string|null — which ambient soundscape to activate
+   - filter: string[]|null — list of enabled activity types (null = all)
+
+   Update the 6 existing presets:
+   - War Room: ambientPreset "war_room", filter null
+   - Ambient: ambientPreset "deep_space", filter null
+   - Hacker Den: ambientPreset "server_room", filter null
+   - Mission Control: ambientPreset "bunker_countdown", filter null
+   - Surveillance: ambientPreset "power_plant", filter null
+   - Chaos: ambientPreset null, filter null
+
+   Files: static/js/scenes.js (add fields), static/js/components/AppHeader.js
+   (apply ambient + filter when scene is selected)
+
+3. Custom user scenes (localStorage)
+
+   After implementing #1 and #2, let users save the current configuration
+   as a named scene. Stored in localStorage as an array of scene objects.
+   UI: a "SAVE SCENE" button in the header that prompts for a name. Custom
+   scenes appear in the SCENES dropdown below the built-in presets,
+   with a small "x" to delete them.
+
+   Files: static/js/scenes.js (save/load/delete), static/js/store.js
+   (custom scenes in reactive state), static/js/components/AppHeader.js
+   (save button + custom scene entries in dropdown)
+
+
+TIER 2 — Visual upgrades to weak activities
+--------------------------------------------
+
+The following activities have low visual weight and are noticeably
+less engaging than the canvas-based ones. Each should be upgraded to
+a canvas renderer (or at least gain animated elements) to bring them
+up to the quality bar set by GlobeArcs, Radar, and WeatherRadar.
+
+4. Countdown overhaul
+
+   Currently 3 static text elements. Redesign as a canvas renderer with:
+   - Large segmented/LCD-style digit display (drawn, not font)
+   - Circular arc progress ring around the digits showing time remaining
+   - Animated tick marks around the ring that pulse on each second
+   - Color shifts as countdown nears zero (accent-1 -> warn -> error)
+   - "T-MINUS" label rendered in theme font at bottom
+   - Phase label at top with subtle glow when phase changes
+
+   Files: static/js/components/activities/Countdown.js (rewrite),
+   static/css/activities.css (remove old countdown styles)
+
+5. HexDump overhaul
+
+   Currently plain monospace text rows. Redesign as a canvas renderer:
+   - Draw hex bytes as a fixed grid with subtle cell borders
+   - Highlight recently changed bytes with accent-2 flash that fades
+   - ASCII column with non-printable chars shown as dim dots
+   - Scroll animation: new rows slide in from bottom
+   - Offset column in accent-1 color
+   - Optional: pulsing cursor on the "current read position"
+
+   Files: static/js/components/activities/HexDump.js (rewrite)
+
+6. Notifications upgrade
+
+   Keep DOM-based but add more visual punch:
+   - Entry animation: notifications slide in from the right with a brief
+     flash on arrival
+   - Severity-based left border stripe (color-coded thick bar)
+   - Pulsing icon per level (shield for security, triangle for warning,
+     circle-x for error, bell for info)
+   - Progress bar uses accent color and depletes smoothly via CSS transition
+   - When a notification expires, it collapses upward with opacity fade
+   - Add a subtle count badge showing total notifications received
+
+   Files: static/js/components/activities/Notifications.js (enhance),
+   static/css/activities.css (add notification animations)
+
+7. ProgressBars upgrade
+
+   Keep DOM-based but add animation and visual depth:
+   - Striped/barberpole animated fill pattern (CSS gradient animation)
+   - Speed indicator: small chevrons or arrows in the fill bar moving
+     at a rate proportional to the progress speed
+   - Completion burst: brief particle/sparkle CSS animation when a bar
+     hits 100%
+   - ETA text next to percentage
+   - Color gradient on the fill bar: accent-1 at 0% transitioning to
+     accent-2 at 100%
+
+   Files: static/js/components/activities/ProgressBars.js (enhance),
+   static/css/activities.css (add bar animations)
+
+8. DataTable upgrade
+
+   Keep DOM-based but make it feel alive:
+   - Cell flash animation when a value changes (brief background highlight
+     that fades out over 500ms)
+   - Row hover glow effect (even though users don't interact, it makes
+     the cursor feel connected)
+   - Alternating row background using surface/surface-2 colors
+   - Sortable column headers (visual only — cycle sort indicator icon)
+   - Scrolling row highlight: a subtle "scan line" that moves down the
+     table continuously
+
+   Files: static/js/components/activities/DataTable.js (enhance),
+   static/css/activities.css (add table animations)
+
+
+TIER 3 — New activities
+------------------------
+
+9. Satellite Telemetry Panel
+
+   A ground-station-style readout for a single satellite:
+   - Strategies: leo_recon, geo_comms, deep_space_probe, iss_module,
+     military_sigint
+   - State: satellite name/designator, orbit altitude, velocity, signal
+     strength (with bar), uplink/downlink bitrate, battery %, solar array
+     angle, attitude quaternion displayed as roll/pitch/yaw, ground track
+     lat/lon, next pass time, link budget margin
+   - Canvas renderer with a top bar showing satellite name/designator,
+     a small orbital arc diagram in the upper right, and a grid of
+     labeled readout values below
+   - Values update with realistic drift; signal strength fluctuates,
+     occasionally drops to 0 (loss of signal) then recovers
+
+   Files: server/generators/satellite_telemetry.py (new),
+   static/js/components/activities/SatelliteTelemetry.js (new),
+   server/activity_registry.py (register), static/js/activityTypes.js (add)
+
+10. Packet Sniffer / Network Traffic
+
+    Live-scrolling network packet capture display:
+    - Strategies: perimeter_firewall, honeypot_monitor, tor_exit_node,
+      voip_intercept, scada_traffic
+    - State: array of packet objects with timestamp, src_ip, dst_ip,
+      protocol (TCP/UDP/ICMP/DNS/HTTP), port, size_bytes, flags,
+      threat_level (none/low/medium/high/critical)
+    - DOM-based renderer: scrolling rows color-coded by threat level,
+      protocol badges, flag indicators
+    - Threat packets highlighted with pulsing left border
+    - Packet rate counter and bytes/sec in a small HUD overlay
+
+    Files: server/generators/packet_sniffer.py (new),
+    static/js/components/activities/PacketSniffer.js (new),
+    server/activity_registry.py (register), static/js/activityTypes.js (add)
+
+11. Seismograph
+
+    Real-time seismograph / vibration monitor:
+    - Strategies: tectonic_monitor, building_structural, blast_detection,
+      volcanic_observatory, submarine_hydrophone
+    - State: waveform array (circular buffer of amplitude values),
+      current peak, station name, magnitude estimate, depth_km
+    - Canvas renderer: classic seismograph trace scrolling left to right,
+      multiple stacked channels (Z/N/E components), amplitude triggers
+      shown as colored threshold lines, magnitude badge updates when
+      event detected
+    - Normally shows low-level noise; periodically has realistic P-wave
+      and S-wave arrival patterns
+
+    Files: server/generators/seismograph.py (new),
+    static/js/components/activities/Seismograph.js (new),
+    server/activity_registry.py (register), static/js/activityTypes.js (add)
+
+12. Access Control Log
+
+    Physical security / badge access event feed:
+    - Strategies: corporate_hq, military_base, research_lab, data_center,
+      embassy_compound
+    - State: array of events with timestamp, badge_id, person_name,
+      clearance_level, door/zone name, action (GRANTED/DENIED/TAILGATE/
+      FORCED), photo placeholder (colored rectangle with initials)
+    - DOM-based renderer: vertical event feed, DENIED entries flash red,
+      TAILGATE and FORCED entries pulse with warning animation
+    - Running stats bar at bottom: entries today, denied count, zones active
+
+    Files: server/generators/access_control.py (new),
+    static/js/components/activities/AccessControl.js (new),
+    server/activity_registry.py (register), static/js/activityTypes.js (add)
+
+
+TIER 4 — New themes
+--------------------
+
+13. "Amber" theme — Retro phosphor terminal
+
+    - Background: #0a0800 (near-black warm)
+    - Text/accents: amber #ffb000, dark amber #805800
+    - Monospace everything
+    - Zero border-radius (sharp corners like CRT)
+    - Subtle CRT curvature/vignette via scan-line overlay
+    - Minimal glow, warm-toned shadows
+
+    Files: static/css/themes.css (add :root[data-theme="amber"]),
+    static/js/components/AppHeader.js (add option),
+    app.py (add to --style choices)
+
+14. "Arctic" theme — Cold blue-white
+
+    - Background: #0a1520 (deep cold blue)
+    - Surfaces: #0f2030, #152840
+    - Text: #d0e8ff (icy white-blue)
+    - Accents: #88ccff (ice blue), #44ffcc (aurora green), #ff6688 (warning pink)
+    - Medium border-radius (smooth/rounded)
+    - Glows lean blue-white, like frost
+
+    Files: static/css/themes.css (add :root[data-theme="arctic"]),
+    static/js/components/AppHeader.js (add option),
+    app.py (add to --style choices)
+
+
+TIER 5 — Infrastructure and UX
+-------------------------------
+
+15. Window z-ordering
+
+    Foreground windows currently have no z-index management. Clicking a
+    window should bring it to front. Implementation:
+    - Track a z-order counter in the store (starts at 100, increments)
+    - On pointerdown inside a foreground window, assign it the next z-index
+    - Broadcast z-order changes to synced clients via a new socket event
+      window:focus
+
+    Files: static/js/store.js (z-order counter),
+    static/js/components/ForegroundLayer.js (apply z-index on click),
+    static/js/socket.js (send/receive window:focus),
+    app.py (handle window:focus event)
+
+16. Background slot pinning
+
+    Let users lock a background grid slot to a specific activity type so
+    it persists through randomize and natural despawn cycles:
+    - Right-click (or long-press) on a background activity shows a small
+      context menu with "Pin Type" / "Unpin"
+    - Pinned slots always respawn with the same activity type
+    - Pinned slots get a small pin icon in their top-right corner
+    - Server-side: ActivityManager tracks pinned slots and overrides
+      random_type() for those slots
+
+    Files: static/js/components/BackgroundGrid.js (context menu, pin icon),
+    static/js/socket.js (new event window:pin),
+    app.py (handle pin event),
+    server/activity_manager.py (pinned slot tracking + respawn logic)
+
+17. Performance: delta state updates
+
+    Currently the server sends the full activity state on every update.
+    For activities with large state (e.g., game_of_life sends all live
+    cell coordinates every frame), this wastes bandwidth.
+    - Server-side: BaseActivity gains a diff_payload(old_state, new_state)
+      method that returns only changed fields
+    - Client-side: store.js merges delta updates into existing state
+    - Opt-in per activity: activities override diff_payload only when
+      their state is large enough to benefit
+    - Start with game_of_life (cell list) and data_table (row array)
+
+    Files: server/generators/base.py (add diff_payload),
+    server/activity_manager.py (call diff_payload, send deltas),
+    static/js/store.js (merge delta into existing state),
+    server/generators/game_of_life.py (override diff_payload),
+    server/generators/data_table.py (override diff_payload)
+
+18. Multi-display / multi-window mode
+
+    Allow BizzBox to span multiple browser windows or screens, each
+    showing a different section of one large virtual grid:
+    - URL param ?region=0,0,3,4 means "show columns 0-2, rows 0-3 of
+      a larger grid"
+    - The server manages the full grid; each client subscribes to
+      a rectangular subregion
+    - Each window renders only its assigned slots
+    - Useful for multi-monitor installations or video walls
+
+    This is a larger architectural change. The server already normalizes
+    positions to a 1920x1080 reference viewport. The extension would
+    define a larger virtual canvas (e.g., 5760x2160 for a 3-monitor setup)
+    and let each client window claim a viewport rectangle.
+
+    Files: app.py (region param handling), server/activity_manager.py
+    (per-region activity filtering), server/sync_manager.py (region-aware
+    room routing), static/js/store.js (region parsing + viewport offset),
+    static/js/components/BackgroundGrid.js (slot visibility filtering)
+
+
+Priority recommendation
+-----------------------
+Start with features 1-3 (persistence + scenes enrichment) as they have
+the highest quality-of-life impact. Then pick 2-3 activity upgrades from
+features 4-8 to raise the visual floor. New activities (9-12) and themes
+(13-14) can be mixed in as creative palette cleansers between the more
+structural work. Infrastructure features (15-18) should be done based
+on user need — z-ordering (15) is a quick win, delta updates (17) only
+matters at high grid sizes, and multi-display (18) is a stretch goal.

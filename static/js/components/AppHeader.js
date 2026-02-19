@@ -1,11 +1,11 @@
 /**
  * Auto-hiding page header with all controls.
  */
-import { store } from '../store.js';
-import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize } from '../socket.js';
+import { store, savePrefs, clearPrefs } from '../store.js';
+import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize, sendActivityFilter } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
-import { SCENES } from '../scenes.js';
+import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene } from '../scenes.js';
 import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
 
 export default {
@@ -30,6 +30,8 @@ export default {
     onMounted(() => {
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('touchstart', onMouseMove);
+      // Load custom scenes from localStorage
+      store.customScenes = loadCustomScenes();
     });
 
     onUnmounted(() => {
@@ -98,21 +100,81 @@ export default {
     }
 
     const scenes = SCENES;
+    const customScenes = computed(() => store.customScenes);
+
+    function _applySceneObj(scene) {
+      sendStyle(scene.style);
+      sendLayout(scene.cols, scene.rows);
+      sendIntensity(scene.intensity);
+      sendFgTarget(scene.fgTarget);
+      // Apply ambient preset if defined
+      if (scene.ambientPreset !== undefined) {
+        const key = scene.ambientPreset || null;
+        store.ambientPreset = key;
+        if (key) {
+          audio.startAmbient(key, scene.intensity);
+        } else {
+          audio.stopAmbient();
+        }
+        savePrefs();
+      }
+      // Apply activity filter if defined
+      if (scene.filter && Array.isArray(scene.filter)) {
+        const filterObj = {};
+        for (const t of ACTIVITY_TYPES) filterObj[t] = false;
+        for (const t of scene.filter) filterObj[t] = true;
+        store.activityFilter = filterObj;
+        sendActivityFilter(scene.filter);
+        savePrefs();
+      } else if (scene.filter === null) {
+        // null = all enabled — reset filter
+        const filterObj = {};
+        for (const t of ACTIVITY_TYPES) filterObj[t] = true;
+        store.activityFilter = filterObj;
+        sendActivityFilter(ACTIVITY_TYPES);
+        savePrefs();
+      }
+    }
+
     function applyScene(evt) {
       const name = evt.target.value;
       if (!name) return;
-      const scene = SCENES.find(s => s.name === name);
-      if (scene) {
-        sendStyle(scene.style);
-        sendLayout(scene.cols, scene.rows);
-        sendIntensity(scene.intensity);
-        sendFgTarget(scene.fgTarget);
-      }
+      const scene = SCENES.find(s => s.name === name) || store.customScenes.find(s => s.name === name);
+      if (scene) _applySceneObj(scene);
       evt.target.value = '';
+    }
+
+    function saveScene() {
+      const name = window.prompt('Scene name:');
+      if (!name || !name.trim()) return;
+      const scene = {
+        name: name.trim(),
+        style: store.config.style,
+        cols: store.grid ? store.grid.cols : 3,
+        rows: store.grid ? store.grid.rows : 2,
+        intensity: store.config.intensity,
+        fgTarget: store.config.fgTarget,
+        ambientPreset: store.ambientPreset || null,
+        filter: null,
+      };
+      saveCustomScene(scene);
+      store.customScenes = loadCustomScenes();
+    }
+
+    function removeCustomScene(evt, name) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      deleteCustomScene(name);
+      store.customScenes = loadCustomScenes();
     }
 
     function openFilter() {
       store.filterModalOpen = true;
+    }
+
+    function resetPrefs() {
+      clearPrefs();
+      location.reload();
     }
 
     const ambientPresets = AMBIENT_PRESET_LIST;
@@ -127,10 +189,11 @@ export default {
         } else {
           audio.stopAmbient();
         }
+        savePrefs();
       },
     });
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, applyScene, openFilter, ambientPresets, ambientPreset };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, openFilter, resetPrefs, ambientPresets, ambientPreset };
   },
 
   template: `
@@ -150,7 +213,10 @@ export default {
       <select class="header-select" @change="applyScene">
         <option value="">---</option>
         <option v-for="s in scenes" :key="s.name" :value="s.name">{{ s.name.toUpperCase() }}</option>
+        <option v-if="customScenes.length" disabled>────</option>
+        <option v-for="s in customScenes" :key="'c_'+s.name" :value="s.name">{{ s.name.toUpperCase() }} *</option>
       </select>
+      <button class="header-btn" @click="saveScene" title="Save current config as scene">SAVE</button>
 
       <div class="header-sep"></div>
 
@@ -220,6 +286,8 @@ export default {
       <button class="header-btn" @click="toggleFullscreen">
         {{ isFullscreen ? 'EXIT FS' : 'FULLSCR' }}
       </button>
+
+      <button class="header-btn" @click="resetPrefs" title="Reset all saved preferences">RESET</button>
     </header>
   `,
 };

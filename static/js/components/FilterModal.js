@@ -1,7 +1,7 @@
 /**
  * Activity type filter modal — checkboxes to include/exclude types from spawn pool.
  */
-import { store } from '../store.js';
+import { store, savePrefs } from '../store.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
 import { sendActivityFilter } from '../socket.js';
 
@@ -37,6 +37,7 @@ export default {
     function emitFilter() {
       const allowed = ACTIVITY_TYPES.filter(t => store.activityFilter[t]);
       sendActivityFilter(allowed);
+      savePrefs();
     }
 
     function close() {
