@@ -18,6 +18,16 @@ export const SCENES = [
   { name: 'Transit Hub',     style: 'synthwave', cols: 5, rows: 3, intensity: 9,  fgTarget: 3,  ambientPreset: 'hyperloop_tube',   filter: ['hyperloop', 'transit_map', 'flight_tracker', 'countdown', 'data_table', 'graph'] },
   { name: 'Bio Lab',         style: 'light',     cols: 3, rows: 2, intensity: 5,  fgTarget: 1,  ambientPreset: 'genetics_hum',     filter: ['genetics_lab', 'dna_sequence', 'heart_monitor', 'graph', 'progress_bars', 'oscilloscope'] },
   { name: 'Cyber Siege',     style: 'brutalist',  cols: 6, rows: 4, intensity: 18, fgTarget: 8,  ambientPreset: 'digital_warfare',  filter: ['network_topology', 'packet_sniffer', 'cipher_decrypt', 'access_control', 'blockchain', 'code_scroll', 'terminal'] },
+  { name: 'Coral Reef',      style: 'ocean',      cols: 4, rows: 3, intensity: 4,  fgTarget: 1,  ambientPreset: 'coral_reef',       filter: ['sonar', 'submarine_helm', 'weather_radar', 'seismograph', 'oscilloscope', 'heart_monitor'] },
+  { name: 'Ironworks',       style: 'copper',     cols: 5, rows: 4, intensity: 14, fgTarget: 4,  ambientPreset: 'steel_mill',       filter: ['power_grid', 'server_rack', 'resource_gauges', 'process_monitor', 'progress_bars', 'graph', 'oscilloscope'] },
+  { name: 'Neon Dreams',     style: 'vapor',      cols: 4, rows: 3, intensity: 7,  fgTarget: 2,  ambientPreset: 'radio_static',     filter: ['audio_spectrum', 'sdr_waterfall', 'qam_constellation', 'matrix_rain', 'wireframe_3d', 'game_of_life'] },
+  { name: 'Thermal Scan',    style: 'infrared',   cols: 5, rows: 3, intensity: 11, fgTarget: 3,  ambientPreset: 'circuit_board',    filter: ['cctv_mosaic', 'facial_recognition', 'camera_feed', 'access_control', 'radar', 'geo_map'] },
+  { name: 'Deep Green',      style: 'phosphor',   cols: 3, rows: 3, intensity: 6,  fgTarget: 0,  ambientPreset: 'server_room',      filter: ['terminal', 'code_scroll', 'hex_dump', 'log_tail', 'cipher_decrypt', 'packet_sniffer'] },
+  { name: 'Architect',       style: 'blueprint',  cols: 4, rows: 2, intensity: 5,  fgTarget: 1,  ambientPreset: 'cathedral',        filter: ['system_topology', 'network_topology', 'wireframe_3d', 'data_table', 'graph', 'process_monitor'] },
+  { name: 'Golden Hour',     style: 'sunset',     cols: 3, rows: 2, intensity: 3,  fgTarget: 0,  ambientPreset: 'train_station',    filter: ['transit_map', 'flight_tracker', 'stock_graph', 'stock_list', 'weather_radar', 'globe_arcs'] },
+  { name: 'Jungle Outpost',  style: 'forest',     cols: 5, rows: 3, intensity: 9,  fgTarget: 3,  ambientPreset: 'jungle_night',     filter: ['weather_radar', 'geo_map', 'satellite_telemetry', 'radar', 'seismograph', 'notifications'] },
+  { name: 'Eruption',        style: 'matrix',     cols: 6, rows: 4, intensity: 17, fgTarget: 7,  ambientPreset: 'volcano',          filter: ['seismograph', 'power_grid', 'resource_gauges', 'weather_radar', 'countdown', 'notifications', 'graph', 'oscilloscope'] },
+  { name: 'Frozen Vault',    style: 'frost',      cols: 4, rows: 3, intensity: 8,  fgTarget: 2,  ambientPreset: 'ice_cave',         filter: ['blockchain', 'cipher_decrypt', 'access_control', 'data_table', 'server_rack', 'hex_dump'] },
 ];
 
 const CUSTOM_KEY = 'bizzbox_custom_scenes';
