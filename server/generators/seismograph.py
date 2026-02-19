@@ -131,8 +131,32 @@ class SeismographActivity(BaseActivity):
             "strategy":  self.strategy,
         }
 
+    # Number of new samples appended per frame (rightmost portion of the buffer).
+    # The rest of the buffer is shifted left. Client uses this to apply append deltas.
+    SAMPLES_PER_TICK = 8
+
     def initial_payload(self) -> dict:
         return self._get_state()
+
+    def compute_delta(self, old_state: dict, new_state: dict) -> dict | None:
+        """Send only the rightmost SAMPLES_PER_TICK samples per channel as an append delta."""
+        new_channels = new_state.get("channels", [])
+        if len(new_channels) != 3:
+            return None
+
+        append = []
+        for ch in new_channels:
+            samples = ch.get("samples", [])
+            # Take the last SAMPLES_PER_TICK samples as the "new" data
+            append.append(samples[-self.SAMPLES_PER_TICK:])
+
+        return {
+            "_delta": True,
+            "append": append,
+            "magnitude": new_state.get("magnitude"),
+            "depth_km": new_state.get("depth_km"),
+            "peak": new_state.get("peak"),
+        }
 
     def next_frame(self) -> dict:
         self._frame += 1

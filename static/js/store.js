@@ -184,6 +184,58 @@ export function updateActivity(id, state) {
   }
 }
 
+export function mergeActivityDelta(id, delta) {
+  const act = store.activities[id];
+  if (!act || !act.state) return false;
+  const s = act.state;
+  const type = act.type;
+
+  if (type === 'game_of_life') {
+    // Apply born/died to existing cell set
+    const cols = s.cols || 80;
+    const cellSet = new Set((s.cells || []).map(c => c[0] * cols + c[1]));
+    for (const [r, c] of (delta.died || [])) cellSet.delete(r * cols + c);
+    for (const [r, c] of (delta.born || [])) cellSet.add(r * cols + c);
+    s.cells = Array.from(cellSet).map(k => [Math.floor(k / cols), k % cols]);
+    if (delta.generation !== undefined) s.generation = delta.generation;
+    if (delta.population !== undefined) s.population = delta.population;
+
+  } else if (type === 'seismograph') {
+    // Append new samples, shift old ones left
+    const appends = delta.append || [];
+    const channels = s.channels || [];
+    for (let i = 0; i < channels.length && i < appends.length; i++) {
+      const ch = channels[i];
+      const newSamples = appends[i];
+      if (ch.samples && newSamples && newSamples.length > 0) {
+        ch.samples = ch.samples.slice(newSamples.length).concat(newSamples);
+      }
+    }
+    if (delta.magnitude !== undefined) s.magnitude = delta.magnitude;
+    if (delta.depth_km !== undefined) s.depth_km = delta.depth_km;
+    if (delta.peak !== undefined) s.peak = delta.peak;
+
+  } else if (type === 'data_table') {
+    // Prepend new rows, then apply changed cells
+    const n = delta.new_rows_count || 0;
+    if (n > 0 && delta.new_rows && s.rows) {
+      const maxRows = s.rows.length;
+      s.rows = [...delta.new_rows, ...s.rows].slice(0, maxRows);
+    }
+    for (const [ri, ci, val] of (delta.changed_cells || [])) {
+      if (s.rows && s.rows[ri]) s.rows[ri][ci] = val;
+    }
+
+  } else {
+    // Generic shallow merge for any future opt-in activity
+    for (const [k, v] of Object.entries(delta)) {
+      if (k !== '_delta') s[k] = v;
+    }
+  }
+
+  return true;
+}
+
 export function beginDespawn(id) {
   if (store.activities[id]) {
     store.activities[id].despawning = true;

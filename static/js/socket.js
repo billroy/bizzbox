@@ -2,7 +2,7 @@
  * Socket.IO client wrapper.
  * Registers all inbound event handlers and provides outbound helpers.
  */
-import { store, urlOverrides, initFromServer, addActivity, updateActivity, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs, bringToFront, pinSlot, unpinSlot } from './store.js';
+import { store, urlOverrides, initFromServer, addActivity, updateActivity, mergeActivityDelta, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs, bringToFront, pinSlot, unpinSlot } from './store.js';
 import { audio } from './audio.js';
 
 let _socket = null;
@@ -100,7 +100,13 @@ export function initSocket() {
   });
 
   _socket.on('activity:update', (data) => {
-    updateActivity(data.id, data.state);
+    if (data.state && data.state._delta) {
+      // Delta update — merge into existing state
+      mergeActivityDelta(data.id, data.state);
+    } else {
+      // Full state replacement (keyframe or non-delta activity)
+      updateActivity(data.id, data.state);
+    }
   });
 
   _socket.on('activity:despawn', (data) => {

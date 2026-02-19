@@ -272,6 +272,27 @@ class GameOfLifeActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state: dict, new_state: dict) -> dict | None:
+        """Send only born/died cell lists instead of the full cell list."""
+        # Skip delta if generation reset (reseed) or strategy changed
+        old_gen = old_state.get("generation", 0)
+        new_gen = new_state.get("generation", 0)
+        if new_gen <= old_gen or old_state.get("strategy") != new_state.get("strategy"):
+            return None
+
+        old_cells = set(tuple(c) for c in old_state.get("cells", []))
+        new_cells = set(tuple(c) for c in new_state.get("cells", []))
+        born = new_cells - old_cells
+        died = old_cells - new_cells
+
+        return {
+            "_delta": True,
+            "born": [list(c) for c in born],
+            "died": [list(c) for c in died],
+            "generation": new_state["generation"],
+            "population": new_state["population"],
+        }
+
     def next_frame(self) -> dict:
         self.grid = self._step()
         self.generation += 1

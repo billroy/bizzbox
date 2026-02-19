@@ -3,6 +3,7 @@ Activity lifecycle engine.
 Manages spawn/despawn/update cycles for one set of clients (either global synced,
 or per-client in unsynced mode).
 """
+import json
 import random
 import math
 import time
@@ -37,6 +38,7 @@ class ActivityRecord:
         self.last_update = time.time()
         self.next_update_interval = 0.0   # set on first tick
         self.last_state: dict = {}         # cache of most-recently-emitted frame
+        self.frame_count: int = 0          # counts frames for keyframe interval
 
 
 class ActivityManager:
@@ -131,8 +133,22 @@ class ActivityManager:
                 # Update check
                 if now - rec.last_update >= rec.next_update_interval:
                     frame = rec.generator.next_frame()
+                    rec.frame_count += 1
+                    emit_state = frame  # default: full frame
+
+                    # Try delta compression (skip every 30th frame = keyframe)
+                    if rec.last_state and rec.frame_count % 30 != 0:
+                        delta = rec.generator.compute_delta(rec.last_state, frame)
+                        if delta is not None:
+                            # Only use delta if it's actually smaller
+                            try:
+                                if len(json.dumps(delta, separators=(',', ':'))) < len(json.dumps(frame, separators=(',', ':'))):
+                                    emit_state = delta
+                            except (TypeError, ValueError):
+                                pass  # JSON encoding error — fall back to full frame
+
                     rec.last_state = frame
-                    self._emitter.emit_update(self._room, act_id, frame)
+                    self._emitter.emit_update(self._room, act_id, emit_state)
                     rec.last_update = now
                     rec.next_update_interval = self._draw_update_interval()
                 # Despawn check

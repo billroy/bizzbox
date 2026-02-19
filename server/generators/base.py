@@ -28,6 +28,12 @@ class BaseActivity(ABC):
         """Return the full state dict for an activity:update payload."""
         ...
 
+    def compute_delta(self, old_state: dict, new_state: dict) -> dict | None:
+        """Return a delta patch dict, or None to send full state.
+        Override in subclasses with large state to enable delta updates.
+        Delta dicts MUST include '_delta': True as a marker."""
+        return None
+
     def spawn_payload(self, slot: int = None, is_foreground: bool = False,
                       position: dict = None, size: dict = None) -> dict:
         """Build the complete activity:spawn JSON payload."""

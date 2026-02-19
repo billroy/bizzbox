@@ -81,6 +81,7 @@ class DataTableActivity(BaseActivity):
         self._columns = schema["columns"]
         self._generators = schema["generators"]
         self._rows = [self._make_row() for _ in range(_N_ROWS)]
+        self._last_prepended = 0  # how many rows were prepended last frame
 
     def _make_row(self) -> list[str]:
         return [self._generators[col]() for col in self._columns]
@@ -95,6 +96,35 @@ class DataTableActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state: dict, new_state: dict) -> dict | None:
+        """Send only changed cells and new prepended rows."""
+        old_rows = old_state.get("rows", [])
+        new_rows = new_state.get("rows", [])
+        if not old_rows or not new_rows:
+            return None
+        if len(old_rows) != len(new_rows):
+            return None  # row count changed — full frame
+
+        n_new = self._last_prepended
+
+        # Collect new prepended rows and changed cells in surviving rows
+        prepended = new_rows[:n_new]
+        changed_cells = []
+
+        for ri in range(n_new, len(new_rows)):
+            old_ri = ri - n_new
+            if old_ri < len(old_rows):
+                for ci in range(len(new_rows[ri])):
+                    if ci < len(old_rows[old_ri]) and new_rows[ri][ci] != old_rows[old_ri][ci]:
+                        changed_cells.append([ri, ci, new_rows[ri][ci]])
+
+        return {
+            "_delta": True,
+            "new_rows": prepended,
+            "new_rows_count": n_new,
+            "changed_cells": changed_cells,
+        }
+
     def next_frame(self) -> dict:
         # Add new rows at the top, push old ones down
         n_new = random.randint(*_NEW_ROWS_PER_FRAME)
@@ -102,6 +132,7 @@ class DataTableActivity(BaseActivity):
         self._rows = new_rows + self._rows
         if len(self._rows) > _N_ROWS:
             self._rows = self._rows[:_N_ROWS]
+        self._last_prepended = n_new
 
         # Occasionally mutate cells in existing rows (simulating live updates)
         for row in self._rows[n_new:]:
