@@ -128,27 +128,26 @@ export default {
           const led = leds[li];
           const lx = ledStartX + li * (ledRadius * 2 + 3);
 
-          // Blinking: toggle visibility using frame counter
-          if (led.blink && Math.floor(frameCount / 8) % 2 === 0) {
-            // Draw dim placeholder
-            ctx.beginPath();
-            ctx.arc(lx, midY, ledRadius, 0, Math.PI * 2);
-            ctx.fillStyle = c.border + '44';
-            ctx.fill();
-            continue;
+          // Blinking LEDs: smooth slow pulse instead of hard toggle
+          const ledColor = LED_COLORS[led.color] || LED_COLORS.green;
+          if (led.blink) {
+            const ledAlpha = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(frameCount * 0.05 + li));
+            ctx.globalAlpha = ledAlpha;
           }
 
           // LED glow
           ctx.beginPath();
           ctx.arc(lx, midY, ledRadius + 1, 0, Math.PI * 2);
-          ctx.fillStyle = (LED_COLORS[led.color] || LED_COLORS.green) + '33';
+          ctx.fillStyle = ledColor + '33';
           ctx.fill();
 
           // LED dot
           ctx.beginPath();
           ctx.arc(lx, midY, ledRadius, 0, Math.PI * 2);
-          ctx.fillStyle = LED_COLORS[led.color] || LED_COLORS.green;
+          ctx.fillStyle = ledColor;
           ctx.fill();
+
+          if (led.blink) ctx.globalAlpha = 1;
         }
 
         // --- CPU load bar ---
@@ -215,11 +214,11 @@ export default {
           ctx.fillStyle = c.error;
           ctx.fillText('OFFLINE', badgeX, midY);
         } else if (status === 'rebooting') {
-          // Blinking reboot text
-          if (Math.floor(frameCount / 10) % 2 === 0) {
-            ctx.fillStyle = c.accent1;
-            ctx.fillText('REBOOT', badgeX, midY);
-          }
+          // Gently pulsing reboot text
+          ctx.globalAlpha = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(frameCount * 0.06));
+          ctx.fillStyle = c.accent1;
+          ctx.fillText('REBOOT', badgeX, midY);
+          ctx.globalAlpha = 1;
         }
 
         // --- Role label (dim, before status badge) ---

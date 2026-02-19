@@ -293,6 +293,8 @@ body::after {
   color: var(--color-accent-1);
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
   flex-shrink: 0;
   text-shadow: 0 0 12px var(--color-accent-1);
 }
@@ -440,29 +442,30 @@ body::after {
 /* ── Toast notification ─────────────────────────────────────── */
 .toast {
   position: fixed;
-  bottom: 32px;
+  bottom: 48px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9000;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 18px;
   font-weight: bold;
-  letter-spacing: 0.12em;
-  color: var(--color-accent-1);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-bright);
-  border-radius: var(--border-radius);
-  padding: 8px 24px;
+  letter-spacing: 0.18em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid #fff;
+  border-radius: 24px;
+  padding: 14px 36px;
   pointer-events: none;
   white-space: nowrap;
-  box-shadow: 0 0 20px var(--color-glow-1),
-              0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.25),
+              0 0 60px var(--color-glow-1),
+              0 6px 24px rgba(0, 0, 0, 0.7);
   animation: toast-in 200ms ease-out;
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
 /* ── Lock mode overlay ──────────────────────────────────────── */

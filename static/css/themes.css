@@ -533,3 +533,353 @@
   --scan-line-color:      rgba(200, 208, 128, 0.015);
   --grid-dot-color:       rgba(64, 160, 64, 0.03);
 }
+
+/* ── OCEAN ────────────────────────────────────────────────── */
+:root[data-theme="ocean"] {
+  --color-bg:             #020e18;
+  --color-surface:        #071c2e;
+  --color-surface-2:      #0c2640;
+  --color-border:         #0e3555;
+  --color-border-bright:  #1a5c8a;
+  --color-text-primary:   #b0d8ef;
+  --color-text-dim:       #2e6080;
+  --color-text-bright:    #d8f0ff;
+  --color-accent-1:       #00bcd4;
+  --color-accent-2:       #26c6a0;
+  --color-accent-3:       #ff8a50;
+  --color-warn:           #e0c040;
+  --color-error:          #ff5252;
+  --color-crit:           #ea80fc;
+  --color-debug:          #2e6080;
+  --color-info:           #00bcd4;
+  --color-glow-1:         rgba(0, 188, 212, 0.12);
+  --color-glow-2:         rgba(38, 198, 160, 0.08);
+
+  --titlebar-bg:          #071c2e;
+  --titlebar-border:      #0e3555;
+  --titlebar-text:        #00bcd4;
+  --titlebar-dot-color:   #26c6a0;
+  --header-bg:            rgba(2, 14, 24, 0.92);
+  --header-border:        #0e3555;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 8px 32px rgba(0, 0, 0, 0.6),
+                          0 0 24px var(--color-glow-1);
+  --scan-line-color:      rgba(0, 188, 212, 0.02);
+  --grid-dot-color:       rgba(0, 188, 212, 0.05);
+}
+
+/* ── FOREST ───────────────────────────────────────────────── */
+:root[data-theme="forest"] {
+  --color-bg:             #0a1208;
+  --color-surface:        #14200e;
+  --color-surface-2:      #1c2e14;
+  --color-border:         #2a4020;
+  --color-border-bright:  #3e6030;
+  --color-text-primary:   #c0d8a8;
+  --color-text-dim:       #506840;
+  --color-text-bright:    #e0f0d0;
+  --color-accent-1:       #66bb6a;
+  --color-accent-2:       #a8d080;
+  --color-accent-3:       #d4a056;
+  --color-warn:           #c8a82e;
+  --color-error:          #d84040;
+  --color-crit:           #c060a0;
+  --color-debug:          #506840;
+  --color-info:           #66bb6a;
+  --color-glow-1:         rgba(102, 187, 106, 0.10);
+  --color-glow-2:         rgba(168, 208, 128, 0.06);
+
+  --titlebar-bg:          #14200e;
+  --titlebar-border:      #2a4020;
+  --titlebar-text:        #66bb6a;
+  --titlebar-dot-color:   #a8d080;
+  --header-bg:            rgba(10, 18, 8, 0.92);
+  --header-border:        #2a4020;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 6px 24px rgba(0, 0, 0, 0.6),
+                          0 0 20px var(--color-glow-1);
+  --scan-line-color:      rgba(102, 187, 106, 0.02);
+  --grid-dot-color:       rgba(102, 187, 106, 0.04);
+}
+
+/* ── COPPER ───────────────────────────────────────────────── */
+:root[data-theme="copper"] {
+  --color-bg:             #100a06;
+  --color-surface:        #1e140c;
+  --color-surface-2:      #2a1c12;
+  --color-border:         #4a3020;
+  --color-border-bright:  #7a5030;
+  --color-text-primary:   #e0c8a8;
+  --color-text-dim:       #6a5040;
+  --color-text-bright:    #f5e0c0;
+  --color-accent-1:       #e08850;
+  --color-accent-2:       #4abcb0;
+  --color-accent-3:       #e0b848;
+  --color-warn:           #d4a030;
+  --color-error:          #e04040;
+  --color-crit:           #d050a0;
+  --color-debug:          #6a5040;
+  --color-info:           #4abcb0;
+  --color-glow-1:         rgba(224, 136, 80, 0.12);
+  --color-glow-2:         rgba(74, 188, 176, 0.08);
+
+  --titlebar-bg:          #1e140c;
+  --titlebar-border:      #4a3020;
+  --titlebar-text:        #e08850;
+  --titlebar-dot-color:   #4abcb0;
+  --header-bg:            rgba(16, 10, 6, 0.92);
+  --header-border:        #4a3020;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 6px 24px rgba(0, 0, 0, 0.6),
+                          0 0 20px var(--color-glow-1);
+  --scan-line-color:      rgba(224, 136, 80, 0.02);
+  --grid-dot-color:       rgba(224, 136, 80, 0.04);
+}
+
+/* ── VAPOR (Vaporwave) ────────────────────────────────────── */
+:root[data-theme="vapor"] {
+  --color-bg:             #0c0820;
+  --color-surface:        #140e30;
+  --color-surface-2:      #1c1440;
+  --color-border:         #302060;
+  --color-border-bright:  #5030a0;
+  --color-text-primary:   #d0c0f0;
+  --color-text-dim:       #5040a0;
+  --color-text-bright:    #f0e0ff;
+  --color-accent-1:       #ff71ce;
+  --color-accent-2:       #01cdfe;
+  --color-accent-3:       #b967ff;
+  --color-warn:           #fffb96;
+  --color-error:          #ff4466;
+  --color-crit:           #ff71ce;
+  --color-debug:          #5040a0;
+  --color-info:           #01cdfe;
+  --color-glow-1:         rgba(255, 113, 206, 0.14);
+  --color-glow-2:         rgba(1, 205, 254, 0.10);
+
+  --titlebar-bg:          #140e30;
+  --titlebar-border:      #302060;
+  --titlebar-text:        #ff71ce;
+  --titlebar-dot-color:   #01cdfe;
+  --header-bg:            rgba(12, 8, 32, 0.92);
+  --header-border:        #302060;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 8px 32px rgba(0, 0, 0, 0.6),
+                          0 0 30px var(--color-glow-1);
+  --scan-line-color:      rgba(255, 113, 206, 0.025);
+  --grid-dot-color:       rgba(1, 205, 254, 0.05);
+}
+
+/* ── INFRARED ─────────────────────────────────────────────── */
+:root[data-theme="infrared"] {
+  --color-bg:             #0a0010;
+  --color-surface:        #180020;
+  --color-surface-2:      #240830;
+  --color-border:         #401040;
+  --color-border-bright:  #702060;
+  --color-text-primary:   #ffcc80;
+  --color-text-dim:       #803060;
+  --color-text-bright:    #ffe0a0;
+  --color-accent-1:       #ff4040;
+  --color-accent-2:       #ffcc00;
+  --color-accent-3:       #ff8000;
+  --color-warn:           #ffcc00;
+  --color-error:          #ffffff;
+  --color-crit:           #ff00ff;
+  --color-debug:          #803060;
+  --color-info:           #ff8000;
+  --color-glow-1:         rgba(255, 64, 64, 0.14);
+  --color-glow-2:         rgba(255, 204, 0, 0.08);
+
+  --titlebar-bg:          #180020;
+  --titlebar-border:      #401040;
+  --titlebar-text:        #ff4040;
+  --titlebar-dot-color:   #ffcc00;
+  --header-bg:            rgba(10, 0, 16, 0.92);
+  --header-border:        #401040;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 8px 32px rgba(0, 0, 0, 0.7),
+                          0 0 24px var(--color-glow-1);
+  --scan-line-color:      rgba(255, 64, 64, 0.025);
+  --grid-dot-color:       rgba(255, 128, 0, 0.04);
+}
+
+/* ── PHOSPHOR (Green CRT) ────────────────────────────────── */
+:root[data-theme="phosphor"] {
+  --color-bg:             #000800;
+  --color-surface:        #001400;
+  --color-surface-2:      #001e00;
+  --color-border:         #003800;
+  --color-border-bright:  #006000;
+  --color-text-primary:   #33ff33;
+  --color-text-dim:       #1a6020;
+  --color-text-bright:    #80ff80;
+  --color-accent-1:       #33ff33;
+  --color-accent-2:       #66ff66;
+  --color-accent-3:       #00cc44;
+  --color-warn:           #66ff33;
+  --color-error:          #ff3333;
+  --color-crit:           #ff66ff;
+  --color-debug:          #1a6020;
+  --color-info:           #33ff33;
+  --color-glow-1:         rgba(51, 255, 51, 0.15);
+  --color-glow-2:         rgba(102, 255, 102, 0.08);
+
+  --titlebar-bg:          #001400;
+  --titlebar-border:      #003800;
+  --titlebar-text:        #33ff33;
+  --titlebar-dot-color:   #33ff33;
+  --header-bg:            rgba(0, 8, 0, 0.92);
+  --header-border:        #003800;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 6px 24px rgba(0, 0, 0, 0.7),
+                          0 0 30px var(--color-glow-1);
+  --scan-line-color:      rgba(51, 255, 51, 0.04);
+  --grid-dot-color:       rgba(51, 255, 51, 0.06);
+}
+
+/* ── BLUEPRINT ────────────────────────────────────────────── */
+:root[data-theme="blueprint"] {
+  --color-bg:             #0a1a40;
+  --color-surface:        #102050;
+  --color-surface-2:      #142860;
+  --color-border:         #1e3870;
+  --color-border-bright:  #3060a0;
+  --color-text-primary:   #d0e0ff;
+  --color-text-dim:       #4060a0;
+  --color-text-bright:    #ffffff;
+  --color-accent-1:       #ffffff;
+  --color-accent-2:       #80c0ff;
+  --color-accent-3:       #ffcc44;
+  --color-warn:           #ffd060;
+  --color-error:          #ff6060;
+  --color-crit:           #ff80c0;
+  --color-debug:          #4060a0;
+  --color-info:           #80c0ff;
+  --color-glow-1:         rgba(255, 255, 255, 0.08);
+  --color-glow-2:         rgba(128, 192, 255, 0.06);
+
+  --titlebar-bg:          #102050;
+  --titlebar-border:      #1e3870;
+  --titlebar-text:        #ffffff;
+  --titlebar-dot-color:   #80c0ff;
+  --header-bg:            rgba(10, 26, 64, 0.92);
+  --header-border:        #1e3870;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 6px 24px rgba(0, 0, 0, 0.5),
+                          0 0 16px var(--color-glow-1);
+  --scan-line-color:      rgba(255, 255, 255, 0.015);
+  --grid-dot-color:       rgba(255, 255, 255, 0.04);
+}
+
+/* ── SUNSET ───────────────────────────────────────────────── */
+:root[data-theme="sunset"] {
+  --color-bg:             #140810;
+  --color-surface:        #201018;
+  --color-surface-2:      #2c1420;
+  --color-border:         #4a2040;
+  --color-border-bright:  #803060;
+  --color-text-primary:   #f0c0a0;
+  --color-text-dim:       #704050;
+  --color-text-bright:    #ffe0c0;
+  --color-accent-1:       #ff6040;
+  --color-accent-2:       #ffa040;
+  --color-accent-3:       #c040e0;
+  --color-warn:           #ffc040;
+  --color-error:          #ff4060;
+  --color-crit:           #ff40c0;
+  --color-debug:          #704050;
+  --color-info:           #ffa040;
+  --color-glow-1:         rgba(255, 96, 64, 0.12);
+  --color-glow-2:         rgba(255, 160, 64, 0.08);
+
+  --titlebar-bg:          #201018;
+  --titlebar-border:      #4a2040;
+  --titlebar-text:        #ff6040;
+  --titlebar-dot-color:   #ffa040;
+  --header-bg:            rgba(20, 8, 16, 0.92);
+  --header-border:        #4a2040;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 8px 32px rgba(0, 0, 0, 0.6),
+                          0 0 24px var(--color-glow-1);
+  --scan-line-color:      rgba(255, 96, 64, 0.02);
+  --grid-dot-color:       rgba(255, 160, 64, 0.04);
+}
+
+/* ── MATRIX ───────────────────────────────────────────────── */
+:root[data-theme="matrix"] {
+  --color-bg:             #000000;
+  --color-surface:        #040a04;
+  --color-surface-2:      #081408;
+  --color-border:         #0a2a0a;
+  --color-border-bright:  #104010;
+  --color-text-primary:   #00cc00;
+  --color-text-dim:       #104010;
+  --color-text-bright:    #00ff41;
+  --color-accent-1:       #00ff41;
+  --color-accent-2:       #00cc00;
+  --color-accent-3:       #40ff40;
+  --color-warn:           #80ff00;
+  --color-error:          #ff0040;
+  --color-crit:           #ff00ff;
+  --color-debug:          #104010;
+  --color-info:           #00ff41;
+  --color-glow-1:         rgba(0, 255, 65, 0.12);
+  --color-glow-2:         rgba(0, 204, 0, 0.08);
+
+  --titlebar-bg:          #040a04;
+  --titlebar-border:      #0a2a0a;
+  --titlebar-text:        #00ff41;
+  --titlebar-dot-color:   #00ff41;
+  --header-bg:            rgba(0, 0, 0, 0.92);
+  --header-border:        #0a2a0a;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 4px 16px rgba(0, 0, 0, 0.8),
+                          0 0 20px var(--color-glow-1);
+  --scan-line-color:      rgba(0, 255, 65, 0.03);
+  --grid-dot-color:       rgba(0, 255, 65, 0.05);
+}
+
+/* ── FROST ────────────────────────────────────────────────── */
+:root[data-theme="frost"] {
+  --color-bg:             #0a1420;
+  --color-surface:        #101e30;
+  --color-surface-2:      #182840;
+  --color-border:         #284060;
+  --color-border-bright:  #406888;
+  --color-text-primary:   #d0e8f8;
+  --color-text-dim:       #406080;
+  --color-text-bright:    #f0f8ff;
+  --color-accent-1:       #a0d8ff;
+  --color-accent-2:       #c0c8d8;
+  --color-accent-3:       #80b8e0;
+  --color-warn:           #e0d080;
+  --color-error:          #e06060;
+  --color-crit:           #d070c0;
+  --color-debug:          #406080;
+  --color-info:           #a0d8ff;
+  --color-glow-1:         rgba(160, 216, 255, 0.10);
+  --color-glow-2:         rgba(192, 200, 216, 0.06);
+
+  --titlebar-bg:          #101e30;
+  --titlebar-border:      #284060;
+  --titlebar-text:        #a0d8ff;
+  --titlebar-dot-color:   #c0c8d8;
+  --header-bg:            rgba(10, 20, 32, 0.92);
+  --header-border:        #284060;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 6px 24px rgba(0, 0, 0, 0.5),
+                          0 0 20px var(--color-glow-1);
+  --scan-line-color:      rgba(160, 216, 255, 0.02);
+  --grid-dot-color:       rgba(160, 216, 255, 0.04);
+}

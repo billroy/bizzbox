@@ -105,16 +105,12 @@ export default {
         else if (ac.type === 'cargo')     color = c.warn;
         else                              color = c.accent1;
 
-        // Emergency override
+        // Emergency override — smooth slow pulse instead of strobe
         const isEmergency = ac.status === 'emergency';
         if (isEmergency) {
-          color = c.error;
-          // Pulse: skip drawing every other ~15 frame stretch for flash
-          if (Math.floor(frameCounter / 8) % 2 === 0) {
-            color = c.error;
-          } else {
-            color = c.error + '66';
-          }
+          const ePulse = 0.5 + 0.5 * Math.sin(frameCounter * 0.04);
+          const eAlpha = Math.round(0x66 + (0x99 * ePulse)).toString(16).padStart(2, '0');
+          color = c.error + eAlpha;
         }
 
         // Trail
@@ -170,11 +166,13 @@ export default {
         ctx.textBaseline = 'bottom';
         ctx.fillText(tag, ax + 7, ay - 3);
 
-        // Emergency indicator
-        if (isEmergency && frameCounter % 30 < 15) {
+        // Emergency indicator — smooth pulse
+        if (isEmergency) {
+          ctx.globalAlpha = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(frameCounter * 0.05));
           ctx.font = '7px monospace';
           ctx.fillStyle = c.error;
           ctx.fillText('EMRG', ax + 7, ay + 8);
+          ctx.globalAlpha = 1;
         }
       }
 

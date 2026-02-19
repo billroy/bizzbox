@@ -189,6 +189,15 @@ class AudioEngine {
     return 0.113 + (intensity - 1) * (0.595 / 19);
   }
 
+  // ── Toast notification sound ─────────────────────────────────
+
+  playToast() {
+    this._init();
+    // Quick two-note chime: C6 → E6
+    this._tone(1047, 1047, 0.06, 'sine', 0.35);
+    setTimeout(() => this._tone(1319, 1319, 0.08, 'sine', 0.25), 70);
+  }
+
   // ── Spawn / despawn sounds ────────────────────────────────────
 
   playSpawn() {
@@ -623,6 +632,136 @@ const AMBIENT_PRESETS = {
     const alarm2 = makeOsc(ctx, dest, now, 332, 'square', 0.02);    // detuned alarm beat
     return [stream, streamMod, fans, crackle, pulse, sub, alarm, alarm2];
   },
+
+  // Solar wind: ethereal plasma shimmer + magnetic field oscillations + particle stream
+  solar_wind(ctx, dest, now) {
+    const plasma1 = makeOsc(ctx, dest, now, 180, 'sine', 0.1);        // plasma shimmer
+    const plasma2 = makeOsc(ctx, dest, now, 180.4, 'sine', 0.1);      // detuned shimmer beat
+    const mag1 = makeOsc(ctx, dest, now, 0.12, 'sine', 0.06);         // slow magnetic oscillation
+    const mag2 = makeOsc(ctx, dest, now, 0.07, 'sine', 0.04);         // secondary magnetic swell
+    const particle = makeNoise(ctx, dest, now, 5000, 8, 0.04);        // particle stream hiss
+    const drone = makeOsc(ctx, dest, now, 50, 'sine', 0.15);          // deep solar drone
+    const drone2 = makeOsc(ctx, dest, now, 50.1, 'sine', 0.15);       // beating drone
+    const crackle = makeNoise(ctx, dest, now, 8000, 10, 0.02);        // coronal discharge
+    return [plasma1, plasma2, mag1, mag2, particle, drone, drone2, crackle];
+  },
+
+  // Train station: diesel idle + steel wheel + PA hum + crowd
+  train_station(ctx, dest, now) {
+    const diesel = makeOsc(ctx, dest, now, 42, 'sawtooth', 0.15);     // diesel engine idle
+    const diesel2 = makeOsc(ctx, dest, now, 84, 'sawtooth', 0.06);    // diesel harmonic
+    const dieselLfo = makeLFO(ctx, dest, now, 1.8, 0.04);             // engine throb
+    const steel = makeNoise(ctx, dest, now, 3000, 6, 0.04);           // wheel squeal
+    const pa = makeOsc(ctx, dest, now, 100, 'sine', 0.03);            // PA system hum
+    const crowd = makeNoise(ctx, dest, now, 500, 1.5, 0.08);          // crowd murmur
+    const sub = makeOsc(ctx, dest, now, 28, 'sine', 0.12);            // ground vibration
+    const airbrake = makeNoise(ctx, dest, now, 1200, 3, 0.05);        // pneumatic hiss
+    return [diesel, diesel2, dieselLfo, steel, pa, crowd, sub, airbrake];
+  },
+
+  // Jungle night: insect chorus + animal calls + leaf rustle + humidity drone
+  jungle_night(ctx, dest, now) {
+    const crickets = makeOsc(ctx, dest, now, 4200, 'sine', 0.04);     // cricket chirp tone
+    const crickets2 = makeOsc(ctx, dest, now, 4800, 'sine', 0.03);    // second species
+    const cricketLfo = makeLFO(ctx, dest, now, 6, 0.03);              // chirp rhythm
+    const frog = makeOsc(ctx, dest, now, 320, 'sine', 0.03);          // tree frog croak
+    const frogLfo = makeLFO(ctx, dest, now, 2.5, 0.02);               // croak rhythm
+    const rustle = makeNoise(ctx, dest, now, 2000, 3, 0.08);          // leaf and canopy rustle
+    const humidity = makeOsc(ctx, dest, now, 35, 'sine', 0.12);       // humid air drone
+    const drip = makeNoise(ctx, dest, now, 800, 5, 0.03);             // canopy drip
+    return [crickets, crickets2, cricketLfo, frog, frogLfo, rustle, humidity, drip];
+  },
+
+  // Steel mill: furnace roar + hammer rhythm + molten hiss + conveyor
+  steel_mill(ctx, dest, now) {
+    const furnace = makeNoise(ctx, dest, now, 300, 0.8, 0.25);        // furnace roar
+    const furnace2 = makeOsc(ctx, dest, now, 45, 'sine', 0.3);        // furnace rumble
+    const hammer = makeLFO(ctx, dest, now, 1.5, 0.08);                // heavy hammer rhythm
+    const molten = makeNoise(ctx, dest, now, 2000, 2, 0.1);           // molten metal hiss
+    const conveyor = makeOsc(ctx, dest, now, 75, 'sawtooth', 0.06);   // conveyor chain
+    const convLfo = makeLFO(ctx, dest, now, 3.5, 0.03);               // chain rattle
+    const steam = makeNoise(ctx, dest, now, 4000, 4, 0.06);           // steam vents
+    const groan = makeOsc(ctx, dest, now, 140, 'sine', 0.04);         // steel stress groan
+    return [furnace, furnace2, hammer, molten, conveyor, convLfo, steam, groan];
+  },
+
+  // Cathedral: organ drone + stone echo + choir pad + bell overtones
+  cathedral(ctx, dest, now) {
+    const organ1 = makeOsc(ctx, dest, now, 65.4, 'sine', 0.2);        // organ C2
+    const organ2 = makeOsc(ctx, dest, now, 98.0, 'sine', 0.12);       // organ G2 (fifth)
+    const organ3 = makeOsc(ctx, dest, now, 130.8, 'sine', 0.06);      // organ C3 (octave)
+    const choir1 = makeOsc(ctx, dest, now, 262, 'sine', 0.04);        // choir pad C4
+    const choir2 = makeOsc(ctx, dest, now, 262.6, 'sine', 0.04);      // choir beat
+    const echo = makeNoise(ctx, dest, now, 400, 2, 0.05);             // stone room ambience
+    const bell = makeOsc(ctx, dest, now, 523, 'sine', 0.015);         // bell overtone C5
+    const sub = makeOsc(ctx, dest, now, 32.7, 'sine', 0.18);          // 16' pipe sub
+    return [organ1, organ2, organ3, choir1, choir2, echo, bell, sub];
+  },
+
+  // Radio static: shortwave tuning + burst noise + carrier tone
+  radio_static(ctx, dest, now) {
+    const carrier = makeOsc(ctx, dest, now, 600, 'sine', 0.04);       // carrier tone
+    const carrier2 = makeOsc(ctx, dest, now, 602, 'sine', 0.04);      // carrier beat
+    const static1 = makeNoise(ctx, dest, now, 4000, 2, 0.12);         // broadband static
+    const static2 = makeNoise(ctx, dest, now, 8000, 4, 0.06);         // high hiss
+    const sweep = makeOsc(ctx, dest, now, 0.08, 'sine', 0.05);        // slow tuning sweep
+    const burst = makeNoise(ctx, dest, now, 1500, 6, 0.08);           // burst noise
+    const burstLfo = makeLFO(ctx, dest, now, 0.3, 0.05);              // burst rhythm
+    const hum = makeOsc(ctx, dest, now, 50, 'sine', 0.06);            // mains hum bleed
+    return [carrier, carrier2, static1, static2, sweep, burst, burstLfo, hum];
+  },
+
+  // Ice cave: dripping echo + frozen wind + crystal resonance + deep crack
+  ice_cave(ctx, dest, now) {
+    const wind = makeNoise(ctx, dest, now, 800, 3, 0.1);              // frozen wind
+    const windLfo = makeLFO(ctx, dest, now, 0.1, 0.04);               // wind gusts
+    const drip = makeNoise(ctx, dest, now, 2500, 10, 0.04);           // drip echo
+    const dripLfo = makeLFO(ctx, dest, now, 0.5, 0.03);               // drip rhythm
+    const crystal1 = makeOsc(ctx, dest, now, 2800, 'sine', 0.01);     // ice crystal ring
+    const crystal2 = makeOsc(ctx, dest, now, 2802, 'sine', 0.01);     // crystal beat
+    const crack = makeOsc(ctx, dest, now, 25, 'sine', 0.15);          // deep ice crack
+    const echo = makeNoise(ctx, dest, now, 300, 1.5, 0.06);           // cave resonance
+    return [wind, windLfo, drip, dripLfo, crystal1, crystal2, crack, echo];
+  },
+
+  // Circuit board: coil whine + clock pulse + data bus hum + capacitor charge
+  circuit_board(ctx, dest, now) {
+    const coil = makeOsc(ctx, dest, now, 8000, 'sine', 0.015);        // coil whine
+    const coil2 = makeOsc(ctx, dest, now, 8003, 'sine', 0.015);       // coil beat
+    const clock = makeOsc(ctx, dest, now, 1000, 'square', 0.008);     // clock pulse
+    const clockLfo = makeLFO(ctx, dest, now, 0.5, 0.005);             // clock modulation
+    const bus = makeOsc(ctx, dest, now, 150, 'sine', 0.06);           // data bus hum
+    const bus2 = makeOsc(ctx, dest, now, 300, 'sine', 0.025);         // bus harmonic
+    const cap = makeNoise(ctx, dest, now, 3000, 5, 0.04);             // capacitor charge whine
+    const psu = makeOsc(ctx, dest, now, 60, 'sine', 0.08);            // PSU transformer hum
+    return [coil, coil2, clock, clockLfo, bus, bus2, cap, psu];
+  },
+
+  // Volcano: deep rumble + gas vent hiss + magma bubble + seismic tremor
+  volcano(ctx, dest, now) {
+    const rumble1 = makeOsc(ctx, dest, now, 20, 'sine', 0.4);         // deep earth rumble
+    const rumble2 = makeOsc(ctx, dest, now, 22, 'sine', 0.35);        // rumble beat
+    const vent = makeNoise(ctx, dest, now, 1500, 2, 0.15);            // gas vent hiss
+    const ventLfo = makeLFO(ctx, dest, now, 0.2, 0.06);               // vent surges
+    const magma = makeNoise(ctx, dest, now, 400, 1, 0.1);             // magma bubbling
+    const magmaLfo = makeLFO(ctx, dest, now, 0.6, 0.04);              // bubble rhythm
+    const tremor = makeOsc(ctx, dest, now, 8, 'sine', 0.08);          // seismic tremor
+    const crackle = makeNoise(ctx, dest, now, 5000, 6, 0.04);         // lava crackle
+    return [rumble1, rumble2, vent, ventLfo, magma, magmaLfo, tremor, crackle];
+  },
+
+  // Haunted mansion: creaky wood + wind through gaps + organ drone + distant slam
+  haunted(ctx, dest, now) {
+    const wind = makeNoise(ctx, dest, now, 600, 4, 0.1);              // wind through gaps
+    const windLfo = makeLFO(ctx, dest, now, 0.12, 0.05);              // wind gusts
+    const creak = makeOsc(ctx, dest, now, 280, 'sine', 0.02);         // wood creak
+    const creak2 = makeOsc(ctx, dest, now, 283, 'sine', 0.02);        // creak beat
+    const organ = makeOsc(ctx, dest, now, 55, 'sine', 0.12);          // low organ drone
+    const organ2 = makeOsc(ctx, dest, now, 82.5, 'sine', 0.06);       // organ fifth
+    const rattle = makeNoise(ctx, dest, now, 3000, 8, 0.02);          // chain rattle
+    const sub = makeOsc(ctx, dest, now, 28, 'sine', 0.15);            // deep dread drone
+    return [wind, windLfo, creak, creak2, organ, organ2, rattle, sub];
+  },
 };
 
 /** Ordered list of ambient preset names for UI */
@@ -648,6 +787,16 @@ export const AMBIENT_PRESET_LIST = [
   { key: 'hyperloop_tube',   label: 'Hyperloop Tube' },
   { key: 'genetics_hum',     label: 'Lab Clean Room' },
   { key: 'digital_warfare',  label: 'Digital Warfare' },
+  { key: 'solar_wind',       label: 'Solar Wind' },
+  { key: 'train_station',    label: 'Train Station' },
+  { key: 'jungle_night',     label: 'Jungle Night' },
+  { key: 'steel_mill',       label: 'Steel Mill' },
+  { key: 'cathedral',        label: 'Cathedral' },
+  { key: 'radio_static',     label: 'Radio Static' },
+  { key: 'ice_cave',         label: 'Ice Cave' },
+  { key: 'circuit_board',    label: 'Circuit Board' },
+  { key: 'volcano',          label: 'Volcano' },
+  { key: 'haunted',          label: 'Haunted Mansion' },
 ];
 
 export const audio = new AudioEngine();

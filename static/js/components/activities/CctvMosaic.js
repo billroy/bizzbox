@@ -290,10 +290,12 @@ export default {
             ctx.fillText('MOTION', x + 4, y + cellH - fontSize - 4);
           }
 
-          // REC indicator — blinking red dot + text (top area, right of center-ish)
-          if (Math.floor(frameCount / 35) % 2 === 0) {
+          // REC indicator — slow pulsing red dot + text
+          {
+            const recAlpha = 0.5 + 0.5 * Math.sin(frameCount * 0.04);
             const recX = x + cellW - 40;
             const recY = y + cellH - fontSize - 4;
+            ctx.globalAlpha = recAlpha;
             ctx.beginPath();
             ctx.arc(recX, recY + fontSize * 0.35, 3, 0, Math.PI * 2);
             ctx.fillStyle = c.error;
@@ -303,6 +305,7 @@ export default {
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillText('REC', recX + 6, recY);
+            ctx.globalAlpha = 1;
           }
 
         } else if (cam.status === 'static') {
@@ -328,16 +331,19 @@ export default {
           ctx.fillText('STATIC', x + cellW / 2, y + cellH / 2);
 
         } else {
-          // signal_lost — black with blinking NO SIGNAL
+          // signal_lost — black with gently pulsing NO SIGNAL
           ctx.fillStyle = '#000';
           ctx.fillRect(x, y, cellW, cellH);
 
-          if (Math.floor(frameCount / 30) % 2 === 0) {
+          {
+            const nsAlpha = 0.4 + 0.6 * Math.sin(frameCount * 0.035);
+            ctx.globalAlpha = Math.max(0, nsAlpha);
             ctx.font = `bold ${Math.max(8, cellW * 0.08)}px monospace`;
             ctx.fillStyle = c.error;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('NO SIGNAL', x + cellW / 2, y + cellH / 2);
+            ctx.globalAlpha = 1;
           }
         }
 

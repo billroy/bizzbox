@@ -108,9 +108,10 @@ export default {
               // Resolved character
               ctx.fillStyle = c.accent2;
             } else {
-              // Still garbled — flicker
-              const flicker = (frameCount + ci * 3) % 4 === 0 ? 0.9 : 0.5;
-              ctx.fillStyle = `rgba(${hexToRgb(c.accent1)}, ${flicker})`;
+              // Still garbled — gentle slow pulse (< 2Hz) per character
+              const phase = (frameCount * 0.03 + ci * 0.4) % (Math.PI * 2);
+              const alpha = 0.5 + 0.3 * Math.sin(phase);
+              ctx.fillStyle = `rgba(${hexToRgb(c.accent1)}, ${alpha})`;
             }
           }
           ctx.fillText(ch, cx, textY);

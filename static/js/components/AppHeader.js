@@ -25,7 +25,13 @@ export default {
       }
     }
 
-    function onMouseMove() { showHeader(); }
+    function onMouseMove(evt) {
+      // Only reveal the header when the cursor is near the top of the viewport
+      // or when the header is already visible (so interacting with it keeps it open)
+      if (evt.clientY < 80 || visible.value) {
+        showHeader();
+      }
+    }
 
     onMounted(() => {
       document.addEventListener('mousemove', onMouseMove);
@@ -200,7 +206,7 @@ export default {
     <header class="page-header" :class="{ 'is-visible': visible }" v-show="!store.lockMode">
 
       <div class="header-row">
-        <div class="header-title">BIZZBOX</div>
+        <a class="header-title" href="https://github.com/billroy/bizzbox" target="_blank" rel="noopener">BIZZBOX</a>
 
         <div class="header-sep"></div>
 
@@ -237,6 +243,16 @@ export default {
           <option value="arctic">ARCTIC</option>
           <option value="synthwave">SYNTHWAVE</option>
           <option value="military">MILITARY</option>
+          <option value="ocean">OCEAN</option>
+          <option value="forest">FOREST</option>
+          <option value="copper">COPPER</option>
+          <option value="vapor">VAPOR</option>
+          <option value="infrared">INFRARED</option>
+          <option value="phosphor">PHOSPHOR</option>
+          <option value="blueprint">BLUEPRINT</option>
+          <option value="sunset">SUNSET</option>
+          <option value="matrix">MATRIX</option>
+          <option value="frost">FROST</option>
         </select>
 
         <div class="header-sep"></div>

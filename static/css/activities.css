@@ -420,14 +420,13 @@
   background: rgba(var(--color-accent-1-rgb, 0, 255, 136), 0.08);
 }
 
-/* Cell change flash */
+/* Cell change highlight — gentle fade instead of hard flash */
 .dtable td.cell-changed {
-  background: var(--color-accent-2) !important;
-  animation: cellFlash 0.6s ease-out;
+  animation: cellHighlight 1.2s ease-out;
 }
-@keyframes cellFlash {
-  from { background: var(--color-accent-2); color: var(--color-bg); }
-  to   { background: transparent; }
+@keyframes cellHighlight {
+  0%   { background: rgba(var(--color-accent-2-rgb, 255, 204, 0), 0.25); }
+  100% { background: transparent; }
 }
 
 .dtable td.cell-error { color: var(--color-error); font-weight: bold; }
@@ -658,12 +657,12 @@
 .pkt-row.threat-critical {
   color: var(--color-crit, #ff2266);
   border-left-color: var(--color-crit, #ff2266);
-  animation: pktCritPulse 0.8s ease-in-out infinite alternate;
+  animation: pktCritPulse 2.5s ease-in-out infinite alternate;
 }
 
 @keyframes pktCritPulse {
   from { border-left-color: var(--color-crit, #ff2266); }
-  to   { border-left-color: transparent; }
+  to   { border-left-color: rgba(255, 34, 102, 0.3); }
 }
 
 .pkt-time {
@@ -749,21 +748,21 @@
 .ac-denied   { border-left-color: var(--color-error); }
 .ac-tailgate {
   border-left-color: var(--color-warn);
-  animation: acTailgateFlash 0.6s ease-in-out infinite alternate;
+  animation: acTailgateGlow 3s ease-in-out infinite alternate;
 }
 .ac-forced {
   border-left-color: var(--color-crit, #ff2266);
-  animation: acForcedFlash 0.4s ease-in-out infinite alternate;
+  animation: acForcedGlow 3s ease-in-out infinite alternate;
 }
 
-@keyframes acTailgateFlash {
+@keyframes acTailgateGlow {
   from { background: transparent; }
-  to   { background: rgba(255, 170, 0, 0.08); }
+  to   { background: rgba(255, 170, 0, 0.06); }
 }
 
-@keyframes acForcedFlash {
+@keyframes acForcedGlow {
   from { background: transparent; }
-  to   { background: rgba(255, 34, 102, 0.12); }
+  to   { background: rgba(255, 34, 102, 0.08); }
 }
 
 .ac-time {
