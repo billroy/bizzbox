@@ -59,6 +59,16 @@ import ActivityServerRack        from './components/activities/ServerRack.js';
 import ActivityCctvMosaic        from './components/activities/CctvMosaic.js';
 import ActivityProcessMonitor    from './components/activities/ProcessMonitor.js';
 import ActivitySonar             from './components/activities/Sonar.js';
+import ActivityWarpDrive         from './components/activities/WarpDrive.js';
+import ActivityMechBay           from './components/activities/MechBay.js';
+import ActivityTerraforming      from './components/activities/Terraforming.js';
+import ActivityDungeonMaster     from './components/activities/DungeonMaster.js';
+import ActivitySpaceElevator     from './components/activities/SpaceElevator.js';
+import ActivitySubmarineHelm     from './components/activities/SubmarineHelm.js';
+import ActivityWildfireCommand   from './components/activities/WildfireCommand.js';
+import ActivityHyperloop         from './components/activities/Hyperloop.js';
+import ActivityGeneticsLab       from './components/activities/GeneticsLab.js';
+import ActivityMissionControl    from './components/activities/MissionControl.js';
 
 const { createApp } = Vue;
 
@@ -144,6 +154,16 @@ app.component('activity-server-rack',            ActivityServerRack);
 app.component('activity-cctv-mosaic',            ActivityCctvMosaic);
 app.component('activity-process-monitor',        ActivityProcessMonitor);
 app.component('activity-sonar',                  ActivitySonar);
+app.component('activity-warp-drive',             ActivityWarpDrive);
+app.component('activity-mech-bay',               ActivityMechBay);
+app.component('activity-terraforming',           ActivityTerraforming);
+app.component('activity-dungeon-master',         ActivityDungeonMaster);
+app.component('activity-space-elevator',         ActivitySpaceElevator);
+app.component('activity-submarine-helm',         ActivitySubmarineHelm);
+app.component('activity-wildfire-command',        ActivityWildfireCommand);
+app.component('activity-hyperloop',              ActivityHyperloop);
+app.component('activity-genetics-lab',           ActivityGeneticsLab);
+app.component('activity-mission-control',        ActivityMissionControl);
 
 app.mount('#app');
 

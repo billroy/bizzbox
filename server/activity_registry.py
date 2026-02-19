@@ -44,6 +44,16 @@ from .generators.server_rack import ServerRackActivity
 from .generators.cctv_mosaic import CctvMosaicActivity
 from .generators.process_monitor import ProcessMonitorActivity
 from .generators.sonar import SonarActivity
+from .generators.warp_drive import WarpDriveActivity
+from .generators.mech_bay import MechBayActivity
+from .generators.terraforming import TerraformingActivity
+from .generators.dungeon_master import DungeonMasterActivity
+from .generators.space_elevator import SpaceElevatorActivity
+from .generators.submarine_helm import SubmarineHelmActivity
+from .generators.wildfire_command import WildfireCommandActivity
+from .generators.hyperloop import HyperloopActivity
+from .generators.genetics_lab import GeneticsLabActivity
+from .generators.mission_control import MissionControlActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -90,6 +100,16 @@ REGISTRY: dict[str, type] = {
     "cctv_mosaic":                CctvMosaicActivity,
     "process_monitor":            ProcessMonitorActivity,
     "sonar":                      SonarActivity,
+    "warp_drive":                     WarpDriveActivity,
+    "mech_bay":                       MechBayActivity,
+    "terraforming":                   TerraformingActivity,
+    "dungeon_master":                 DungeonMasterActivity,
+    "space_elevator":                 SpaceElevatorActivity,
+    "submarine_helm":                 SubmarineHelmActivity,
+    "wildfire_command":               WildfireCommandActivity,
+    "hyperloop":                      HyperloopActivity,
+    "genetics_lab":                   GeneticsLabActivity,
+    "mission_control":                MissionControlActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -138,6 +158,16 @@ WEIGHTS: dict[str, float] = {
     "cctv_mosaic":                1.3,
     "process_monitor":            1.2,
     "sonar":                      1.4,
+    "warp_drive":                     1.6,
+    "mech_bay":                       1.5,
+    "terraforming":                   1.3,
+    "dungeon_master":                 1.5,
+    "space_elevator":                 1.4,
+    "submarine_helm":                 1.5,
+    "wildfire_command":               1.3,
+    "hyperloop":                      1.4,
+    "genetics_lab":                   1.3,
+    "mission_control":                1.6,
 }
 
 _types = list(REGISTRY.keys())
