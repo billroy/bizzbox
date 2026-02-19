@@ -265,16 +265,25 @@ body::after {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-  height: 44px;
+  flex-direction: column;
+  padding: 4px 0;
+  height: 74px;
   transform: translateY(-100%);
   transition: transform 0.3s ease;
 }
 
 .page-header.is-visible {
   transform: translateY(0);
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  width: 100%;
+  height: 30px;
+  flex-shrink: 0;
 }
 
 .header-title {

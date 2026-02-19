@@ -198,98 +198,102 @@ export default {
 
   template: `
     <header class="page-header" :class="{ 'is-visible': visible }" v-show="!store.lockMode">
-      <div class="header-title">BIZZBOX</div>
 
-      <div class="header-sep"></div>
+      <div class="header-row">
+        <div class="header-title">BIZZBOX</div>
 
-      <div class="conn-status">
-        <div class="conn-dot" :class="{ connected }"></div>
-        <span class="conn-label">{{ connected ? 'LIVE' : 'OFFLINE' }}</span>
+        <div class="header-sep"></div>
+
+        <div class="conn-status">
+          <div class="conn-dot" :class="{ connected }"></div>
+          <span class="conn-label">{{ connected ? 'LIVE' : 'OFFLINE' }}</span>
+        </div>
+
+        <div class="header-sep"></div>
+
+        <span class="header-label">SCENE</span>
+        <select class="header-select" @change="applyScene">
+          <option value="">---</option>
+          <option v-for="s in scenes" :key="s.name" :value="s.name">{{ s.name.toUpperCase() }}</option>
+          <option v-if="customScenes.length" disabled>────</option>
+          <option v-for="s in customScenes" :key="'c_'+s.name" :value="s.name">{{ s.name.toUpperCase() }} *</option>
+        </select>
+        <button class="header-btn" @click="saveScene" title="Save current config as scene">SAVE</button>
+
+        <div class="header-sep"></div>
+
+        <span class="header-label">STYLE</span>
+        <select class="header-select" v-model="style">
+          <option value="dark">DARK</option>
+          <option value="light">LIGHT</option>
+          <option value="brutalist">BRUTALIST</option>
+          <option value="neon">NEON</option>
+          <option value="rainbow">RAINBOW</option>
+          <option value="sunshine">SUNSHINE</option>
+          <option value="red">RED</option>
+          <option value="black">BLACK</option>
+          <option value="lcars">LCARS</option>
+          <option value="amber">AMBER</option>
+          <option value="arctic">ARCTIC</option>
+        </select>
+
+        <div class="header-sep"></div>
+
+        <span class="header-label">LAYOUT</span>
+        <select class="header-select" v-model="layout">
+          <option v-for="p in gridPresets" :key="p.label" :value="p.cols + 'x' + p.rows">
+            {{ p.label }}
+          </option>
+        </select>
+
+        <div class="header-sep"></div>
+
+        <span class="header-label">INTENSITY</span>
+        <input class="header-input" type="range" min="1" max="20"
+               :value="intensity" @input="intensity = $event.target.value" />
+        <span class="intensity-value">{{ intensity }}</span>
+
+        <div class="header-sep"></div>
+
+        <span class="header-label">WINDOWS</span>
+        <input class="header-input" type="range" min="0" max="20"
+               :value="fgTarget" @input="fgTarget = $event.target.value" />
+        <span class="intensity-value">{{ fgTarget }}</span>
       </div>
 
-      <div class="header-sep"></div>
+      <div class="header-row">
+        <select class="header-select" v-model="spawnType">
+          <option :value="null">RANDOM</option>
+          <option v-for="t in activityTypes" :key="t" :value="t">
+            {{ t.toUpperCase().replace(/_/g, ' ') }}
+          </option>
+        </select>
+        <button class="header-btn" @click="spawnWindow" title="Spawn new window">+</button>
+        <button class="header-btn" @click="randomize" title="Randomize all activities">SHUFFLE</button>
+        <button class="header-btn" @click="openFilter" title="Filter activity types">FILTER</button>
 
-      <span class="header-label">SCENE</span>
-      <select class="header-select" @change="applyScene">
-        <option value="">---</option>
-        <option v-for="s in scenes" :key="s.name" :value="s.name">{{ s.name.toUpperCase() }}</option>
-        <option v-if="customScenes.length" disabled>────</option>
-        <option v-for="s in customScenes" :key="'c_'+s.name" :value="s.name">{{ s.name.toUpperCase() }} *</option>
-      </select>
-      <button class="header-btn" @click="saveScene" title="Save current config as scene">SAVE</button>
+        <div class="header-spacer"></div>
 
-      <div class="header-sep"></div>
+        <button class="header-btn" @click="muted = !muted"
+                :class="{ active: muted }">
+          {{ muted ? 'MUTED' : 'SOUND' }}
+        </button>
 
-      <span class="header-label">STYLE</span>
-      <select class="header-select" v-model="style">
-        <option value="dark">DARK</option>
-        <option value="light">LIGHT</option>
-        <option value="brutalist">BRUTALIST</option>
-        <option value="neon">NEON</option>
-        <option value="rainbow">RAINBOW</option>
-        <option value="sunshine">SUNSHINE</option>
-        <option value="red">RED</option>
-        <option value="black">BLACK</option>
-        <option value="lcars">LCARS</option>
-        <option value="amber">AMBER</option>
-        <option value="arctic">ARCTIC</option>
-      </select>
+        <span class="header-label">AMBIENT</span>
+        <select class="header-select" v-model="ambientPreset">
+          <option value="">NONE</option>
+          <option v-for="p in ambientPresets" :key="p.key" :value="p.key">
+            {{ p.label.toUpperCase() }}
+          </option>
+        </select>
 
-      <div class="header-sep"></div>
+        <button class="header-btn" @click="toggleFullscreen">
+          {{ isFullscreen ? 'EXIT FS' : 'FULLSCR' }}
+        </button>
 
-      <span class="header-label">LAYOUT</span>
-      <select class="header-select" v-model="layout">
-        <option v-for="p in gridPresets" :key="p.label" :value="p.cols + 'x' + p.rows">
-          {{ p.label }}
-        </option>
-      </select>
+        <button class="header-btn" @click="resetPrefs" title="Reset all saved preferences">RESET</button>
+      </div>
 
-      <div class="header-sep"></div>
-
-      <span class="header-label">INTENSITY</span>
-      <input class="header-input" type="range" min="1" max="20"
-             :value="intensity" @input="intensity = $event.target.value" />
-      <span class="intensity-value">{{ intensity }}</span>
-
-      <div class="header-sep"></div>
-
-      <span class="header-label">WINDOWS</span>
-      <input class="header-input" type="range" min="0" max="20"
-             :value="fgTarget" @input="fgTarget = $event.target.value" />
-      <span class="intensity-value">{{ fgTarget }}</span>
-
-      <div class="header-spacer"></div>
-
-      <select class="header-select" v-model="spawnType">
-        <option :value="null">RANDOM</option>
-        <option v-for="t in activityTypes" :key="t" :value="t">
-          {{ t.toUpperCase().replace(/_/g, ' ') }}
-        </option>
-      </select>
-      <button class="header-btn" @click="spawnWindow" title="Spawn new window">+</button>
-      <button class="header-btn" @click="randomize" title="Randomize all activities">SHUFFLE</button>
-      <button class="header-btn" @click="openFilter" title="Filter activity types">FILTER</button>
-
-      <div class="header-sep"></div>
-
-      <button class="header-btn" @click="muted = !muted"
-              :class="{ active: muted }">
-        {{ muted ? 'MUTED' : 'SOUND' }}
-      </button>
-
-      <span class="header-label">AMBIENT</span>
-      <select class="header-select" v-model="ambientPreset">
-        <option value="">NONE</option>
-        <option v-for="p in ambientPresets" :key="p.key" :value="p.key">
-          {{ p.label.toUpperCase() }}
-        </option>
-      </select>
-
-      <button class="header-btn" @click="toggleFullscreen">
-        {{ isFullscreen ? 'EXIT FS' : 'FULLSCR' }}
-      </button>
-
-      <button class="header-btn" @click="resetPrefs" title="Reset all saved preferences">RESET</button>
     </header>
   `,
 };
