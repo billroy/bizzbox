@@ -38,4 +38,8 @@ export const ACTIVITY_TYPES = [
   'wireframe_3d',
   'power_grid',
   'game_of_life',
+  'satellite_telemetry',
+  'packet_sniffer',
+  'seismograph',
+  'access_control',
 ];

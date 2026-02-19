@@ -298,6 +298,22 @@ class AudioEngine {
         this._tone(800, 800, 0.03, 'sine', 0.08);
         this._tone(600, 600, 0.03, 'sine', 0.06);
         break;
+      case 'satellite_telemetry':
+        this._tone(1200, 800, 0.15, 'sine', 0.07);
+        this._tone(600, 600, 0.05, 'sine', 0.04);
+        break;
+      case 'packet_sniffer':
+        this._tone(2000, 1800, 0.04, 'square', 0.05);
+        this._noise(0.02, 0.04);
+        break;
+      case 'seismograph':
+        this._tone(80, 40, 0.3, 'sine', 0.1);
+        this._tone(120, 60, 0.2, 'sine', 0.06);
+        break;
+      case 'access_control':
+        this._tone(660, 660, 0.06, 'square', 0.08);
+        this._tone(880, 880, 0.04, 'square', 0.06);
+        break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);
     }

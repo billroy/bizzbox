@@ -47,7 +47,11 @@ import ActivityStockGraph      from './components/activities/StockGraph.js';
 import ActivityChatIntercept  from './components/activities/ChatIntercept.js';
 import ActivityWireframe3d    from './components/activities/Wireframe3d.js';
 import ActivityPowerGrid      from './components/activities/PowerGrid.js';
-import ActivityGameOfLife    from './components/activities/GameOfLife.js';
+import ActivityGameOfLife          from './components/activities/GameOfLife.js';
+import ActivitySatelliteTelemetry from './components/activities/SatelliteTelemetry.js';
+import ActivityPacketSniffer      from './components/activities/PacketSniffer.js';
+import ActivitySeismograph        from './components/activities/Seismograph.js';
+import ActivityAccessControl      from './components/activities/AccessControl.js';
 
 const { createApp } = Vue;
 
@@ -116,7 +120,11 @@ app.component('activity-stock-graph',      ActivityStockGraph);
 app.component('activity-chat-intercept',  ActivityChatIntercept);
 app.component('activity-wireframe-3d',    ActivityWireframe3d);
 app.component('activity-power-grid',      ActivityPowerGrid);
-app.component('activity-game-of-life',   ActivityGameOfLife);
+app.component('activity-game-of-life',          ActivityGameOfLife);
+app.component('activity-satellite-telemetry',  ActivitySatelliteTelemetry);
+app.component('activity-packet-sniffer',       ActivityPacketSniffer);
+app.component('activity-seismograph',          ActivitySeismograph);
+app.component('activity-access-control',       ActivityAccessControl);
 
 app.mount('#app');
 
