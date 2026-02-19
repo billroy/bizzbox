@@ -56,6 +56,9 @@ import ActivityAccessControl      from './components/activities/AccessControl.js
 import ActivityBlockchain         from './components/activities/Blockchain.js';
 import ActivityFlightTracker     from './components/activities/FlightTracker.js';
 import ActivityServerRack        from './components/activities/ServerRack.js';
+import ActivityCctvMosaic        from './components/activities/CctvMosaic.js';
+import ActivityProcessMonitor    from './components/activities/ProcessMonitor.js';
+import ActivitySonar             from './components/activities/Sonar.js';
 
 const { createApp } = Vue;
 
@@ -138,6 +141,9 @@ app.component('activity-access-control',       ActivityAccessControl);
 app.component('activity-blockchain',              ActivityBlockchain);
 app.component('activity-flight-tracker',         ActivityFlightTracker);
 app.component('activity-server-rack',            ActivityServerRack);
+app.component('activity-cctv-mosaic',            ActivityCctvMosaic);
+app.component('activity-process-monitor',        ActivityProcessMonitor);
+app.component('activity-sonar',                  ActivitySonar);
 
 app.mount('#app');
 

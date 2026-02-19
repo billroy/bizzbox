@@ -41,6 +41,9 @@ from .generators.access_control import AccessControlActivity
 from .generators.blockchain import BlockchainActivity
 from .generators.flight_tracker import FlightTrackerActivity
 from .generators.server_rack import ServerRackActivity
+from .generators.cctv_mosaic import CctvMosaicActivity
+from .generators.process_monitor import ProcessMonitorActivity
+from .generators.sonar import SonarActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -84,6 +87,9 @@ REGISTRY: dict[str, type] = {
     "blockchain":                 BlockchainActivity,
     "flight_tracker":             FlightTrackerActivity,
     "server_rack":                ServerRackActivity,
+    "cctv_mosaic":                CctvMosaicActivity,
+    "process_monitor":            ProcessMonitorActivity,
+    "sonar":                      SonarActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -129,6 +135,9 @@ WEIGHTS: dict[str, float] = {
     "blockchain":                 1.4,
     "flight_tracker":             1.4,
     "server_rack":                1.3,
+    "cctv_mosaic":                1.3,
+    "process_monitor":            1.2,
+    "sonar":                      1.4,
 }
 
 _types = list(REGISTRY.keys())

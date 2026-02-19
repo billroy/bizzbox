@@ -45,4 +45,7 @@ export const ACTIVITY_TYPES = [
   'blockchain',
   'flight_tracker',
   'server_rack',
+  'cctv_mosaic',
+  'process_monitor',
+  'sonar',
 ];
