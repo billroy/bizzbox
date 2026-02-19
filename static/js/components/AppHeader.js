@@ -231,6 +231,8 @@ export default {
         <option value="red">RED</option>
         <option value="black">BLACK</option>
         <option value="lcars">LCARS</option>
+        <option value="amber">AMBER</option>
+        <option value="arctic">ARCTIC</option>
       </select>
 
       <div class="header-sep"></div>
