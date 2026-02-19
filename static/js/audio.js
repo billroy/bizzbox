@@ -497,6 +497,132 @@ const AMBIENT_PRESETS = {
     const sub = makeOsc(ctx, dest, now, 22, 'sine', 0.15);          // sub-bass pressure
     return [rain, rainLow, wind, windLfo, thunder, thunder2, crackle, sub];
   },
+
+  // Warp engine: antimatter core thrumming + plasma shimmer + containment pulses
+  warp_engine(ctx, dest, now) {
+    const core1 = makeOsc(ctx, dest, now, 40, 'sine', 0.4);         // antimatter drone
+    const core2 = makeOsc(ctx, dest, now, 40.3, 'sine', 0.4);       // beating drone
+    const plasma1 = makeOsc(ctx, dest, now, 220, 'sine', 0.08);     // plasma shimmer
+    const plasma2 = makeOsc(ctx, dest, now, 220.8, 'sine', 0.08);   // detuned shimmer
+    const crackle = makeNoise(ctx, dest, now, 6000, 6, 0.03);       // energy discharge
+    const pulse = makeLFO(ctx, dest, now, 0.4, 0.08);               // containment field swell
+    const sub = makeOsc(ctx, dest, now, 20, 'sine', 0.2);           // deep hull vibration
+    const hum = makeOsc(ctx, dest, now, 80, 'triangle', 0.06);      // EPS conduit hum
+    return [core1, core2, plasma1, plasma2, crackle, pulse, sub, hum];
+  },
+
+  // Mech hangar: hydraulic hiss + servo motors + pneumatic rhythm + PA buzz
+  mech_hangar(ctx, dest, now) {
+    const hiss = makeNoise(ctx, dest, now, 2500, 4, 0.12);          // hydraulic hiss
+    const servo = makeOsc(ctx, dest, now, 80, 'sawtooth', 0.15);    // servo motor drone
+    const servo2 = makeOsc(ctx, dest, now, 160, 'sawtooth', 0.06);  // servo harmonic
+    const pneumatic = makeLFO(ctx, dest, now, 2.5, 0.06);           // pneumatic clank rhythm
+    const pa = makeOsc(ctx, dest, now, 1200, 'sine', 0.02);         // distant PA buzz
+    const creak = makeNoise(ctx, dest, now, 400, 2, 0.08);          // metal stress
+    const sub = makeOsc(ctx, dest, now, 35, 'sine', 0.2);           // heavy machinery rumble
+    return [hiss, servo, servo2, pneumatic, pa, creak, sub];
+  },
+
+  // Terraforming drone: ultra-slow processor hum + thin wind + seismic rumble
+  terraforming_drone(ctx, dest, now) {
+    const processor = makeOsc(ctx, dest, now, 30, 'sine', 0.35);    // atmo processor hum
+    const processor2 = makeOsc(ctx, dest, now, 30.15, 'sine', 0.35);// detuned beating
+    const wind = makeNoise(ctx, dest, now, 3000, 3, 0.08, 'highpass'); // thin Martian wind
+    const seismic = makeLFO(ctx, dest, now, 0.08, 0.06);            // seismic rumble LFO
+    const chime = makeOsc(ctx, dest, now, 2400, 'sine', 0.01);      // crystalline chime
+    const chimeBeat = makeOsc(ctx, dest, now, 2401, 'sine', 0.01);  // slow chime beat
+    const pressHiss = makeNoise(ctx, dest, now, 1500, 5, 0.04);     // pressure equalization
+    return [processor, processor2, wind, seismic, chime, chimeBeat, pressHiss];
+  },
+
+  // Tavern hearth: crackling fire + room resonance + distant crowd + wind outside
+  tavern_fire(ctx, dest, now) {
+    const fire = makeNoise(ctx, dest, now, 3000, 3, 0.2);           // fire crackle
+    const fireBody = makeNoise(ctx, dest, now, 800, 1.5, 0.12);     // warm fire body
+    const fireLfo = makeLFO(ctx, dest, now, 0.7, 0.04);             // fire flicker rhythm
+    const room = makeOsc(ctx, dest, now, 60, 'sine', 0.15);         // wooden room resonance
+    const crowd = makeNoise(ctx, dest, now, 600, 2, 0.06);          // distant crowd murmur
+    const wind = makeNoise(ctx, dest, now, 1800, 4, 0.04, 'highpass'); // wind outside
+    const sub = makeOsc(ctx, dest, now, 45, 'sine', 0.1);           // hearth warmth
+    return [fire, fireBody, fireLfo, room, crowd, wind, sub];
+  },
+
+  // Rocket launch: enormous thrust rumble + exhaust roar + radio crackle + vibration
+  rocket_launch(ctx, dest, now) {
+    const thrust1 = makeOsc(ctx, dest, now, 25, 'sine', 0.45);      // deep thrust
+    const thrust2 = makeOsc(ctx, dest, now, 35, 'sine', 0.35);      // mid thrust
+    const thrust3 = makeOsc(ctx, dest, now, 50, 'sine', 0.2);       // upper thrust
+    const exhaust = makeNoise(ctx, dest, now, 1200, 0.8, 0.25);     // exhaust roar
+    const radio = makeNoise(ctx, dest, now, 2500, 8, 0.04);         // radio comms crackle
+    const tick = makeLFO(ctx, dest, now, 1.0, 0.03);                // countdown tick pulse
+    const gantry = makeOsc(ctx, dest, now, 95, 'triangle', 0.06);   // gantry vibration
+    const gantry2 = makeOsc(ctx, dest, now, 95.4, 'triangle', 0.06);// gantry beating
+    return [thrust1, thrust2, thrust3, exhaust, radio, tick, gantry, gantry2];
+  },
+
+  // Submarine sonar: sonar ping cycle + hull groans + water flow + cavitation
+  submarine_sonar(ctx, dest, now) {
+    const ping = makeOsc(ctx, dest, now, 1200, 'sine', 0.04);       // sonar ping tone
+    const pingLfo = makeLFO(ctx, dest, now, 0.25, 0.04);            // ~4s ping cycle
+    const hull1 = makeOsc(ctx, dest, now, 55, 'sine', 0.2);         // hull compression
+    const hull2 = makeOsc(ctx, dest, now, 56.2, 'sine', 0.2);       // hull groan beat
+    const water = makeNoise(ctx, dest, now, 300, 1, 0.12);          // water current flow
+    const cavitation = makeNoise(ctx, dest, now, 800, 3, 0.06);     // propeller cavitation
+    const cavLfo = makeLFO(ctx, dest, now, 3, 0.03);                // cavitation pulse
+    const deep = makeOsc(ctx, dest, now, 22, 'sine', 0.15);         // pressure silence bed
+    return [ping, pingLfo, hull1, hull2, water, cavitation, cavLfo, deep];
+  },
+
+  // Wildfire crackle: roaring fire + embers + hot wind + helicopter rotors + radio
+  wildfire_crackle(ctx, dest, now) {
+    const roar = makeNoise(ctx, dest, now, 600, 1.5, 0.25);         // roaring fire mid
+    const roarLfo = makeLFO(ctx, dest, now, 0.3, 0.08);             // fire intensity swell
+    const embers = makeNoise(ctx, dest, now, 4000, 5, 0.08);        // crackling embers
+    const wind = makeNoise(ctx, dest, now, 1200, 2, 0.12);          // hot wind gusts
+    const heli = makeNoise(ctx, dest, now, 500, 3, 0.06);           // helicopter body
+    const heliChop = makeLFO(ctx, dest, now, 8, 0.04);              // rotor chop
+    const radio = makeNoise(ctx, dest, now, 2000, 10, 0.03);        // distant radio chatter
+    const sub = makeOsc(ctx, dest, now, 35, 'sine', 0.18);          // fire rumble base
+    return [roar, roarLfo, embers, wind, heli, heliChop, radio, sub];
+  },
+
+  // Hyperloop tube: vacuum resonance + pod whoosh + EM hum + station chime
+  hyperloop_tube(ctx, dest, now) {
+    const tube = makeOsc(ctx, dest, now, 55, 'sine', 0.3);          // vacuum tube resonance
+    const tube2 = makeOsc(ctx, dest, now, 55.3, 'sine', 0.3);       // tube beating
+    const em1 = makeOsc(ctx, dest, now, 110, 'sine', 0.08);         // EM harmonic
+    const em2 = makeOsc(ctx, dest, now, 165, 'sine', 0.04);         // EM 3rd harmonic
+    const whoosh = makeNoise(ctx, dest, now, 1500, 2, 0.08);        // pod pass-by body
+    const whooshLfo = makeLFO(ctx, dest, now, 0.2, 0.05);           // pod pass-by rhythm
+    const seal = makeNoise(ctx, dest, now, 5000, 6, 0.03, 'highpass'); // air seal hiss
+    const chime = makeOsc(ctx, dest, now, 2093, 'sine', 0.01);      // station arrival chime
+    return [tube, tube2, em1, em2, whoosh, whooshLfo, seal, chime];
+  },
+
+  // Lab clean room: HVAC white noise + fluorescent hum + centrifuge + laminar flow
+  genetics_hum(ctx, dest, now) {
+    const hvac = makeNoise(ctx, dest, now, 600, 0.5, 0.15);         // HVAC gentle wash
+    const fluor = makeOsc(ctx, dest, now, 120, 'sine', 0.04);       // fluorescent light hum
+    const fluor2 = makeOsc(ctx, dest, now, 240, 'sine', 0.015);     // fluorescent harmonic
+    const centrifuge = makeOsc(ctx, dest, now, 340, 'sine', 0.03);  // centrifuge spin
+    const centLfo = makeLFO(ctx, dest, now, 0.15, 0.02);            // centrifuge wobble
+    const laminar = makeNoise(ctx, dest, now, 2000, 1.5, 0.08);     // laminar flow hood
+    const beep = makeOsc(ctx, dest, now, 1800, 'sine', 0.005);      // PCR machine tone
+    return [hvac, fluor, fluor2, centrifuge, centLfo, laminar, beep];
+  },
+
+  // Digital warfare: aggressive data stream + server fans + interference + alarm
+  digital_warfare(ctx, dest, now) {
+    const stream = makeNoise(ctx, dest, now, 2000, 2, 0.15);        // data stream
+    const streamMod = makeLFO(ctx, dest, now, 7, 0.06);             // fast modulation
+    const fans = makeNoise(ctx, dest, now, 800, 1.5, 0.12);         // server fan roar
+    const crackle = makeNoise(ctx, dest, now, 6000, 8, 0.05);       // electrical interference
+    const pulse = makeOsc(ctx, dest, now, 0.8, 'sine', 0.08);       // heartbeat-like bass LFO
+    const sub = makeOsc(ctx, dest, now, 40, 'sine', 0.25);          // bass foundation
+    const alarm = makeOsc(ctx, dest, now, 330, 'square', 0.02);     // klaxon undertone
+    const alarm2 = makeOsc(ctx, dest, now, 332, 'square', 0.02);    // detuned alarm beat
+    return [stream, streamMod, fans, crackle, pulse, sub, alarm, alarm2];
+  },
 };
 
 /** Ordered list of ambient preset names for UI */
@@ -512,6 +638,16 @@ export const AMBIENT_PRESET_LIST = [
   { key: 'arctic_wind',      label: 'Arctic Wind' },
   { key: 'coral_reef',       label: 'Coral Reef' },
   { key: 'thunderstorm',     label: 'Thunderstorm' },
+  { key: 'warp_engine',      label: 'Warp Engine' },
+  { key: 'mech_hangar',      label: 'Mech Hangar' },
+  { key: 'terraforming_drone', label: 'Terraforming Drone' },
+  { key: 'tavern_fire',      label: 'Tavern Hearth' },
+  { key: 'rocket_launch',    label: 'Rocket Launch' },
+  { key: 'submarine_sonar',  label: 'Submarine Sonar' },
+  { key: 'wildfire_crackle', label: 'Wildfire Crackle' },
+  { key: 'hyperloop_tube',   label: 'Hyperloop Tube' },
+  { key: 'genetics_hum',     label: 'Lab Clean Room' },
+  { key: 'digital_warfare',  label: 'Digital Warfare' },
 ];
 
 export const audio = new AudioEngine();
