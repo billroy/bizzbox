@@ -1,0 +1,388 @@
+FEATURES-7 — Refinement, New Content, and Multi-Display
+=========================================================
+
+Assessment of the current state: BizzBox has 38 activity types (all
+implemented through FEATURES-6 items 1-17), 11 themes, 9 ambient
+soundscapes, 6 preset scenes with custom scene support, full keyboard
+control, lock mode, URL overrides, activity filtering, drag/resize
+foreground windows with z-ordering, background slot pinning, per-
+activity sound effects, delta state compression, and localStorage
+persistence. The header is now a two-row layout that fits on 13"
+screens. All server state is ephemeral (no database).
+
+The trajectory below addresses the remaining FEATURES-6 stretch goal
+(multi-display), then focuses on polish, visual upgrades, new content,
+and quality-of-life improvements identified from a full codebase audit.
+
+
+TIER 1 — Multi-display (FEATURES-6 item 18)
+--------------------------------------------
+
+1. Multi-display / multi-window mode
+
+   Allow BizzBox to span multiple browser windows or screens, each
+   showing a different section of one large virtual grid. This is the
+   primary remaining architectural feature from FEATURES-6.
+
+   URL param: ?region=COL,ROW,WIDTH,HEIGHT
+   Example: ?region=0,0,3,4 shows columns 0-2, rows 0-3 of a larger
+   virtual grid.
+
+   Implementation:
+   - Server defines a virtual grid size (e.g., 12x8 for a 3-monitor
+     6x8 setup). Each connected client sends its region on connect.
+   - Server tags each activity slot with its (col, row) position in
+     the virtual grid. Activity spawn/despawn events include position.
+   - Client filters incoming activity events to only render slots
+     within its claimed region.
+   - Synced mode: all region clients share one room; server manages
+     the full virtual grid. Each client renders its own subset.
+   - The header on each client controls the shared configuration
+     (theme, intensity, etc.) but the grid layout dropdown is replaced
+     with a read-only region indicator.
+   - URL param ?virtual=COLSxROWS defines the full virtual grid size
+     (default: same as layout, meaning single-display mode).
+   - When no ?region is specified, the client renders the full grid
+     (backward compatible).
+
+   New server event: sync:init includes a virtual_grid field. Each
+   activity state includes a grid_position {col, row} field.
+
+   Files: app.py (region param handling, virtual grid CLI arg),
+   server/activity_manager.py (virtual grid sizing, position tagging),
+   server/sync_manager.py (region-aware filtering),
+   static/js/store.js (region parsing, slot filtering),
+   static/js/components/BackgroundGrid.js (render only in-region slots),
+   static/js/components/AppHeader.js (region indicator)
+
+
+TIER 2 — Visual polish and UX refinement
+-----------------------------------------
+
+2. Theme-cycle keyboard shortcut
+
+   Add a 'T' keyboard shortcut to cycle through themes (dark → light
+   → brutalist → neon → ... → arctic → dark). Complements the 'A'
+   key for ambient cycling. Show a brief on-screen toast notification
+   with the new theme name (fades after 1.5 seconds).
+
+   Files: static/js/keyboard.js (add 'T' handler),
+   static/js/store.js (theme list for cycling),
+   static/js/components/AppHeader.js (or new Toast component),
+   static/css/layout.css (toast styles)
+
+3. On-screen indicator toasts
+
+   When the user changes settings via keyboard shortcuts (intensity,
+   windows, mute, ambient, theme, shuffle), show a brief floating
+   toast in the bottom-center of the screen. Format: "INTENSITY 12"
+   or "AMBIENT: DEEP SPACE" or "MUTED". Fades out after 1.5 seconds.
+   Helps users who have the header hidden know what changed.
+
+   This is especially important in lock mode where the header is
+   completely invisible — currently there's zero visual feedback
+   for keyboard actions in lock mode.
+
+   Files: static/js/components/Toast.js (new),
+   static/js/store.js (toast message + timer),
+   static/js/keyboard.js (emit toasts on key actions),
+   static/css/layout.css (toast positioning and animation),
+   static/js/app.js (register component)
+
+4. Connection status resilience
+
+   Currently the client shows "OFFLINE" on disconnect but does nothing
+   proactive. Improve:
+   - On disconnect, show a reconnection overlay with a pulsing
+     "RECONNECTING..." message and an attempt counter
+   - Socket.IO already handles auto-reconnect, but the UI should
+     reflect the attempts (connecting... attempt 2... attempt 3...)
+   - On successful reconnect, briefly flash "RECONNECTED" then
+     dismiss the overlay
+   - Freeze the last frame of all activities during disconnection
+     instead of showing empty panels
+
+   Files: static/js/socket.js (reconnect event handlers),
+   static/js/store.js (reconnection state),
+   static/js/app.js (reconnection overlay template),
+   static/css/layout.css (reconnection overlay styles)
+
+5. Activity window title bars
+
+   Foreground windows currently have no visible title/type indicator.
+   Add a minimal title bar to each foreground window showing the
+   activity type name (e.g., "RADAR" or "GAME OF LIFE") and the
+   strategy name in smaller dimmer text. Include a small "x" close
+   button on the right side of the title bar.
+
+   The title bar should be semi-transparent, positioned at the top
+   of the window, and auto-hide after 3 seconds of no mouse movement
+   over the window (similar to the header behavior).
+
+   Files: static/js/components/ForegroundLayer.js (title bar template),
+   static/css/layout.css (title bar styles)
+
+6. Improve filter modal UX
+
+   The current filter modal is functional but basic. Improvements:
+   - Group activity types by category (Canvas Visualizations, Text
+     Panels, Data Displays) with collapsible section headers
+   - Show a small preview icon or colored dot per type indicating
+     canvas vs DOM rendering
+   - Add a search/filter text input at the top for quick finding
+   - Show current spawn weight next to each type name (dim text)
+   - "Invert" button to toggle all selections
+   - Keyboard: Escape closes the modal
+
+   Files: static/js/components/FilterModal.js (enhance),
+   static/css/layout.css (filter modal category styles)
+
+
+TIER 3 — New activities
+------------------------
+
+7. Blockchain / Ledger
+
+   Live blockchain transaction feed with block confirmations:
+   - Strategies: bitcoin_mempool, ethereum_defi, nft_marketplace,
+     mining_pool, cross_chain_bridge
+   - State: array of transactions with hash (truncated), from/to
+     addresses, amount, gas/fee, status (pending/confirmed/failed),
+     block number, confirmations count
+   - Canvas renderer: scrolling transaction list with hash
+     truncation, colored status badges, a small block height
+     counter in the corner, and a "mempool depth" bar chart
+   - Confirmed transactions slide from pending zone to confirmed
+     zone with a brief flash
+
+   Files: server/generators/blockchain.py (new),
+   static/js/components/activities/Blockchain.js (new),
+   server/activity_registry.py (register), static/js/activityTypes.js
+
+8. Flight Tracker / ATC Radar
+
+   Air traffic control style radar display:
+   - Strategies: major_airport, military_airspace, oceanic_tracking,
+     approach_control, emergency_divert
+   - State: array of aircraft with callsign, position (x, y),
+     altitude, heading, speed, type (commercial/military/private/
+     cargo), status (normal/priority/emergency)
+   - Canvas renderer: top-down radar view with range rings,
+     aircraft shown as chevron icons with heading lines, data tags
+     showing callsign/altitude/speed, trails showing recent path
+   - Emergency aircraft flash with red highlight and priority label
+
+   Files: server/generators/flight_tracker.py (new),
+   static/js/components/activities/FlightTracker.js (new),
+   server/activity_registry.py (register), static/js/activityTypes.js
+
+9. Server Rack / Data Center
+
+   Front-facing server rack with blinking status LEDs:
+   - Strategies: cloud_provider, enterprise_dc, colocation,
+     edge_node, supercomputer
+   - State: rack units (1U-4U) with server name, role, status
+     (online/degraded/offline/booting), CPU load, LED states
+     (array of on/off/blink colors), fan speed indicator
+   - Canvas renderer: tall rack drawing with individual server
+     faces, blinking LEDs (green/amber/red), animated fans,
+     hot aisle temperature gradient
+   - Servers occasionally reboot (LEDs cycle) or go into fault
+     state (all LEDs red, status text changes)
+
+   Files: server/generators/server_rack.py (new),
+   static/js/components/activities/ServerRack.js (new),
+   server/activity_registry.py (register), static/js/activityTypes.js
+
+10. CCTV Mosaic
+
+    Multi-camera security feed as a 2x2 sub-grid within one panel:
+    - Strategies: building_lobby, parking_garage, warehouse,
+      prison_block, casino_floor
+    - State: 4 camera objects each with camera_id, location label,
+      status (live/offline/recording), timestamp, motion_detected
+      boolean, static_noise_level (0-1)
+    - Canvas renderer: 2x2 grid of simulated camera views using
+      procedural line-art scenes (hallway with perspective lines,
+      parking lot with car rectangles, etc.) with scan lines,
+      timestamp overlay, REC indicator, and occasional static
+      interference
+    - Different from camera_feed: this is a mosaic showing 4 feeds
+      simultaneously rather than one camera rotating views
+
+    Files: server/generators/cctv_mosaic.py (new),
+    static/js/components/activities/CctvMosaic.js (new),
+    server/activity_registry.py (register), static/js/activityTypes.js
+
+11. CPU/Process Monitor
+
+    A htop/top-style process list with animated CPU bars:
+    - Strategies: linux_server, container_orchestrator, gpu_cluster,
+      database_server, web_farm
+    - State: array of processes with PID, name, user, CPU%, MEM%,
+      status (running/sleeping/zombie), runtime; plus system totals
+      (CPU cores usage array, total/used memory, load averages)
+    - Canvas renderer: top section shows per-core CPU bar meters
+      (colored fill bars), memory bar; bottom section is a scrolling
+      process table sorted by CPU% with highlighted top consumers
+    - Processes spawn and die; occasional CPU spikes cause bars
+      to jump; zombie processes appear and get reaped
+
+    Files: server/generators/process_monitor.py (new),
+    static/js/components/activities/ProcessMonitor.js (new),
+    server/activity_registry.py (register), static/js/activityTypes.js
+
+12. Doppler / Sonar
+
+    Underwater sonar display with bearing sweeps and contact tracks:
+    - Strategies: submarine_hunt, harbor_defense, marine_biology,
+      deep_sea_survey, torpedo_tracking
+    - State: bearing-time waterfall array (intensity values in a
+      2D grid), contacts array with bearing, range, classification
+      (submarine/surface/biologic/unknown), confidence
+    - Canvas renderer: classic sonar waterfall display (bearing on
+      x-axis, time scrolling down, intensity as color), contact
+      markers with bearing lines, a frequency analysis strip on
+      the side
+    - Contacts appear as bright streaks in the waterfall, with
+      classification labels that update as confidence increases
+
+    Files: server/generators/sonar.py (new),
+    static/js/components/activities/Sonar.js (new),
+    server/activity_registry.py (register), static/js/activityTypes.js
+
+
+TIER 4 — New themes and ambient presets
+----------------------------------------
+
+13. "Synthwave" theme — Retro 80s neon sunset
+
+    - Background: #1a0a2e (deep purple-black)
+    - Surfaces: #2d1450, #3a1a6a
+    - Text: #ff71ce (hot pink primary), #b967ff (purple secondary)
+    - Accents: #01cdfe (cyan), #05ffa1 (neon green), #fffb96 (yellow)
+    - Wide border-radius (pill-shaped buttons)
+    - Heavy glow effects with pink and cyan text-shadow
+    - Distinct from "neon" — neon is electric/techno, synthwave is
+      retro/vaporwave with warmer purples and pinks
+
+    Files: static/css/themes.css, static/js/components/AppHeader.js,
+    app.py (--style choices)
+
+14. "Military" theme — Olive drab tactical
+
+    - Background: #0a0d08 (near-black green-brown)
+    - Surfaces: #1a2010, #243018
+    - Text: #b8c4a0 (olive text), #7a8860 (dim text)
+    - Accents: #c8d080 (olive highlight), #ff4040 (alert red),
+      #40a040 (status green)
+    - Monospace everything, zero border-radius (squared)
+    - No glow effects — flat, utilitarian, like MIL-STD displays
+    - Pairs naturally with War Room scene and war_room ambient
+
+    Files: static/css/themes.css, static/js/components/AppHeader.js,
+    app.py (--style choices)
+
+15. "Coral Reef" ambient soundscape
+
+    Underwater environment:
+    - Layered bubbling (filtered noise bursts at randomized intervals)
+    - Deep water rumble (very low frequency sine, ~30Hz)
+    - Distant whale calls (slow frequency sweeps with long release)
+    - Gentle current flow (bandpass-filtered white noise, slowly
+      modulated)
+    - Pairs with arctic theme or a custom underwater scene
+
+    Files: static/js/audio.js (add preset)
+
+16. "Thunderstorm" ambient soundscape
+
+    Exterior storm:
+    - Continuous rain (shaped noise through bandpass filter)
+    - Distant thunder (low-frequency burst with long reverb tail,
+      randomized every 15-45 seconds)
+    - Wind gusts (modulated bandpass noise with volume LFO)
+    - Occasional close lightning crack (sharp high-frequency burst
+      followed by rumble)
+
+    Files: static/js/audio.js (add preset)
+
+
+TIER 5 — Infrastructure and developer experience
+-------------------------------------------------
+
+17. Activity hot-reload for development
+
+    When developing new activities, the current workflow requires a
+    full page reload to see changes. Add a dev-mode feature:
+    - Server CLI flag: --dev enables file watching
+    - Server watches server/generators/*.py for changes and
+      automatically re-imports modified generator classes
+    - On generator reload, the server emits a dev:reload event
+      with the activity type name
+    - Client receives the event and forces a refresh of all
+      instances of that activity type (despawn + respawn)
+    - Client-side: --dev flag adds a small "DEV" badge to the header
+
+    Files: app.py (--dev flag, file watcher),
+    server/activity_manager.py (hot-reload integration),
+    static/js/socket.js (dev:reload handler)
+
+18. Activity performance profiling
+
+    Add optional server-side timing metrics to identify slow
+    generators:
+    - Track per-activity-type average frame generation time (ms)
+    - Track average JSON payload size per type
+    - Track delta compression ratio per type (for delta-enabled)
+    - Expose via a /debug/stats endpoint (JSON) when --dev is active
+    - Client-side: in dev mode, overlay per-panel FPS counter and
+      payload size on each activity window (small text in corner)
+
+    Files: server/activity_manager.py (timing instrumentation),
+    app.py (debug endpoint),
+    static/js/components/ActivityWindow.js (debug overlay)
+
+19. Automated screenshot testing
+
+    Add a headless testing mode that captures screenshots of each
+    activity type across multiple themes for visual regression:
+    - CLI: python screenshot_test.py --themes dark,neon,red
+    - Uses Playwright or Selenium to load BizzBox, pin each
+      activity type one at a time, capture screenshots
+    - Saves to screenshots/{theme}/{activity_type}.png
+    - Useful for verifying theme changes don't break activity
+      rendering and for generating documentation images
+
+    Files: screenshot_test.py (new), requirements-dev.txt (new,
+    playwright dependency)
+
+20. Embed mode
+
+    A minimal mode for embedding BizzBox in iframes or OBS scenes:
+    - URL param: ?embed=1
+    - Hides the header completely (like lock mode but permanent)
+    - Removes all padding/margins for edge-to-edge rendering
+    - Disables all keyboard shortcuts except Escape
+    - Disables right-click context menus
+    - Sets transparent background option (?bg=transparent) for
+      OBS chroma-key compositing
+    - Respects all other URL params (style, layout, intensity, etc.)
+
+    Files: static/js/store.js (embed flag parsing),
+    static/js/keyboard.js (embed mode shortcut filtering),
+    static/css/layout.css (embed mode overrides),
+    static/js/app.js (conditional component rendering)
+
+
+Priority recommendation
+-----------------------
+Start with Tier 2 items (2-6) as quick polish wins — toasts and
+theme cycling especially improve the keyboard-driven experience.
+The filter modal and window title bars round out the UX. Then pick
+2-3 new activities from Tier 3 based on visual appeal. Themes and
+ambient presets (Tier 4) are easy palette cleansers between heavier
+work. Multi-display (item 1) is the largest single feature and
+should be tackled when there's appetite for architectural work.
+Dev tooling (Tier 5) is optional but pays dividends if ongoing
+activity development continues.

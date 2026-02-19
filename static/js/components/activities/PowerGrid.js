@@ -113,8 +113,8 @@ export default {
       // Margin for labels
       const mx = 30;
       const my = 30;
-      const gw = w - mx * 2;
-      const gh = h - my * 2 - 30; // leave room for readings
+      const gw = Math.max(1, w - mx * 2);
+      const gh = Math.max(1, h - my * 2 - 30); // leave room for readings
 
       // Build node position map
       const nodeMap = {};
@@ -150,7 +150,7 @@ export default {
       ctx.globalAlpha = 1;
 
       // Draw nodes
-      const nodeRadius = Math.min(12, Math.min(gw, gh) / (nodes.length + 2));
+      const nodeRadius = Math.max(1, Math.min(12, Math.min(gw, gh) / (nodes.length + 2)));
       const now = Date.now();
 
       for (const node of nodes) {
