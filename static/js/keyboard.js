@@ -34,9 +34,17 @@ function scheduleCursorHide() {
 }
 
 function onKeyDown(evt) {
-  // Skip if focused on inputs
+  // Skip if focused on text inputs or range sliders
   const tag = evt.target.tagName;
-  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  // If a <select> has focus, blur it so our shortcuts work instead of
+  // the native select behaviour (which jumps to matching options and
+  // can inadvertently trigger change events).
+  if (tag === 'SELECT') {
+    evt.target.blur();
+    evt.preventDefault();
+  }
 
   const key = evt.key;
 
