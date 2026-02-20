@@ -4,8 +4,8 @@
 import { store, savePrefs, clearPrefs } from '../store.js';
 import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize, sendActivityFilter, sendChannelCreate, sendChannelSwitch } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
-import { ACTIVITY_TYPES } from '../activityTypes.js';
-import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportScenes, importScenes } from '../scenes.js';
+import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '../activityTypes.js';
+import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportScenes, importScenes, encodeSceneToBase64 } from '../scenes.js';
 import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
 
 export default {
@@ -153,6 +153,25 @@ export default {
     function saveScene() {
       const name = window.prompt('Scene name:');
       if (!name || !name.trim()) return;
+
+      // Capture the current activity filter
+      const allEnabled = ACTIVITY_TYPES.every(t => store.activityFilter[t]);
+      let filter = null;
+      if (!allEnabled) {
+        filter = ACTIVITY_TYPES.filter(t => store.activityFilter[t]);
+      }
+
+      // Determine which categories are fully included for metadata
+      const categories = [];
+      if (filter) {
+        const filterSet = new Set(filter);
+        for (const [cat, types] of Object.entries(ACTIVITY_CATEGORIES)) {
+          if (types.every(t => filterSet.has(t))) {
+            categories.push(cat);
+          }
+        }
+      }
+
       const scene = {
         name: name.trim(),
         style: store.config.style,
@@ -161,7 +180,8 @@ export default {
         intensity: store.config.intensity,
         fgTarget: store.config.fgTarget,
         ambientPreset: store.ambientPreset || null,
-        filter: null,
+        filter,
+        categories: categories.length > 0 ? categories : undefined,
       };
       saveCustomScene(scene);
       store.customScenes = loadCustomScenes();
@@ -187,15 +207,66 @@ export default {
     }
 
     function doImportScenes() {
-      const json = window.prompt('Paste scene JSON:');
-      if (!json || !json.trim()) return;
-      try {
-        const result = importScenes(json);
-        store.customScenes = result;
-        window.alert(`Imported — ${result.length} custom scene(s) total.`);
-      } catch (e) {
-        window.alert('Import failed: ' + e.message);
+      const json = window.prompt('Paste scene JSON (or cancel to upload a file):');
+      if (json && json.trim()) {
+        try {
+          const result = importScenes(json);
+          store.customScenes = result;
+          window.alert(`Imported — ${result.length} custom scene(s) total.`);
+        } catch (e) {
+          window.alert('Import failed: ' + e.message);
+        }
+      } else if (json === null) {
+        // User cancelled — offer file upload
+        doImportScenesFromFile();
       }
+    }
+
+    function doImportScenesFromFile() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const result = importScenes(reader.result);
+            store.customScenes = result;
+            window.alert(`Imported — ${result.length} custom scene(s) total.`);
+          } catch (e) {
+            window.alert('Import failed: ' + e.message);
+          }
+        };
+        reader.readAsText(file);
+      });
+      input.click();
+    }
+
+    function shareScene() {
+      const scene = {
+        name: 'Shared Scene',
+        style: store.config.style,
+        cols: store.grid ? store.grid.cols : 3,
+        rows: store.grid ? store.grid.rows : 2,
+        intensity: store.config.intensity,
+        fgTarget: store.config.fgTarget,
+        ambientPreset: store.ambientPreset || null,
+        filter: null,
+      };
+      // Include current activity filter if not "all enabled"
+      const allEnabled = ACTIVITY_TYPES.every(t => store.activityFilter[t]);
+      if (!allEnabled) {
+        scene.filter = ACTIVITY_TYPES.filter(t => store.activityFilter[t]);
+      }
+      const b64 = encodeSceneToBase64(scene);
+      const url = `${window.location.origin}${window.location.pathname}?scene_data=${b64}`;
+      navigator.clipboard.writeText(url).then(() => {
+        window.alert('Scene URL copied to clipboard!');
+      }).catch(() => {
+        window.prompt('Copy this URL:', url);
+      });
     }
 
     function openFilter() {
@@ -241,7 +312,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel };
   },
 
   template: `
@@ -282,6 +353,7 @@ export default {
         <button class="header-btn" @click="saveScene" title="Save current config as scene">SAVE</button>
         <button class="header-btn" @click="doExportScenes" title="Copy custom scenes to clipboard">EXPORT</button>
         <button class="header-btn" @click="doImportScenes" title="Import scenes from JSON">IMPORT</button>
+        <button class="header-btn" @click="shareScene" title="Copy shareable URL for current config">SHARE</button>
 
         <div class="header-sep"></div>
 

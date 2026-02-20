@@ -21,6 +21,9 @@ function parseUrlOverrides() {
   if (params.has('scene'))     o.scene = params.get('scene');
   if (params.has('kiosk'))     o.kiosk = params.get('kiosk') === '1';
   if (params.has('slideshow')) o.slideshow = parseInt(params.get('slideshow'), 10);
+  if (params.has('scene_data')) o.scene_data = params.get('scene_data');
+  if (params.has('slideshow_filter')) o.slideshow_filter = params.get('slideshow_filter');
+  if (params.has('viewer'))   o.viewer = params.get('viewer') === '1';
   return o;
 }
 
@@ -91,6 +94,7 @@ export const store = reactive({
   // UI state
   lockMode: false,
   kioskMode: false,
+  viewerMode: false,
   slideshowActive: false,
   slideshowInterval: 60,
   helpOverlay: false,

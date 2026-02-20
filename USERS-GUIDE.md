@@ -335,7 +335,15 @@ You can save your current configuration as a custom scene:
 3. Click **Save Current as Scene**
 4. Give it a name
 
-Custom scenes are stored in your browser's localStorage and persist across page reloads. You can delete them from the same dropdown.
+Custom scenes are stored in your browser's localStorage and persist across page reloads. You can delete them from the same dropdown. Saved scenes now capture the current activity filter (which types are enabled), along with category metadata.
+
+### Sharing & Exporting Scenes
+
+The header bar includes three scene management buttons:
+
+- **EXPORT** — Copies all custom scenes to the clipboard as JSON
+- **IMPORT** — Paste JSON to import scenes, or cancel to upload a `.json` file
+- **SHARE** — Copies a shareable URL with the current config encoded as `?scene_data=<base64>`. Anyone who opens the URL will see the exact same display settings
 
 ---
 
@@ -430,8 +438,11 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=1&lock=1
 | `scene` | Scene name | — | Load a built-in or custom scene by name (case-insensitive; spaces, hyphens, underscores interchangeable) |
 | `kiosk` | `1` | off | Kiosk mode: hides all chrome (header, title bars, toasts), implies lock mode, auto-enters fullscreen on first click |
 | `slideshow` | seconds | off | Auto-cycle through all scenes at the given interval (e.g. `slideshow=60` for 1 scene/minute) |
+| `slideshow_filter` | filter | `all` | Limit slideshow to a subset: `builtin`, `custom`, or comma-separated scene names |
+| `scene_data` | base64 | — | Load an inline scene encoded as base64 JSON (use the SHARE button to generate) |
+| `viewer` | `1` | off | Simplified mobile viewer: hides chrome, allows swipe gestures, tap to show info bar |
 
-URL parameters override saved preferences, which override server defaults. The `scene` parameter applies last and overrides all other parameters (style, layout, intensity, windows, etc.).
+URL parameters override saved preferences, which override server defaults. The `scene` parameter applies last and overrides all other parameters (style, layout, intensity, windows, etc.). The `scene_data` parameter takes precedence over `scene` if both are provided.
 
 ### Example URLs
 
@@ -459,6 +470,15 @@ http://localhost:5000?scene=war-room
 
 # Kiosk mode for permanent installations
 http://localhost:5000?kiosk=1&scene=Starship+Bridge
+
+# Slideshow cycling only custom scenes every 45 seconds
+http://localhost:5000?slideshow=45&slideshow_filter=custom
+
+# Slideshow cycling only specific scenes
+http://localhost:5000?slideshow=30&slideshow_filter=War+Room,Chaos,Abyss
+
+# Mobile viewer mode (simplified touch-friendly display)
+http://localhost:5000?viewer=1
 ```
 
 ---
@@ -469,8 +489,10 @@ BizzBox works on touch devices (tablets and phones):
 
 - **Foreground windows** can be dragged by their title bars and resized by corner/edge handles using touch
 - **Swipe left/right** on the viewport to switch between channels
+- **Swipe up/down** on the viewport to cycle through themes
 - On narrow screens (< 768px), the header wraps controls for easier access and resize handles are enlarged for touch
 - Combine with `?kiosk=1` for a clean, full-screen touch display
+- **Viewer mode** (`?viewer=1`): a simplified mobile experience that hides all chrome, allows swipe gestures, and shows a minimal info bar on tap (theme, channel, viewer count). Auto-hides after 4 seconds
 
 ---
 

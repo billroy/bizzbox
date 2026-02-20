@@ -5,7 +5,7 @@
 import { store, urlOverrides, initFromServer, addActivity, updateActivity, mergeActivityDelta, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs, bringToFront, pinSlot, unpinSlot, showToast } from './store.js';
 import { audio } from './audio.js';
 import { applyScene } from './keyboard.js';
-import { SCENES, loadCustomScenes } from './scenes.js';
+import { SCENES, loadCustomScenes, decodeSceneFromBase64 } from './scenes.js';
 import { startSlideshow } from './slideshow.js';
 
 let _socket = null;
@@ -143,9 +143,18 @@ export function initSocket() {
         }
       }
 
-      // ?slideshow= starts auto-cycling scenes
+      // ?scene_data= decodes an inline base64-encoded scene and applies it
+      if (urlOverrides.scene_data) {
+        const decoded = decodeSceneFromBase64(urlOverrides.scene_data);
+        if (decoded) {
+          applyScene(decoded);
+          showToast(`SCENE: ${(decoded.name || 'CUSTOM').toUpperCase()}`);
+        }
+      }
+
+      // ?slideshow= starts auto-cycling scenes, ?slideshow_filter= limits to subset
       if (urlOverrides.slideshow > 0) {
-        startSlideshow(urlOverrides.slideshow);
+        startSlideshow(urlOverrides.slideshow, urlOverrides.slideshow_filter || 'all');
       }
     }
 

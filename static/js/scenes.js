@@ -69,3 +69,29 @@ export function importScenes(json) {
   try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(existing)); } catch (_) { /* */ }
   return existing;
 }
+
+/**
+ * Encode a scene object as a URL-safe base64 string.
+ */
+export function encodeSceneToBase64(scene) {
+  const json = JSON.stringify(scene);
+  // Use btoa with UTF-8 encoding
+  return btoa(unescape(encodeURIComponent(json)));
+}
+
+/**
+ * Decode a base64 string back into a scene object.
+ * Returns null if invalid.
+ */
+export function decodeSceneFromBase64(b64) {
+  try {
+    const json = decodeURIComponent(escape(atob(b64)));
+    const scene = JSON.parse(json);
+    if (!scene || typeof scene !== 'object') return null;
+    // Minimal validation — must have at least style, cols, rows
+    if (!scene.style || !scene.cols || !scene.rows) return null;
+    return scene;
+  } catch (_) {
+    return null;
+  }
+}

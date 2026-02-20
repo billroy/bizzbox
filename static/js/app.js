@@ -2,8 +2,8 @@
  * BizzBox — Vue 3 root application.
  * Imports all components and mounts the app.
  */
-import { store, urlOverrides, showToast } from './store.js';
-import { initSocket, sendChannelSwitch } from './socket.js';
+import { store, urlOverrides, showToast, THEME_LIST } from './store.js';
+import { initSocket, sendChannelSwitch, sendStyle } from './socket.js';
 import { initKeyboard } from './keyboard.js';
 
 import AppHeader       from './components/AppHeader.js';
@@ -102,6 +102,21 @@ const RootComponent = {
       document.addEventListener('keydown', enterFs, { once: true });
     }
 
+    // Viewer mode: simplified mobile experience — hides chrome, allows gestures + tap info
+    if (urlOverrides.viewer) {
+      store.viewerMode = true;
+      store.lockMode = true;
+      document.body.classList.add('viewer-mode', 'lock-mode');
+      // Auto-fullscreen on first interaction
+      const enterFs = () => {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+        document.removeEventListener('click', enterFs);
+        document.removeEventListener('touchstart', enterFs);
+      };
+      document.addEventListener('click', enterFs, { once: true });
+      document.addEventListener('touchstart', enterFs, { once: true });
+    }
+
     // ── Swipe gestures for channel switching ────────────────────
     let touchStartX = 0;
     let touchStartY = 0;
@@ -113,27 +128,60 @@ const RootComponent = {
     document.addEventListener('touchend', (evt) => {
       const dx = evt.changedTouches[0].clientX - touchStartX;
       const dy = evt.changedTouches[0].clientY - touchStartY;
-      // Require horizontal swipe > 80px, and more horizontal than vertical
-      if (Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
 
-      const channels = store.channels;
-      if (channels.length < 2) return;
-      const curIdx = channels.findIndex(c => c.id === store.currentChannel);
-      if (curIdx < 0) return;
+      // Horizontal swipe (> 80px, dominant): cycle channels
+      if (absDx >= 80 && absDx >= absDy * 1.5) {
+        const channels = store.channels;
+        if (channels.length < 2) return;
+        const curIdx = channels.findIndex(c => c.id === store.currentChannel);
+        if (curIdx < 0) return;
 
-      let nextIdx;
-      if (dx < 0) {
-        // Swipe left = next channel
-        nextIdx = (curIdx + 1) % channels.length;
-      } else {
-        // Swipe right = prev channel
-        nextIdx = (curIdx - 1 + channels.length) % channels.length;
+        let nextIdx;
+        if (dx < 0) {
+          nextIdx = (curIdx + 1) % channels.length;
+        } else {
+          nextIdx = (curIdx - 1 + channels.length) % channels.length;
+        }
+        sendChannelSwitch(channels[nextIdx].id);
+        showToast(channels[nextIdx].name.toUpperCase());
+        return;
       }
-      sendChannelSwitch(channels[nextIdx].id);
-      showToast(channels[nextIdx].name.toUpperCase());
+
+      // Vertical swipe (> 80px, dominant): cycle themes
+      if (absDy >= 80 && absDy >= absDx * 1.5) {
+        const idx = THEME_LIST.indexOf(store.config.style);
+        let next;
+        if (dy < 0) {
+          // Swipe up = next theme
+          next = THEME_LIST[(idx + 1) % THEME_LIST.length];
+        } else {
+          // Swipe down = prev theme
+          next = THEME_LIST[(idx - 1 + THEME_LIST.length) % THEME_LIST.length];
+        }
+        sendStyle(next);
+        showToast('THEME: ' + next.toUpperCase());
+      }
     }, { passive: true });
 
-    return { store };
+    // Viewer mode: tap to toggle info bar
+    const { ref } = Vue;
+    const viewerInfoVisible = ref(false);
+    let viewerInfoTimer = null;
+    if (store.viewerMode) {
+      document.addEventListener('click', (evt) => {
+        // Ignore if it was a swipe or drag
+        if (evt.detail === 0) return;
+        viewerInfoVisible.value = !viewerInfoVisible.value;
+        clearTimeout(viewerInfoTimer);
+        if (viewerInfoVisible.value) {
+          viewerInfoTimer = setTimeout(() => { viewerInfoVisible.value = false; }, 4000);
+        }
+      });
+    }
+
+    return { store, viewerInfoVisible };
   },
   template: `
     <AppHeader />
@@ -143,7 +191,14 @@ const RootComponent = {
     <FilterModal v-if="store.filterModalOpen" />
     <Toast />
     <div v-if="store.lockMode" class="lock-overlay"></div>
-    <div v-if="store.reconnecting && !store.kioskMode" class="boot-screen reconnect-screen">
+    <div v-if="store.viewerMode && viewerInfoVisible" class="viewer-info-bar">
+      <span>{{ store.config.style.toUpperCase() }}</span>
+      <span class="viewer-sep">|</span>
+      <span>CH {{ store.currentChannel }}</span>
+      <span class="viewer-sep">|</span>
+      <span>{{ store.channelViewers }} watching</span>
+    </div>
+    <div v-if="store.reconnecting && !store.kioskMode && !store.viewerMode" class="boot-screen reconnect-screen">
       <div class="boot-msg reconnect-pulse">RECONNECTING...</div>
       <div class="reconnect-attempt">ATTEMPT {{ store.reconnectAttempts }}</div>
     </div>

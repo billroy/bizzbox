@@ -98,9 +98,9 @@ function onKeyDown(evt) {
     }
   }
 
-  // Lock mode: only L or Escape exits (but not in kiosk mode)
+  // Lock mode: only L or Escape exits (but not in kiosk or viewer mode)
   if (store.lockMode) {
-    if (!store.kioskMode && (key === 'l' || key === 'L' || key === 'Escape')) {
+    if (!store.kioskMode && !store.viewerMode && (key === 'l' || key === 'L' || key === 'Escape')) {
       exitLockMode();
       showToast('UNLOCKED');
       evt.preventDefault();
