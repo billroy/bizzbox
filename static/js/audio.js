@@ -213,6 +213,21 @@ class AudioEngine {
     this._tone(800, 300, 0.2, 'sine', 0.2);
   }
 
+  // ── Channel join / leave sounds ────────────────────────────────
+
+  playClientJoin() {
+    this._init();
+    // Bright ascending two-note chime: D5 → A5
+    this._tone(587, 587, 0.06, 'sine', 0.15);
+    setTimeout(() => this._tone(880, 880, 0.08, 'sine', 0.12), 80);
+  }
+
+  playClientLeave() {
+    this._init();
+    // Soft descending note: A4 → E4
+    this._tone(440, 330, 0.15, 'sine', 0.1);
+  }
+
   // ── Per-activity ambient sounds ──────────────────────────────
 
   playActivitySound(type) {

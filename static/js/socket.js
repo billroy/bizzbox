@@ -237,8 +237,15 @@ export function initSocket() {
   });
 
   _socket.on('channel:viewers', (data) => {
-    store.channelViewers = data.channelViewers;
+    const prev = store.channelViewers;
+    const next = data.channelViewers;
+    store.channelViewers = next;
     store.totalClients = data.totalClients;
+    // Play join/leave sounds (skip the first update after connecting)
+    if (prev != null && next !== prev) {
+      if (next > prev) audio.playClientJoin();
+      else             audio.playClientLeave();
+    }
   });
 
   _socket.on('configure:layout', (data) => {
