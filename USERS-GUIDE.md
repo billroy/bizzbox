@@ -41,7 +41,7 @@ cd bizzbox
 pip install -r requirements.txt
 ```
 
-Dependencies: Flask, Flask-SocketIO, eventlet, python-dotenv.
+Dependencies: Flask, Flask-SocketIO, gevent, gevent-websocket, python-dotenv.
 
 ### Running
 

@@ -5,8 +5,8 @@ Parses CLI args, sets up Flask-SocketIO, handles all socket events.
 import argparse
 import os
 
-import eventlet
-eventlet.monkey_patch()
+import gevent.monkey
+gevent.monkey.patch_all()
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO
@@ -24,7 +24,7 @@ def create_app(config: AppConfig):
 
     socketio = SocketIO(
         app,
-        async_mode="eventlet",
+        async_mode="gevent",
         cors_allowed_origins="*",
         logger=False,
         engineio_logger=False,

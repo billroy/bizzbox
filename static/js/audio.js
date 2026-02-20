@@ -412,6 +412,13 @@ class AudioEngine {
         this._tone(1000, 1200, 0.08, 'sine', 0.1);    // comm chirp
         this._noise(0.02, 0.03);
         break;
+      case 'pong':
+        this._tone(440, 480, 0.04, 'square', 0.06);   // paddle hit blip
+        break;
+      case 'tic_tac_toe':
+        this._tone(600, 600, 0.05, 'sine', 0.08);     // mark placement
+        this._tone(800, 800, 0.03, 'sine', 0.05);
+        break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);
     }

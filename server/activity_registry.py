@@ -54,6 +54,8 @@ from .generators.wildfire_command import WildfireCommandActivity
 from .generators.hyperloop import HyperloopActivity
 from .generators.genetics_lab import GeneticsLabActivity
 from .generators.mission_control import MissionControlActivity
+from .generators.pong import PongActivity
+from .generators.tic_tac_toe import TicTacToeActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -110,6 +112,8 @@ REGISTRY: dict[str, type] = {
     "hyperloop":                      HyperloopActivity,
     "genetics_lab":                   GeneticsLabActivity,
     "mission_control":                MissionControlActivity,
+    "pong":                               PongActivity,
+    "tic_tac_toe":                        TicTacToeActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -168,27 +172,48 @@ WEIGHTS: dict[str, float] = {
     "hyperloop":                      1.4,
     "genetics_lab":                   1.3,
     "mission_control":                1.6,
+    "pong":                               1.8,
+    "tic_tac_toe":                        1.6,
 }
 
 _types = list(REGISTRY.keys())
 _weights = [WEIGHTS[t] for t in _types]
 
 
-def random_type(allowed: set[str] | None = None) -> str:
-    """Return a weighted-random activity type name, optionally filtered."""
-    if allowed is None or len(allowed) == 0:
-        return random.choices(_types, weights=_weights, k=1)[0]
-    filtered = [(t, w) for t, w in zip(_types, _weights) if t in allowed]
-    if not filtered:
-        return random.choices(_types, weights=_weights, k=1)[0]
-    types, weights = zip(*filtered)
+def random_type(allowed: set[str] | None = None,
+                exclude: set[str] | None = None) -> str:
+    """Return a weighted-random activity type name, optionally filtered.
+
+    Args:
+        allowed: If set, only pick from these types.
+        exclude: If set, exclude these types from the pool.
+                 Falls back to unfiltered if exclusion empties the pool
+                 (i.e. more slots than unique types).
+    """
+    pool = list(zip(_types, _weights))
+
+    # Apply allowed filter
+    if allowed and len(allowed) > 0:
+        pool = [(t, w) for t, w in pool if t in allowed]
+        if not pool:
+            pool = list(zip(_types, _weights))
+
+    # Apply exclusion filter (for dedup)
+    if exclude and len(exclude) > 0:
+        filtered = [(t, w) for t, w in pool if t not in exclude]
+        if filtered:
+            pool = filtered
+        # else: all types excluded — keep full pool (allow duplicates to fill)
+
+    types, weights = zip(*pool)
     return random.choices(types, weights=weights, k=1)[0]
 
 
 def make_activity(activity_type: str = None, activity_id: str = None,
-                  intensity: int = 5, allowed_types: set[str] | None = None):
+                  intensity: int = 5, allowed_types: set[str] | None = None,
+                  exclude_types: set[str] | None = None):
     """Instantiate an activity generator of the given type (or random if None)."""
     if activity_type is None:
-        activity_type = random_type(allowed=allowed_types)
+        activity_type = random_type(allowed=allowed_types, exclude=exclude_types)
     cls = REGISTRY[activity_type]
     return cls(activity_id=activity_id, intensity=intensity)

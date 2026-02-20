@@ -58,6 +58,8 @@ export const ACTIVITY_TYPES = [
   'hyperloop',
   'genetics_lab',
   'mission_control',
+  'pong',
+  'tic_tac_toe',
 ];
 
 /**
@@ -92,9 +94,12 @@ export const ACTIVITY_CATEGORIES = {
   'Science': [
     'oscilloscope', 'seismograph', 'sdr_waterfall', 'qam_constellation',
     'audio_spectrum', 'dna_sequence', 'heart_monitor', 'weather_radar',
-    'sonar', 'game_of_life', 'genetics_lab',
+    'sonar', 'genetics_lab',
   ],
   'Finance': [
     'stock_graph', 'stock_list', 'blockchain',
+  ],
+  'Games': [
+    'pong', 'tic_tac_toe', 'game_of_life',
   ],
 };

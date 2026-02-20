@@ -261,14 +261,15 @@ body::after {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
+  /* Permanent high-contrast header — does NOT change with theme */
+  background: rgba(0, 0, 0, 0.94);
+  border-bottom: 2px solid #ffffff;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
   padding: 4px 0;
-  height: 74px;
+  height: auto;
   transform: translateY(-100%);
   transition: transform 0.3s ease;
 }
@@ -280,40 +281,42 @@ body::after {
 .header-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 16px;
+  gap: 8px;
+  padding: 3px 12px;
   width: 100%;
-  height: 30px;
+  min-height: 30px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .header-title {
-  font-family: var(--font-display);
+  font-family: 'Arial Black', 'Impact', system-ui, sans-serif;
   font-size: 16px;
-  font-weight: 700;
-  color: var(--color-accent-1);
+  font-weight: 900;
+  color: #ffffff;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
   flex-shrink: 0;
-  text-shadow: 0 0 12px var(--color-accent-1);
+  text-shadow: none;
 }
 
 .header-sep {
   width: 1px;
-  height: 20px;
-  background: var(--color-border);
+  height: 18px;
+  background: #444444;
   flex-shrink: 0;
 }
 
 .header-label {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-dim);
+  font-size: 10px;
+  color: #aaaaaa;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
+  font-weight: bold;
 }
 
 .header-spacer {
@@ -332,49 +335,49 @@ body::after {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--color-error);
+  background: #ff4444;
   transition: background 0.3s;
   flex-shrink: 0;
 }
 
 .conn-dot.connected {
-  background: var(--color-accent-2);
-  box-shadow: 0 0 6px var(--color-accent-2);
+  background: #00ff88;
+  box-shadow: 0 0 6px #00ff88;
 }
 
 .conn-label {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-dim);
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #aaaaaa;
 }
 
-/* Header controls */
+/* Header controls — permanent high-contrast style */
 .header-select,
 .header-input,
 .header-btn {
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  border-radius: var(--border-radius);
+  background: #111111;
+  border: 1px solid #555555;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  border-radius: 0px;
   padding: 3px 7px;
   cursor: pointer;
-  height: 26px;
+  height: 24px;
   outline: none;
   transition: border-color 0.2s, color 0.2s;
 }
 
 .header-select:hover,
 .header-btn:hover {
-  border-color: var(--color-accent-1);
-  color: var(--color-accent-1);
+  border-color: #ffffff;
+  color: #ffffff;
 }
 
 .header-input[type="range"] {
   padding: 0;
   width: 80px;
-  accent-color: var(--color-accent-1);
+  accent-color: #ffffff;
   cursor: pointer;
 }
 
@@ -385,9 +388,9 @@ body::after {
 }
 
 .header-btn.active {
-  background: var(--color-accent-1);
-  color: var(--color-bg);
-  border-color: var(--color-accent-1);
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
 
 .header-btn:disabled {
@@ -397,18 +400,18 @@ body::after {
 }
 
 .viewer-count {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-dim);
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #888888;
   letter-spacing: 0.08em;
   white-space: nowrap;
-  margin: 0 6px;
+  margin: 0 4px;
 }
 
 .intensity-value {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--color-accent-1);
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #ffffff;
   min-width: 20px;
   text-align: center;
 }

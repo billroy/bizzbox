@@ -69,6 +69,8 @@ import ActivityWildfireCommand   from './components/activities/WildfireCommand.j
 import ActivityHyperloop         from './components/activities/Hyperloop.js';
 import ActivityGeneticsLab       from './components/activities/GeneticsLab.js';
 import ActivityMissionControl    from './components/activities/MissionControl.js';
+import ActivityPong              from './components/activities/Pong.js';
+import ActivityTicTacToe         from './components/activities/TicTacToe.js';
 
 const { createApp } = Vue;
 
@@ -265,6 +267,8 @@ app.component('activity-wildfire-command',        ActivityWildfireCommand);
 app.component('activity-hyperloop',              ActivityHyperloop);
 app.component('activity-genetics-lab',           ActivityGeneticsLab);
 app.component('activity-mission-control',        ActivityMissionControl);
+app.component('activity-pong',                   ActivityPong);
+app.component('activity-tic-tac-toe',            ActivityTicTacToe);
 
 app.mount('#app');
 

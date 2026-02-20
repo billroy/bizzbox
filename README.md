@@ -183,7 +183,7 @@ Each activity type has multiple visual strategies (e.g., Game of Life has random
 ```
 Client (Browser)                    Server (Python)
 ─────────────────                   ────────────────
-Vue 3 reactive store     <──WS──>   Flask-SocketIO + eventlet
+Vue 3 reactive store     <──WS──>   Flask-SocketIO + gevent
   ├── BackgroundGrid                  ├── SyncManager (rooms, state sync)
   ├── ForegroundLayer                 ├── ActivityManager (lifecycle loop)
   ├── AppHeader                       └── Generators (38 BaseActivity subclasses)

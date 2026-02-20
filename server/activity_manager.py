@@ -93,16 +93,16 @@ class ActivityManager:
     def _spawn_activity(self, slot: int | None, is_foreground: bool,
                         activity_type: str = None, position: dict = None, size: dict = None):
         """Create and register a new activity, emitting activity:spawn."""
-        gen = registry.make_activity(activity_type=activity_type, intensity=self._config.intensity,
-                                     allowed_types=self._allowed_types)
-        # Soft dedup: if a background slot randomly drew a type already on
-        # screen, re-roll once with 50 % probability to encourage variety.
+        # Hard dedup for background slots: exclude types already visible.
+        # Falls back to allowing duplicates if more slots than unique types.
+        exclude = None
         if not is_foreground and activity_type is None:
             visible = {r.generator.activity_type for r in self._activities.values()
                        if not r.despawning}
-            if gen.activity_type in visible and random.random() < 0.5:
-                gen = registry.make_activity(intensity=self._config.intensity,
-                                             allowed_types=self._allowed_types)
+            exclude = visible or None
+        gen = registry.make_activity(activity_type=activity_type, intensity=self._config.intensity,
+                                     allowed_types=self._allowed_types,
+                                     exclude_types=exclude)
         if position is None or size is None:
             position, size = (self._fg_geometry() if is_foreground else (None, None))
         payload = gen.spawn_payload(slot=slot, is_foreground=is_foreground,
@@ -130,7 +130,7 @@ class ActivityManager:
         self._running = False
 
     def _loop(self):
-        import eventlet
+        import gevent
         while self._running:
             now = time.time()
             self._process_replacements(now)
@@ -162,7 +162,7 @@ class ActivityManager:
                 # Despawn check
                 if now - rec.spawn_time >= rec.lifespan:
                     self._initiate_despawn(rec, now)
-            eventlet.sleep(0.033)  # ~30 Hz
+            gevent.sleep(0.033)  # ~30 Hz
 
     def _initiate_despawn(self, rec: ActivityRecord, now: float):
         rec.despawning = True
