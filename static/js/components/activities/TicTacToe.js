@@ -11,7 +11,7 @@ function getThemeColors() {
     accent2: get('--color-accent-2'),
     textDim: get('--color-text-dim'),
     border:  get('--color-border'),
-    text:    get('--color-text'),
+    text:    get('--color-text-primary'),
   };
 }
 
