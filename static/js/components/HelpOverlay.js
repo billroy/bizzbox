@@ -16,6 +16,7 @@ const SHORTCUTS = [
   ['Space',   'Pin / unpin header'],
   ['L',       'Enter lock mode'],
   ['S',       'Cycle scene'],
+  ['P',       'Toggle slideshow'],
   ['T',       'Cycle theme'],
   ['A',       'Cycle ambient preset'],
   ['? / H',   'Toggle this help'],

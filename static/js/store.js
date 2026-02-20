@@ -18,6 +18,9 @@ function parseUrlOverrides() {
   if (params.has('muted'))     o.muted = params.get('muted') === '1';
   if (params.has('lock'))      o.lock = params.get('lock') === '1';
   if (params.has('channel'))   o.channel = params.get('channel');
+  if (params.has('scene'))     o.scene = params.get('scene');
+  if (params.has('kiosk'))     o.kiosk = params.get('kiosk') === '1';
+  if (params.has('slideshow')) o.slideshow = parseInt(params.get('slideshow'), 10);
   return o;
 }
 
@@ -87,6 +90,9 @@ export const store = reactive({
 
   // UI state
   lockMode: false,
+  kioskMode: false,
+  slideshowActive: false,
+  slideshowInterval: 60,
   helpOverlay: false,
   headerPinned: false,
   ambientPreset: null,    // null = off, or one of AMBIENT_PRESET_LIST keys
@@ -122,6 +128,7 @@ export const THEME_LIST = [
 // ── Toast helper ────────────────────────────────────────────
 let _toastTimer = null;
 export function showToast(msg, durationMs = 1500) {
+  if (store.kioskMode) return;  // suppress toasts in kiosk mode
   if (_toastTimer) clearTimeout(_toastTimer);
   store.toastMessage = msg;
   _toastTimer = setTimeout(() => {

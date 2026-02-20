@@ -2,8 +2,8 @@
  * BizzBox — Vue 3 root application.
  * Imports all components and mounts the app.
  */
-import { store, urlOverrides } from './store.js';
-import { initSocket } from './socket.js';
+import { store, urlOverrides, showToast } from './store.js';
+import { initSocket, sendChannelSwitch } from './socket.js';
 import { initKeyboard } from './keyboard.js';
 
 import AppHeader       from './components/AppHeader.js';
@@ -87,6 +87,52 @@ const RootComponent = {
     if (urlOverrides.lock) {
       store.lockMode = true;
     }
+    // Kiosk mode: hide all chrome, implies lock mode
+    if (urlOverrides.kiosk) {
+      store.kioskMode = true;
+      store.lockMode = true;
+      document.body.classList.add('kiosk-mode', 'lock-mode');
+      // Auto-fullscreen on first user interaction (browsers require gesture)
+      const enterFs = () => {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+        document.removeEventListener('click', enterFs);
+        document.removeEventListener('keydown', enterFs);
+      };
+      document.addEventListener('click', enterFs, { once: true });
+      document.addEventListener('keydown', enterFs, { once: true });
+    }
+
+    // ── Swipe gestures for channel switching ────────────────────
+    let touchStartX = 0;
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (evt) => {
+      touchStartX = evt.touches[0].clientX;
+      touchStartY = evt.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (evt) => {
+      const dx = evt.changedTouches[0].clientX - touchStartX;
+      const dy = evt.changedTouches[0].clientY - touchStartY;
+      // Require horizontal swipe > 80px, and more horizontal than vertical
+      if (Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+
+      const channels = store.channels;
+      if (channels.length < 2) return;
+      const curIdx = channels.findIndex(c => c.id === store.currentChannel);
+      if (curIdx < 0) return;
+
+      let nextIdx;
+      if (dx < 0) {
+        // Swipe left = next channel
+        nextIdx = (curIdx + 1) % channels.length;
+      } else {
+        // Swipe right = prev channel
+        nextIdx = (curIdx - 1 + channels.length) % channels.length;
+      }
+      sendChannelSwitch(channels[nextIdx].id);
+      showToast(channels[nextIdx].name.toUpperCase());
+    }, { passive: true });
+
     return { store };
   },
   template: `
@@ -97,7 +143,7 @@ const RootComponent = {
     <FilterModal v-if="store.filterModalOpen" />
     <Toast />
     <div v-if="store.lockMode" class="lock-overlay"></div>
-    <div v-if="store.reconnecting" class="boot-screen reconnect-screen">
+    <div v-if="store.reconnecting && !store.kioskMode" class="boot-screen reconnect-screen">
       <div class="boot-msg reconnect-pulse">RECONNECTING...</div>
       <div class="reconnect-attempt">ATTEMPT {{ store.reconnectAttempts }}</div>
     </div>

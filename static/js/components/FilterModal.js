@@ -1,22 +1,15 @@
 /**
  * Activity type filter modal — checkboxes to include/exclude types from spawn pool.
- * Groups activities by category with search and invert.
+ * Groups activities by thematic category with search, invert, and per-category toggles.
  */
 import { store, savePrefs } from '../store.js';
-import { ACTIVITY_TYPES } from '../activityTypes.js';
+import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '../activityTypes.js';
 import { sendActivityFilter } from '../socket.js';
 
-const CANVAS_TYPES = new Set([
-  'radar', 'network_topology', 'oscilloscope', 'geo_map', 'sdr_waterfall',
-  'qam_constellation', 'orbital_view', 'globe_arcs', 'weather_radar',
-  'wireframe_3d', 'game_of_life', 'matrix_rain', 'audio_spectrum',
-  'seismograph', 'facial_recognition', 'resource_gauges', 'camera_feed',
-  'heart_monitor', 'transit_map', 'power_grid', 'satellite_telemetry',
-  'stock_graph', 'dna_sequence',
-  // New canvas activities (added in later phases)
-  'blockchain', 'flight_tracker', 'server_rack', 'cctv_mosaic',
-  'process_monitor', 'sonar',
-]);
+const CATEGORY_ORDER = [
+  'Ops Center', 'Surveillance', 'Sci-Fi', 'Fantasy',
+  'Infrastructure', 'Data & Comms', 'Science', 'Finance',
+];
 
 export default {
   name: 'FilterModal',
@@ -32,19 +25,44 @@ export default {
 
     const searchQuery = ref('');
 
-    const canvasTypes = computed(() => {
+    // Build filtered categories: each category with its types filtered by search
+    const filteredCategories = computed(() => {
       const q = searchQuery.value.toLowerCase();
-      return ACTIVITY_TYPES.filter(t => CANVAS_TYPES.has(t) && formatName(t).toLowerCase().includes(q));
-    });
-
-    const textTypes = computed(() => {
-      const q = searchQuery.value.toLowerCase();
-      return ACTIVITY_TYPES.filter(t => !CANVAS_TYPES.has(t) && formatName(t).toLowerCase().includes(q));
+      const result = [];
+      for (const cat of CATEGORY_ORDER) {
+        const types = (ACTIVITY_CATEGORIES[cat] || [])
+          .filter(t => formatName(t).toLowerCase().includes(q));
+        if (types.length > 0) {
+          result.push({ name: cat, types });
+        }
+      }
+      return result;
     });
 
     function toggle(t) {
       store.activityFilter[t] = !store.activityFilter[t];
       emitFilter();
+    }
+
+    function toggleCategory(cat) {
+      const types = ACTIVITY_CATEGORIES[cat] || [];
+      // If all are checked, uncheck all; otherwise check all
+      const allChecked = types.every(t => store.activityFilter[t]);
+      for (const t of types) {
+        store.activityFilter[t] = !allChecked;
+      }
+      emitFilter();
+    }
+
+    function isCategoryAllChecked(cat) {
+      const types = ACTIVITY_CATEGORIES[cat] || [];
+      return types.every(t => store.activityFilter[t]);
+    }
+
+    function isCategoryPartial(cat) {
+      const types = ACTIVITY_CATEGORIES[cat] || [];
+      const checked = types.filter(t => store.activityFilter[t]).length;
+      return checked > 0 && checked < types.length;
     }
 
     function selectAll() {
@@ -80,7 +98,11 @@ export default {
       return t.replace(/_/g, ' ').toUpperCase();
     }
 
-    return { canvasTypes, textTypes, toggle, selectAll, selectNone, invert, close, onKey, formatName, filter: store.activityFilter, searchQuery };
+    return {
+      filteredCategories, toggle, toggleCategory, isCategoryAllChecked,
+      isCategoryPartial, selectAll, selectNone, invert, close, onKey,
+      formatName, filter: store.activityFilter, searchQuery,
+    };
   },
   template: `
     <div class="filter-overlay" @click.self="close" @keydown="onKey" tabindex="-1">
@@ -97,20 +119,17 @@ export default {
         </div>
 
         <div class="filter-scroll">
-          <div v-if="canvasTypes.length" class="filter-category">
-            <div class="filter-category-header">CANVAS VISUALIZATIONS</div>
-            <div class="filter-grid">
-              <label v-for="t in canvasTypes" :key="t" class="filter-item" @click.prevent="toggle(t)">
-                <span class="filter-check" :class="{ checked: filter[t] }">{{ filter[t] ? '&#x2713;' : '' }}</span>
-                <span class="filter-name">{{ formatName(t) }}</span>
-              </label>
+          <div v-for="cat in filteredCategories" :key="cat.name" class="filter-category">
+            <div class="filter-category-header" @click="toggleCategory(cat.name)">
+              <span class="filter-cat-check" :class="{ checked: isCategoryAllChecked(cat.name), partial: isCategoryPartial(cat.name) }">{{
+                isCategoryAllChecked(cat.name) ? '\\u2713' : isCategoryPartial(cat.name) ? '\\u2500' : ''
+              }}</span>
+              {{ cat.name.toUpperCase() }}
+              <span class="filter-cat-count">{{ cat.types.length }}</span>
             </div>
-          </div>
-          <div v-if="textTypes.length" class="filter-category">
-            <div class="filter-category-header">TEXT / DATA PANELS</div>
             <div class="filter-grid">
-              <label v-for="t in textTypes" :key="t" class="filter-item" @click.prevent="toggle(t)">
-                <span class="filter-check" :class="{ checked: filter[t] }">{{ filter[t] ? '&#x2713;' : '' }}</span>
+              <label v-for="t in cat.types" :key="t" class="filter-item" @click.prevent="toggle(t)">
+                <span class="filter-check" :class="{ checked: filter[t] }">{{ filter[t] ? '\\u2713' : '' }}</span>
                 <span class="filter-name">{{ formatName(t) }}</span>
               </label>
             </div>

@@ -203,7 +203,11 @@ def main():
     parser.add_argument("--fg-target",  type=int, default=5,
                         help="Target foreground window count (0-20)")
     parser.add_argument("--style",      default="dark",
-                        choices=["dark", "light", "brutalist", "neon", "rainbow", "sunshine", "red", "black", "lcars", "amber", "arctic", "synthwave", "military"],
+                        choices=["dark", "light", "brutalist", "neon", "rainbow",
+                                 "sunshine", "red", "black", "lcars", "amber",
+                                 "arctic", "synthwave", "military", "ocean",
+                                 "forest", "copper", "vapor", "infrared",
+                                 "phosphor", "blueprint", "sunset", "matrix", "frost"],
                         help="Initial styling mode")
     parser.add_argument("--max-channels", type=int, default=10,
                         help="Maximum number of channels (1-50)")

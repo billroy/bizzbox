@@ -51,3 +51,21 @@ export function deleteCustomScene(name) {
   const scenes = loadCustomScenes().filter(s => s.name !== name);
   try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(scenes)); } catch (_) { /* */ }
 }
+
+export function exportScenes() {
+  const scenes = loadCustomScenes();
+  return JSON.stringify(scenes, null, 2);
+}
+
+export function importScenes(json) {
+  const incoming = JSON.parse(json);
+  if (!Array.isArray(incoming)) throw new Error('Expected an array of scenes');
+  const existing = loadCustomScenes();
+  for (const scene of incoming) {
+    if (!scene.name) continue;
+    const idx = existing.findIndex(s => s.name === scene.name);
+    if (idx >= 0) existing[idx] = scene; else existing.push(scene);
+  }
+  try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(existing)); } catch (_) { /* */ }
+  return existing;
+}

@@ -5,7 +5,7 @@ import { store, savePrefs, clearPrefs } from '../store.js';
 import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize, sendActivityFilter, sendChannelCreate, sendChannelSwitch } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
-import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene } from '../scenes.js';
+import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportScenes, importScenes } from '../scenes.js';
 import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
 
 export default {
@@ -174,6 +174,30 @@ export default {
       store.customScenes = loadCustomScenes();
     }
 
+    function doExportScenes() {
+      const json = exportScenes();
+      navigator.clipboard.writeText(json).then(() => {
+        // Inline import to avoid circular deps
+        const { showToast } = store;
+        // showToast is on the store module, use the imported one
+      }).catch(() => {});
+      // Show feedback via alert as toast might not be imported here
+      const count = JSON.parse(json).length;
+      window.alert(`${count} custom scene(s) copied to clipboard.`);
+    }
+
+    function doImportScenes() {
+      const json = window.prompt('Paste scene JSON:');
+      if (!json || !json.trim()) return;
+      try {
+        const result = importScenes(json);
+        store.customScenes = result;
+        window.alert(`Imported — ${result.length} custom scene(s) total.`);
+      } catch (e) {
+        window.alert('Import failed: ' + e.message);
+      }
+    }
+
     function openFilter() {
       store.filterModalOpen = true;
     }
@@ -217,7 +241,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel };
   },
 
   template: `
@@ -256,6 +280,8 @@ export default {
           <option v-for="s in customScenes" :key="'c_'+s.name" :value="s.name">{{ s.name.toUpperCase() }} *</option>
         </select>
         <button class="header-btn" @click="saveScene" title="Save current config as scene">SAVE</button>
+        <button class="header-btn" @click="doExportScenes" title="Copy custom scenes to clipboard">EXPORT</button>
+        <button class="header-btn" @click="doImportScenes" title="Import scenes from JSON">IMPORT</button>
 
         <div class="header-sep"></div>
 

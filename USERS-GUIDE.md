@@ -63,7 +63,7 @@ BizzBox has three visual layers:
 
 3. **Header Bar** — A translucent control strip along the top edge. It auto-hides when you move the mouse away. Press **Space** to pin it in place.
 
-Every panel displays a different simulated visualization — radar sweeps, scrolling code, network graphs, heartbeat monitors, and 40 more types. All data is procedurally generated; nothing is real.
+Every panel displays a different simulated visualization — radar sweeps, scrolling code, network graphs, heartbeat monitors, and 50 more types. All data is procedurally generated; nothing is real.
 
 ---
 
@@ -73,7 +73,7 @@ All shortcuts work when no input field is focused.
 
 | Key | Action |
 |-----|--------|
-| **T** | Cycle through all 13 themes |
+| **T** | Cycle through all 23 themes |
 | **A** | Cycle through ambient audio presets (or turn off) |
 | **M** | Toggle mute (all audio on/off) |
 | **F** | Toggle fullscreen |
@@ -87,6 +87,8 @@ All shortcuts work when no input field is focused.
 | **Alt+1**–**Alt+9** | Jump to channel 1–9 |
 | **Alt+0** | Jump to channel 10 |
 | **Space** | Pin/unpin the header bar |
+| **S** | Cycle to next scene |
+| **P** | Toggle slideshow (auto-cycle scenes every 60s) |
 | **L** | Enter lock mode (cinematic, all UI hidden) |
 | **Escape** | Exit lock mode |
 | **?** or **H** | Toggle the help overlay |
@@ -97,7 +99,7 @@ Each shortcut shows a brief toast notification confirming the action.
 
 ## Themes
 
-BizzBox includes 13 color themes. Press **T** to cycle through them, or select one from the header dropdown.
+BizzBox includes 23 color themes. Press **T** to cycle through them, or select one from the header dropdown.
 
 | Theme | Description |
 |-------|-------------|
@@ -114,6 +116,16 @@ BizzBox includes 13 color themes. Press **T** to cycle through them, or select o
 | **Arctic** | Cold dark blue with ice-blue and cyan accents. Glacial. |
 | **Synthwave** | Dark purple with cyan, green, and yellow. 1980s retro-futurism. |
 | **Military** | Olive-dark with green and red. Tactical operations. |
+| **Ocean** | Deep navy with aqua and teal accents. Undersea operations. |
+| **Forest** | Dark woodland green with moss and leaf tones. Natural canopy. |
+| **Copper** | Dark bronze with warm copper and gold accents. Industrial warmth. |
+| **Vapor** | Deep indigo with pink, purple, and lavender. Vaporwave aesthetic. |
+| **Infrared** | Dark magenta with hot orange and yellow. Thermal imaging. |
+| **Phosphor** | Pure black with bright green glow. P1 phosphor CRT. |
+| **Blueprint** | Navy blue with white linework accents. Technical drawing. |
+| **Sunset** | Dark plum with coral, amber, and rose. Twilight horizon. |
+| **Matrix** | Black with green code rain tones. Digital simulation. |
+| **Frost** | Dark slate blue with icy white and pale blue. Frozen glass. |
 
 Themes are applied via CSS custom properties, so every element — canvas visualizations, text panels, borders, headers — all adapt instantly.
 
@@ -138,6 +150,26 @@ BizzBox synthesizes immersive background soundscapes using the Web Audio API —
 | **Arctic Wind** | Howling bandpassed wind, ice creaks, pressure rumble. Frozen and desolate. |
 | **Coral Reef** | Gentle currents, bubble rhythm, whale calls, surface shimmer. Serene and alive. |
 | **Thunderstorm** | Heavy rain, wind gusts, thunder rumble, lightning crackle. Dramatic. |
+| **Warp Engine** | Antimatter core drone, plasma shimmer, containment field pulses. Starship. |
+| **Mech Hangar** | Hydraulic hiss, servo motors, pneumatic rhythm. Industrial mech bay. |
+| **Terraforming Drone** | Atmospheric processor hum, thin wind, seismic rumble. Alien planet. |
+| **Tavern Hearth** | Crackling fire, room resonance, distant crowd. Medieval warmth. |
+| **Rocket Launch** | Deep thrust rumble, exhaust roar, radio crackle. Liftoff. |
+| **Submarine Sonar** | Sonar ping cycle, hull groans, water flow. Deep dive. |
+| **Wildfire Crackle** | Roaring fire, embers, hot wind, helicopter rotors. Fire response. |
+| **Hyperloop Tube** | Vacuum tube resonance, pod whoosh, EM hum. High-speed transit. |
+| **Lab Clean Room** | HVAC wash, fluorescent hum, centrifuge spin. Sterile laboratory. |
+| **Digital Warfare** | Aggressive data streams, server fans, electrical interference. Cyber ops. |
+| **Solar Wind** | Ethereal plasma shimmer, magnetic oscillations, particle stream. Cosmic. |
+| **Train Station** | Diesel idle, steel wheels, PA hum, crowd murmur. Rail platform. |
+| **Jungle Night** | Insect chorus, tree frogs, leaf rustle, humidity drone. Tropical. |
+| **Steel Mill** | Furnace roar, hammer rhythm, molten hiss, conveyor chain. Heavy industry. |
+| **Cathedral** | Organ drone, stone echo, choir pad, bell overtones. Sacred space. |
+| **Radio Static** | Shortwave tuning, burst noise, carrier tone. Analog comms. |
+| **Ice Cave** | Frozen wind, dripping echo, crystal resonance, deep cracks. Subterranean. |
+| **Circuit Board** | Coil whine, clock pulse, data bus hum. Electronic micro-scale. |
+| **Volcano** | Deep rumble, gas vent hiss, magma bubble, seismic tremor. Volcanic. |
+| **Haunted Mansion** | Creaky wood, wind through gaps, organ drone. Eerie and abandoned. |
 
 Volume scales with the intensity setting — higher intensity means louder ambient audio. Press **M** to mute all audio.
 
@@ -181,7 +213,7 @@ Each window's title bar shows the activity type. You can click the dropdown to r
 
 ## Activity Types
 
-BizzBox includes **44 activity types** — 30 canvas-based animated visualizations and 14 DOM/text-based panels. Each type has multiple strategy variants with different titles and data patterns.
+BizzBox includes **54 activity types** — 40 canvas-based animated visualizations and 14 DOM/text-based panels. Each type has multiple strategy variants with different titles and data patterns.
 
 ### Canvas Visualizations
 
@@ -217,6 +249,16 @@ BizzBox includes **44 activity types** — 30 canvas-based animated visualizatio
 | **Server Rack** | Rack unit display with LEDs, fans, CPU bars, and status badges |
 | **Flight Tracker** | Aircraft radar with range rings, trails, and data tags |
 | **Blockchain** | Block creation, transaction feed, mempool visualization |
+| **Warp Drive** | Warp nacelle with plasma conduit, dilithium crystal status, and energy flow |
+| **Mech Bay** | Mech hangar with hydraulic systems, repair bays, and diagnostic readouts |
+| **Terraforming** | Atmospheric processor with planetary conditions, gas levels, and seismic data |
+| **Dungeon Master** | Fantasy dungeon map with party tracking, room encounters, and loot tables |
+| **Space Elevator** | Cable car ascent/descent with altitude, payload, and tether tension |
+| **Submarine Helm** | Submarine helm console with depth, heading, ballast, and torpedo status |
+| **Wildfire Command** | Fire incident command with perimeter map, crew deployment, and weather |
+| **Hyperloop** | Pod transit display with tube pressure, schedule, and velocity graph |
+| **Genetics Lab** | Gene sequencer with CRISPR targets, mutation rates, and protein folding |
+| **Mission Control** | Flight director console with telemetry, trajectory, and comm status |
 
 ### Text/DOM Panels
 
@@ -385,8 +427,11 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=1&lock=1
 | `muted` | `0` or `1` | `0` | Start muted |
 | `lock` | `1` | off | Start in lock mode |
 | `channel` | Channel name | `Channel 1` | Join a specific channel by name (case-insensitive) |
+| `scene` | Scene name | — | Load a built-in or custom scene by name (case-insensitive; spaces, hyphens, underscores interchangeable) |
+| `kiosk` | `1` | off | Kiosk mode: hides all chrome (header, title bars, toasts), implies lock mode, auto-enters fullscreen on first click |
+| `slideshow` | seconds | off | Auto-cycle through all scenes at the given interval (e.g. `slideshow=60` for 1 scene/minute) |
 
-URL parameters override saved preferences, which override server defaults.
+URL parameters override saved preferences, which override server defaults. The `scene` parameter applies last and overrides all other parameters (style, layout, intensity, windows, etc.).
 
 ### Example URLs
 
@@ -405,7 +450,27 @@ http://localhost:5000?intensity=3&windows=0&muted=1
 
 # Join Channel 3 directly
 http://localhost:5000?channel=Channel+3
+
+# Load the Starship Bridge scene
+http://localhost:5000?scene=Starship+Bridge
+
+# Load a scene by name (hyphens and underscores work too)
+http://localhost:5000?scene=war-room
+
+# Kiosk mode for permanent installations
+http://localhost:5000?kiosk=1&scene=Starship+Bridge
 ```
+
+---
+
+## Mobile / Touch Support
+
+BizzBox works on touch devices (tablets and phones):
+
+- **Foreground windows** can be dragged by their title bars and resized by corner/edge handles using touch
+- **Swipe left/right** on the viewport to switch between channels
+- On narrow screens (< 768px), the header wraps controls for easier access and resize handles are enlarged for touch
+- Combine with `?kiosk=1` for a clean, full-screen touch display
 
 ---
 
@@ -419,7 +484,7 @@ python app.py [OPTIONS]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--style` | `dark` | Initial theme (any of the 13 theme names) |
+| `--style` | `dark` | Initial theme (any of the 23 theme names) |
 | `--intensity` | `5` | Mean updates per second (1 = serene, 20 = frenetic) |
 | `--fg-target` | `5` | Starting foreground window count (0–20) |
 | `--sync-mode` | `synced` | `synced` (all clients share one show) or `unsynced` (independent) |

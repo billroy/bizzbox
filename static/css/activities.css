@@ -829,3 +829,90 @@
 
 .ac-stats span:nth-child(2) { color: var(--color-error); }
 .ac-stats span:nth-child(3) { color: var(--color-accent-1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   Idle animations — subtle life between server updates
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Blinking cursor on last line of text-scrolling activities */
+.activity-code-scroll .text-line:last-child::after {
+  content: '_';
+  animation: blink 0.8s step-start infinite;
+  color: var(--color-accent-1);
+  font-weight: normal;
+}
+
+.text-scroll .log-line:last-child .log-text::after {
+  content: '\2588';
+  animation: blink 0.8s step-start infinite;
+  color: var(--color-accent-1);
+  font-size: 0.8em;
+  margin-left: 1px;
+}
+
+/* Gentle pulse on live data values */
+@keyframes idlePulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.65; }
+}
+
+.pbar-pct {
+  animation: idlePulse 3s ease-in-out infinite;
+}
+
+.stock-table tbody td.st-price {
+  animation: idlePulse 4s ease-in-out infinite;
+}
+
+.notif-counter {
+  animation: idlePulse 2.5s ease-in-out infinite;
+}
+
+.ac-stats span {
+  animation: idlePulse 3.5s ease-in-out infinite;
+}
+
+/* Scrollbar shimmer on scrollable feeds */
+@keyframes scrollbarShimmer {
+  0%, 100% { scrollbar-color: var(--color-border) transparent; }
+  50%      { scrollbar-color: var(--color-border-bright) transparent; }
+}
+
+.pkt-scroll,
+.ac-feed {
+  animation: scrollbarShimmer 5s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Smooth transitions for DOM activity updates
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Slide-in for new text lines (terminal, code_scroll, log_tail) */
+@keyframes lineSlideIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.text-scroll .text-line:last-child,
+.text-scroll .log-line:last-child {
+  animation: lineSlideIn 0.2s ease-out;
+}
+
+/* Smooth color transitions on stock price changes */
+.stock-table tbody td {
+  transition: color 0.4s ease, background 0.3s ease;
+}
+
+/* Smooth value transitions on data table cells */
+.dtable tbody td {
+  transition: background 0.4s ease, color 0.3s ease;
+}
+
+/* Smooth entry for new packet sniffer and access control rows */
+.pkt-row:first-child,
+.ac-event:first-child {
+  animation: lineSlideIn 0.2s ease-out;
+}
+
+/* Smooth progress bar fill width is already transitioned (pbar-fill) */
+/* Smooth notification progress bar already transitioned (notif-progress-bar) */

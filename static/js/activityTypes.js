@@ -59,3 +59,42 @@ export const ACTIVITY_TYPES = [
   'genetics_lab',
   'mission_control',
 ];
+
+/**
+ * Thematic categories for the filter modal.
+ * Every type in ACTIVITY_TYPES must appear in exactly one category.
+ */
+export const ACTIVITY_CATEGORIES = {
+  'Ops Center': [
+    'radar', 'geo_map', 'globe_arcs', 'countdown', 'satellite_telemetry',
+    'flight_tracker', 'wildfire_command', 'mission_control',
+  ],
+  'Surveillance': [
+    'facial_recognition', 'camera_feed', 'cctv_mosaic', 'access_control',
+    'packet_sniffer', 'chat_intercept',
+  ],
+  'Sci-Fi': [
+    'orbital_view', 'warp_drive', 'mech_bay', 'terraforming',
+    'space_elevator', 'submarine_helm', 'hyperloop',
+  ],
+  'Fantasy': [
+    'dungeon_master',
+  ],
+  'Infrastructure': [
+    'network_topology', 'system_topology', 'server_rack', 'power_grid',
+    'process_monitor', 'resource_gauges', 'transit_map',
+  ],
+  'Data & Comms': [
+    'terminal', 'code_scroll', 'log_tail', 'hex_dump', 'data_table',
+    'notifications', 'progress_bars', 'matrix_rain', 'wireframe_3d',
+    'graph', 'cipher_decrypt',
+  ],
+  'Science': [
+    'oscilloscope', 'seismograph', 'sdr_waterfall', 'qam_constellation',
+    'audio_spectrum', 'dna_sequence', 'heart_monitor', 'weather_radar',
+    'sonar', 'game_of_life', 'genetics_lab',
+  ],
+  'Finance': [
+    'stock_graph', 'stock_list', 'blockchain',
+  ],
+};

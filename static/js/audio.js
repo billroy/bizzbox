@@ -323,6 +323,95 @@ class AudioEngine {
         this._tone(660, 660, 0.06, 'square', 0.08);
         this._tone(880, 880, 0.04, 'square', 0.06);
         break;
+      case 'sdr_waterfall':
+        this._tone(300, 1200, 0.2, 'sine', 0.08);     // frequency sweep
+        this._noise(0.04, 0.05);
+        break;
+      case 'qam_constellation':
+        this._tone(1000, 1000, 0.04, 'sine', 0.1);    // data burst blip
+        this._tone(1500, 1500, 0.03, 'sine', 0.06);
+        break;
+      case 'heart_monitor':
+        this._tone(880, 880, 0.06, 'sine', 0.15);     // ECG beep
+        setTimeout(() => this._tone(880, 880, 0.04, 'sine', 0.08), 120);
+        break;
+      case 'transit_map':
+        this._tone(587, 587, 0.08, 'sine', 0.12);     // arrival chime
+        setTimeout(() => this._tone(784, 784, 0.08, 'sine', 0.1), 100);
+        break;
+      case 'weather_radar':
+        this._tone(500, 600, 0.15, 'sine', 0.08);     // sweep tone
+        this._noise(0.03, 0.04);
+        break;
+      case 'stock_list':
+      case 'stock_graph':
+        this._tone(1200, 1200, 0.03, 'square', 0.06); // ticker click
+        setTimeout(() => this._tone(1100, 1100, 0.03, 'square', 0.05), 60);
+        break;
+      case 'blockchain':
+        this._tone(800, 1200, 0.1, 'sine', 0.1);      // digital chime
+        this._tone(1600, 2400, 0.06, 'sine', 0.05);
+        break;
+      case 'flight_tracker':
+        this._tone(1400, 1400, 0.04, 'sine', 0.1);    // ATC blip
+        this._noise(0.02, 0.03);
+        break;
+      case 'server_rack':
+        this._noise(0.15, 0.04);                       // fan whir
+        this._tone(120, 120, 0.1, 'sine', 0.05);
+        break;
+      case 'cctv_mosaic':
+        this._noise(0.06, 0.06);                       // static burst
+        this._tone(60, 60, 0.04, 'sawtooth', 0.04);
+        break;
+      case 'process_monitor':
+        this._noise(0.02, 0.05);                       // keystroke click
+        this._tone(1800, 1800, 0.02, 'square', 0.04);
+        break;
+      case 'sonar':
+        this._tone(1200, 1200, 0.15, 'sine', 0.12);   // sonar ping
+        setTimeout(() => this._tone(1200, 800, 0.3, 'sine', 0.04), 160);
+        break;
+      case 'warp_drive':
+        this._tone(50, 55, 0.3, 'sine', 0.1);         // low throb
+        this._tone(800, 1200, 0.15, 'sine', 0.04);     // shimmer
+        break;
+      case 'mech_bay':
+        this._tone(80, 120, 0.2, 'sawtooth', 0.06);   // servo whir
+        this._noise(0.05, 0.04);
+        break;
+      case 'terraforming':
+        this._tone(40, 30, 0.3, 'sine', 0.1);         // geological rumble
+        this._noise(0.08, 0.04);
+        break;
+      case 'dungeon_master':
+        this._noise(0.04, 0.08);                       // sword clash burst
+        this._tone(200, 150, 0.1, 'sawtooth', 0.08);
+        break;
+      case 'space_elevator':
+        this._tone(100, 100, 0.25, 'sine', 0.06);     // cable hum
+        this._tone(200, 200, 0.15, 'sine', 0.03);
+        break;
+      case 'submarine_helm':
+        this._tone(800, 400, 0.2, 'sine', 0.08);      // ping sweep
+        this._tone(60, 60, 0.15, 'sine', 0.05);
+        break;
+      case 'wildfire_command':
+        this._noise(0.1, 0.06);                        // fire crackle
+        this._tone(100, 80, 0.15, 'sine', 0.05);
+        break;
+      case 'hyperloop':
+        this._tone(200, 1000, 0.15, 'sine', 0.08);    // whoosh sweep
+        this._noise(0.03, 0.03);
+        break;
+      case 'genetics_lab':
+        this._tone(1800, 1800, 0.06, 'sine', 0.1);    // lab beep
+        setTimeout(() => this._tone(1400, 1400, 0.06, 'sine', 0.07), 100);
+        break;
+      case 'mission_control':
+        this._tone(1000, 1200, 0.08, 'sine', 0.1);    // comm chirp
+        this._noise(0.02, 0.03);
+        break;
       default:
         this._tone(440, 440, 0.1, 'sine', 0.1);
     }

@@ -4,6 +4,9 @@
  */
 import { store, urlOverrides, initFromServer, addActivity, updateActivity, mergeActivityDelta, beginDespawn, applyStyle, moveActivity, resizeActivity, setLayout, savePrefs, loadPrefs, bringToFront, pinSlot, unpinSlot, showToast } from './store.js';
 import { audio } from './audio.js';
+import { applyScene } from './keyboard.js';
+import { SCENES, loadCustomScenes } from './scenes.js';
+import { startSlideshow } from './slideshow.js';
 
 let _socket = null;
 let _urlOverridesApplied = false;
@@ -128,6 +131,22 @@ export function initSocket() {
       if (urlOverrides.intensity) sendIntensity(urlOverrides.intensity);
       if (urlOverrides.windows !== undefined) sendFgTarget(urlOverrides.windows);
       if (urlOverrides.muted !== undefined) sendMute(urlOverrides.muted);
+
+      // ?scene= overrides everything above — apply last
+      if (urlOverrides.scene) {
+        const target = urlOverrides.scene.toLowerCase().replace(/[-_]/g, ' ');
+        const all = [...SCENES, ...loadCustomScenes()];
+        const match = all.find(s => s.name.toLowerCase().replace(/[-_]/g, ' ') === target);
+        if (match) {
+          applyScene(match);
+          showToast(`SCENE: ${match.name.toUpperCase()}`);
+        }
+      }
+
+      // ?slideshow= starts auto-cycling scenes
+      if (urlOverrides.slideshow > 0) {
+        startSlideshow(urlOverrides.slideshow);
+      }
     }
 
     // Reconnection: if we were on a different channel, rejoin it

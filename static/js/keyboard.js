@@ -6,6 +6,7 @@ import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLa
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 import { SCENES } from './scenes.js';
 import { ACTIVITY_TYPES } from './activityTypes.js';
+import { toggleSlideshow } from './slideshow.js';
 
 let _cursorHideTimer = null;
 let _sceneIndex = -1;
@@ -36,7 +37,7 @@ function scheduleCursorHide() {
   }, 2000);
 }
 
-function applyScene(scene) {
+export function applyScene(scene) {
   sendStyle(scene.style);
   sendLayout(scene.cols, scene.rows);
   sendIntensity(scene.intensity);
@@ -97,9 +98,9 @@ function onKeyDown(evt) {
     }
   }
 
-  // Lock mode: only L or Escape exits
+  // Lock mode: only L or Escape exits (but not in kiosk mode)
   if (store.lockMode) {
-    if (key === 'l' || key === 'L' || key === 'Escape') {
+    if (!store.kioskMode && (key === 'l' || key === 'L' || key === 'Escape')) {
       exitLockMode();
       showToast('UNLOCKED');
       evt.preventDefault();
@@ -202,6 +203,12 @@ function onKeyDown(evt) {
     case 'L':
       showToast('LOCK MODE');
       enterLockMode();
+      evt.preventDefault();
+      break;
+
+    case 'p':
+    case 'P':
+      toggleSlideshow(store.slideshowInterval);
       evt.preventDefault();
       break;
 

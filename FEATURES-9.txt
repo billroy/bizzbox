@@ -1,0 +1,68 @@
+FEATURES-9: Quality-of-Life & Polish Round
+===========================================
+
+1. Update documentation
+   - USERS-GUIDE.md says "44 activity types" but registry has 54
+   - USERS-GUIDE documents 13 themes but THEME_LIST has 23
+   - Document the 10 newer themes: ocean, forest, copper, vapor, infrared,
+     phosphor, blueprint, sunset, matrix, frost
+   - Document the ~13 newer generators: warp_drive, mech_bay, terraforming,
+     dungeon_master, space_elevator, submarine_helm, wildfire_command,
+     hyperloop, mission_control, genetics_lab, sonar, cctv_mosaic, server_rack
+
+2. Add per-activity sounds for newer types
+   - audio.js has tuned sounds for ~25 types; ~30 newer ones fall through
+     to a generic 440Hz tone
+   - Add characteristic sounds for: warp_drive, mech_bay, terraforming,
+     dungeon_master, space_elevator, submarine_helm, wildfire_command,
+     hyperloop, mission_control, genetics_lab, flight_tracker, blockchain,
+     power_grid, access_control, packet_sniffer, satellite_telemetry,
+     transit_map, cctv_mosaic, server_rack, sonar, process_monitor,
+     stock_graph, cipher_decrypt, chat_intercept, system_topology,
+     wireframe_3d, weather_radar, globe_arcs, game_of_life, stock_list
+
+3. Client-side animation for DOM activities at low intensity
+   - Canvas activities animate continuously; DOM/text panels appear frozen
+     between server updates at intensity 1-3
+   - Add subtle client-side life: cursor blink, gentle glow pulse, or
+     scrollbar shimmer between server ticks
+
+4. Client-side interpolation for DOM activities
+   - Typing/reveal animation for new text content arriving from server
+   - Smooth scroll-in for new log lines and table rows
+   - Fade transitions on value changes in gauges and counters
+
+5. Shareable scene URLs
+   - Add ?scene= URL parameter that loads a built-in or custom scene by name
+   - Makes it easy to share a specific configuration via link
+
+6. Mobile/touch support
+   - Foreground window dragging needs touch event handling
+   - Header controls need larger hit targets on small screens
+   - Swipe gestures for channel switching and theme cycling
+   - Consider a simplified "viewer" mode for phones
+
+7. Kiosk mode
+   - ?kiosk=1 URL parameter hides all chrome: header bar, window title bars,
+     close buttons, context menus
+   - Suppress reconnect overlays and toasts
+   - Combine with ?lock=1 for permanent installations
+   - Auto-enter fullscreen on load
+
+8. Auto-cycling scenes
+   - "Slideshow" mode that rotates through scenes on a configurable timer
+   - Option to cycle all scenes or a user-selected subset
+   - Smooth transition between scenes (crossfade or brief blackout)
+   - Keyboard shortcut to toggle slideshow on/off
+
+9. Activity type families/categories
+   - Group the 54 types into categories in the filter modal:
+     ops-center, sci-fi, fantasy, infrastructure, nature, data, comms
+   - Category checkboxes for quick bulk enable/disable
+   - Scene editor can reference categories instead of individual types
+
+10. Export/import scenes
+    - JSON export of custom scenes from localStorage
+    - Import from JSON file or pasted text
+    - Shareable scene URL encoding (base64 scene config in URL param)
+    - Copy-to-clipboard button for scene sharing
