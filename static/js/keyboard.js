@@ -2,7 +2,7 @@
  * Keyboard shortcut handler + lock mode.
  */
 import { store, savePrefs, showToast, THEME_LIST } from './store.js';
-import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendActivityFilter } from './socket.js';
+import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendActivityFilter, sendChannelSwitch, sendChannelCreate } from './socket.js';
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 import { SCENES } from './scenes.js';
 import { ACTIVITY_TYPES } from './activityTypes.js';
@@ -80,6 +80,23 @@ function onKeyDown(evt) {
 
   const key = evt.key;
 
+  // Alt+digit: direct channel switching (Alt+1..9 = channels 1-9, Alt+0 = channel 10)
+  // Use evt.code to avoid macOS alt-character issues (Alt+1 → '¡' etc.)
+  if (evt.altKey) {
+    const digitMatch = evt.code && evt.code.match(/^Digit(\d)$/);
+    if (digitMatch) {
+      const digit = parseInt(digitMatch[1]);
+      const channelNum = digit === 0 ? 10 : digit;
+      const target = store.channels.find(c => c.id === channelNum);
+      if (target && channelNum !== store.currentChannel) {
+        sendChannelSwitch(channelNum);
+        showToast('CHANNEL ' + channelNum);
+      }
+      evt.preventDefault();
+      return;
+    }
+  }
+
   // Lock mode: only L or Escape exits
   if (store.lockMode) {
     if (key === 'l' || key === 'L' || key === 'Escape') {
@@ -133,6 +150,31 @@ function onKeyDown(evt) {
     }
 
     case '[': {
+      // Prev channel
+      const sorted = store.channels.map(c => c.id).sort((a, b) => a - b);
+      const curIdx = sorted.indexOf(store.currentChannel);
+      if (curIdx > 0) {
+        sendChannelSwitch(sorted[curIdx - 1]);
+        showToast('CHANNEL ' + sorted[curIdx - 1]);
+      }
+      evt.preventDefault();
+      break;
+    }
+
+    case ']': {
+      // Next channel
+      const sorted = store.channels.map(c => c.id).sort((a, b) => a - b);
+      const curIdx = sorted.indexOf(store.currentChannel);
+      if (curIdx < sorted.length - 1) {
+        sendChannelSwitch(sorted[curIdx + 1]);
+        showToast('CHANNEL ' + sorted[curIdx + 1]);
+      }
+      evt.preventDefault();
+      break;
+    }
+
+    case '{': {
+      // Decrease window count (moved from '[')
       const newFg = Math.max(0, store.config.fgTarget - 1);
       sendFgTarget(newFg);
       showToast('WINDOWS ' + newFg);
@@ -140,7 +182,8 @@ function onKeyDown(evt) {
       break;
     }
 
-    case ']': {
+    case '}': {
+      // Increase window count (moved from ']')
       const newFg = Math.min(20, store.config.fgTarget + 1);
       sendFgTarget(newFg);
       showToast('WINDOWS ' + newFg);

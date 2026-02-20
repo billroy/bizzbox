@@ -43,3 +43,27 @@ class EventEmitter:
 
     def broadcast_layout(self, cols: int, rows: int, room: str = "broadcast"):
         self._sio.emit("configure:layout", {"cols": cols, "rows": rows}, room=room)
+
+    # ── Channel events ────────────────────────────────────────
+
+    def emit_channel_list(self, channels: list, total_clients: int, max_channels: int):
+        """Broadcast the full channel list to ALL connected clients."""
+        self._sio.emit("channel:list", {
+            "channels": channels,
+            "totalClients": total_clients,
+            "maxChannels": max_channels,
+        })
+
+    def emit_channel_switched(self, sid: str, channel_id: int, channel_name: str):
+        """Confirm a channel switch to one specific client."""
+        self._sio.emit("channel:switched", {
+            "channelId": channel_id,
+            "channelName": channel_name,
+        }, room=sid)
+
+    def emit_viewer_count(self, channel_viewers: int, total_clients: int, room: str):
+        """Send per-channel + total viewer counts to a channel room."""
+        self._sio.emit("channel:viewers", {
+            "channelViewers": channel_viewers,
+            "totalClients": total_clients,
+        }, room=room)

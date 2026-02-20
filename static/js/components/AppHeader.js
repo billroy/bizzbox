@@ -2,7 +2,7 @@
  * Auto-hiding page header with all controls.
  */
 import { store, savePrefs, clearPrefs } from '../store.js';
-import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize, sendActivityFilter } from '../socket.js';
+import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize, sendActivityFilter, sendChannelCreate, sendChannelSwitch } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
 import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene } from '../scenes.js';
@@ -199,7 +199,25 @@ export default {
       },
     });
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, openFilter, resetPrefs, ambientPresets, ambientPreset };
+    // ── Channel controls ─────────────────────────────────────
+    const currentChannel = computed(() => store.currentChannel);
+    const channels = computed(() => store.channels);
+    const maxChannels = computed(() => store.maxChannels);
+    const channelViewers = computed(() => store.channelViewers);
+    const totalClients = computed(() => store.totalClients);
+
+    function switchChannel(evt) {
+      const channelId = parseInt(evt.target.value);
+      if (channelId && channelId !== store.currentChannel) {
+        sendChannelSwitch(channelId);
+      }
+    }
+
+    function createChannel() {
+      sendChannelCreate();
+    }
+
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel };
   },
 
   template: `
@@ -214,6 +232,19 @@ export default {
           <div class="conn-dot" :class="{ connected }"></div>
           <span class="conn-label">{{ connected ? 'LIVE' : 'OFFLINE' }}</span>
         </div>
+        <span class="viewer-count" v-if="connected">{{ channelViewers }}/{{ totalClients }} Watching</span>
+
+        <div class="header-sep"></div>
+
+        <span class="header-label">CHANNEL</span>
+        <select class="header-select" :value="currentChannel" @change="switchChannel($event)">
+          <option v-for="ch in channels" :key="ch.id" :value="ch.id">
+            {{ ch.name }} ({{ ch.viewers }})
+          </option>
+        </select>
+        <button class="header-btn" @click="createChannel"
+                :disabled="channels.length >= maxChannels"
+                :title="channels.length >= maxChannels ? 'Max channels reached' : 'Create new channel'">+</button>
 
         <div class="header-sep"></div>
 

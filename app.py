@@ -47,19 +47,34 @@ def create_app(config: AppConfig):
         from flask import request
         sync_manager.handle_disconnect(request.sid)
 
+    # ── Channel events ────────────────────────────────────────
+
+    @socketio.on("channel:create")
+    def on_channel_create(data=None):
+        from flask import request
+        sync_manager.create_channel_for_client(request.sid)
+
+    @socketio.on("channel:switch")
+    def on_channel_switch(data):
+        from flask import request
+        channel_id = int(data.get("channelId", 1))
+        sync_manager.switch_channel(request.sid, channel_id)
+
+    # ── Configure events ──────────────────────────────────────
+
     @socketio.on("configure:style")
     def on_style(data):
         from flask import request
         style = data.get("style", "dark")
-        config.style = style
+        sync_manager.set_channel_style(request.sid, style)
         room = sync_manager.get_room_for_client(request.sid)
         emitter.broadcast_style(style, room=room)
 
     @socketio.on("configure:intensity")
     def on_intensity(data):
         from flask import request
-        value = max(1, min(20, int(data.get("value", config.intensity))))
-        config.intensity = value
+        value = max(1, min(20, int(data.get("value", 5))))
+        sync_manager.set_channel_intensity(request.sid, value)
         room = sync_manager.get_room_for_client(request.sid)
         emitter.broadcast_intensity(value, room=room)
 
@@ -67,7 +82,7 @@ def create_app(config: AppConfig):
     def on_mute(data):
         from flask import request
         muted = bool(data.get("muted", False))
-        config.muted = muted
+        sync_manager.set_channel_mute(request.sid, muted)
         room = sync_manager.get_room_for_client(request.sid)
         emitter.broadcast_mute(muted, room=room)
 
@@ -79,10 +94,9 @@ def create_app(config: AppConfig):
     @socketio.on("configure:layout")
     def on_layout(data):
         from flask import request
-        cols = max(1, min(6, int(data.get("cols", config.grid_cols))))
-        rows = max(1, min(8, int(data.get("rows", config.grid_rows))))
-        config.grid_cols = cols
-        config.grid_rows = rows
+        cols = max(1, min(6, int(data.get("cols", 6))))
+        rows = max(1, min(8, int(data.get("rows", 4))))
+        sync_manager.set_channel_layout(request.sid, cols, rows)
         room = sync_manager.get_room_for_client(request.sid)
         sync_manager.set_layout(request.sid, cols, rows)
         emitter.broadcast_layout(cols, rows, room=room)
@@ -90,8 +104,8 @@ def create_app(config: AppConfig):
     @socketio.on("configure:fg_count")
     def on_fg_count(data):
         from flask import request
-        value = max(0, min(20, int(data.get("value", config.fg_target))))
-        config.fg_target = value
+        value = max(0, min(20, int(data.get("value", 0))))
+        sync_manager.set_channel_fg_target(request.sid, value)
         room = sync_manager.get_room_for_client(request.sid)
         sync_manager.set_fg_target(request.sid, value)
         emitter.broadcast_fg_target(value, room=room)
@@ -191,6 +205,8 @@ def main():
     parser.add_argument("--style",      default="dark",
                         choices=["dark", "light", "brutalist", "neon", "rainbow", "sunshine", "red", "black", "lcars", "amber", "arctic", "synthwave", "military"],
                         help="Initial styling mode")
+    parser.add_argument("--max-channels", type=int, default=10,
+                        help="Maximum number of channels (1-50)")
     args = parser.parse_args()
 
     config = AppConfig(
@@ -200,6 +216,7 @@ def main():
         port=args.port,
         style=args.style,
         fg_target=args.fg_target,
+        max_channels=max(1, min(50, args.max_channels)),
     )
 
     print(f"🎬 BizzBox starting — intensity={config.intensity}, "

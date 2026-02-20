@@ -389,6 +389,21 @@ body::after {
   border-color: var(--color-accent-1);
 }
 
+.header-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.viewer-count {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  margin: 0 6px;
+}
+
 .intensity-value {
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);

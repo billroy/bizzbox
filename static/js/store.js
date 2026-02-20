@@ -60,7 +60,15 @@ export const store = reactive({
   connected: false,
   clientCount: 0,
 
-  // Configuration (synced from server)
+  // Channels
+  currentChannel: 1,
+  currentChannelName: 'Channel 1',
+  channels: [],             // [{id, name, viewers}, ...]
+  channelViewers: 0,
+  totalClients: 0,
+  maxChannels: 10,
+
+  // Configuration (synced from server, per-channel)
   config: {
     style: 'dark',
     intensity: 5,
@@ -148,6 +156,12 @@ export function initFromServer(payload) {
   store.config.fgTarget = layout.fg_target ?? 5;
   store.backgroundCount = layout.background_count;
   store.grid = computeGrid(layout.grid_cols || 3, layout.grid_rows || 2);
+
+  // Channel metadata (present in synced mode)
+  if (payload.channel) {
+    store.currentChannel = payload.channel.id;
+    store.currentChannelName = payload.channel.name;
+  }
 
   // Clear and reload
   store.activities = {};

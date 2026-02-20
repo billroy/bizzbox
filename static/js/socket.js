@@ -58,6 +58,9 @@ export function initSocket() {
   });
 
   _socket.on('sync:init', (payload) => {
+    // Save desired channel before initFromServer overwrites store.currentChannel
+    const desiredChannel = store.currentChannel;
+
     // Clear any orphaned sound timers from a previous session before reinitialising
     Object.keys(_soundTimers).forEach(id => clearActivitySound(id));
     initFromServer(payload);
@@ -104,6 +107,12 @@ export function initSocket() {
       if (urlOverrides.intensity) sendIntensity(urlOverrides.intensity);
       if (urlOverrides.windows !== undefined) sendFgTarget(urlOverrides.windows);
       if (urlOverrides.muted !== undefined) sendMute(urlOverrides.muted);
+    }
+
+    // Reconnection: if we were on a different channel, rejoin it
+    const serverChannel = payload.channel ? payload.channel.id : 1;
+    if (desiredChannel > 1 && desiredChannel !== serverChannel) {
+      sendChannelSwitch(desiredChannel);
     }
   });
 
@@ -156,6 +165,25 @@ export function initSocket() {
 
   _socket.on('client:connect', (data) => {
     store.clientCount = data.count;
+  });
+
+  // ── Channel events ─────────────────────────────────────────
+
+  _socket.on('channel:list', (data) => {
+    store.channels = data.channels;
+    store.totalClients = data.totalClients;
+    store.maxChannels = data.maxChannels;
+  });
+
+  _socket.on('channel:switched', (data) => {
+    store.currentChannel = data.channelId;
+    store.currentChannelName = data.channelName;
+    // sync:init will follow immediately with full state
+  });
+
+  _socket.on('channel:viewers', (data) => {
+    store.channelViewers = data.channelViewers;
+    store.totalClients = data.totalClients;
   });
 
   _socket.on('configure:layout', (data) => {
@@ -249,4 +277,14 @@ export function sendPinSlot(slot, type) {
 
 export function sendUnpinSlot(slot) {
   if (_socket) _socket.emit('window:unpin', { slot });
+}
+
+// ── Channel helpers ─────────────────────────────────────────
+
+export function sendChannelCreate() {
+  if (_socket) _socket.emit('channel:create');
+}
+
+export function sendChannelSwitch(channelId) {
+  if (_socket) _socket.emit('channel:switch', { channelId });
 }
