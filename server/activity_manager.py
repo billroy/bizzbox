@@ -95,6 +95,14 @@ class ActivityManager:
         """Create and register a new activity, emitting activity:spawn."""
         gen = registry.make_activity(activity_type=activity_type, intensity=self._config.intensity,
                                      allowed_types=self._allowed_types)
+        # Soft dedup: if a background slot randomly drew a type already on
+        # screen, re-roll once with 50 % probability to encourage variety.
+        if not is_foreground and activity_type is None:
+            visible = {r.generator.activity_type for r in self._activities.values()
+                       if not r.despawning}
+            if gen.activity_type in visible and random.random() < 0.5:
+                gen = registry.make_activity(intensity=self._config.intensity,
+                                             allowed_types=self._allowed_types)
         if position is None or size is None:
             position, size = (self._fg_geometry() if is_foreground else (None, None))
         payload = gen.spawn_payload(slot=slot, is_foreground=is_foreground,
