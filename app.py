@@ -25,6 +25,11 @@ def create_app(config: AppConfig):
     socketio = SocketIO(
         app,
         async_mode="eventlet",
+        # Flask 3+ makes request context session immutable in a way that breaks
+        # Flask-SocketIO's managed-session assignment path in some versions.
+        # We do not rely on Flask sessions for socket events, so disabling
+        # managed sessions avoids that crash path entirely.
+        manage_session=False,
         cors_allowed_origins="*",
         logger=False,
         engineio_logger=False,

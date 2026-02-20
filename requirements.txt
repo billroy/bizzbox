@@ -1,4 +1,7 @@
-flask>=3.0
-flask-socketio>=5.3
-eventlet>=0.35
-python-dotenv>=1.0
+Flask>=2.3,<3.2
+Werkzeug>=2.3,<3.2
+Flask-SocketIO>=5.6.0,<6
+python-socketio>=5.11,<6
+python-engineio>=4.8,<5
+eventlet>=0.35,<0.38
+python-dotenv>=1.0,<2
