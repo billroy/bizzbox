@@ -32,7 +32,7 @@ Activities appear in windows with a title bar but no controls.
 
 Looking for a variable amount of activity from serene (1-2 updates/second) to frenetic (>10 updates/second).  The default initial intensity should be a server command line selection.  Make it an integer representing the mean number of updates per second.  Use a normal distribution with SD mean/4.  Intensity affects only update rate, not spawn rate.
 
-Support multiple clients connected via socket.io.  The server can run in one of two modes: synced or unsynced, with the initial setting a command line flag that defaults to "synced".  In synced mode the activities and data are simulcast to all clients and every client shows the same thing plus or minus window size effects.  In unsynced mode every client gets a different show.  A client joining synced mode late catches up at init to show the same data as other clients; no history is necessary.
+Support multiple clients connected via socket.io.  The server can run in one of two modes: synced or unsynced, with the initial setting a command line flag that defaults to "unsynced".  In synced mode the activities and data are simulcast to all clients and every client shows the same thing plus or minus window size effects.  In unsynced mode every client gets a different show.  A client joining synced mode late catches up at init to show the same data as other clients; no history is necessary.
 
 Add a way to select a "styling mode" and include styling for these cases: light, dark, brutalist, rainbow, sunshine. Controls color palette and typography.  Styling mode should be selectable in a dropdown in the page header.  A change in styling mode is broadcast to all clients.
 
