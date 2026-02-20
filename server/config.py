@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 @dataclass
 class AppConfig:
     intensity: int = 5          # mean updates per second
-    sync_mode: str = "synced"   # "synced" | "unsynced"
+    sync_mode: str = "unsynced" # "synced" | "unsynced"
     host: str = "0.0.0.0"
     port: int = 5000
     style: str = "dark"         # current global style

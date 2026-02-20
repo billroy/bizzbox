@@ -57,8 +57,8 @@ python app.py [OPTIONS]
 
   --fg-target N        Foreground floating windows, 0-20 (default: 5)
 
-  --sync-mode MODE     synced = all clients share one show (default)
-                       unsynced = each client gets its own
+  --sync-mode MODE     unsynced = each client gets its own (default)
+                       synced = all clients share one show
 
   --host HOST          Bind address (default: 0.0.0.0)
   --port PORT          Bind port (default: 5000, or $PORT env var)

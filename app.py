@@ -184,8 +184,8 @@ def main():
     parser = argparse.ArgumentParser(description="BizzBox — cinematic busybox display")
     parser.add_argument("--intensity",  type=int, default=5,
                         help="Mean activity updates per second (1=serene, 10+=frenetic)")
-    parser.add_argument("--sync-mode",  choices=["synced", "unsynced"], default="synced",
-                        help="synced=all clients see same show, unsynced=each client independent")
+    parser.add_argument("--sync-mode",  choices=["synced", "unsynced"], default="unsynced",
+                        help="unsynced=each client independent, synced=all clients see same show")
     parser.add_argument("--host",       default="0.0.0.0",
                         help="Bind host")
     parser.add_argument("--port",       type=int,

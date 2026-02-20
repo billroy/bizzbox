@@ -361,7 +361,7 @@ python app.py [OPTIONS]
 | `--style` | `dark` | Initial theme (any of the 13 theme names) |
 | `--intensity` | `5` | Mean updates per second (1 = serene, 20 = frenetic) |
 | `--fg-target` | `5` | Starting foreground window count (0–20) |
-| `--sync-mode` | `synced` | `synced` (all clients share one show) or `unsynced` (independent) |
+| `--sync-mode` | `unsynced` | `synced` (all clients share one show) or `unsynced` (independent) |
 | `--host` | `0.0.0.0` | Bind address |
 | `--port` | `5000` | Bind port (or set `$PORT` env var) |
 
@@ -396,13 +396,13 @@ You can create a `.env` file for local environment variables.
 
 BizzBox supports multiple browser clients connecting to the same server.
 
-### Synced Mode (default)
+### Synced Mode
 
 All connected clients see the exact same show — same activities, same positions, same timing. Changes made on one client (theme, intensity, layout) propagate to all others. This is ideal for display walls, installations, and synchronized presentations.
 
-### Unsynced Mode
+### Unsynced Mode (default)
 
-Each client gets its own independent show with different randomly-generated activities. Set at startup with `--sync-mode unsynced`. Useful for multi-user exploration or when you want each screen to be unique.
+Each client gets its own independent show with different randomly-generated activities. This is the default startup mode. Useful for multi-user exploration or when you want each screen to be unique.
 
 | Feature | Synced | Unsynced |
 |---------|--------|----------|
