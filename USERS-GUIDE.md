@@ -17,6 +17,7 @@ BizzBox is a real-time cinematic operations dashboard that generates an endless 
 - [Filtering Activities](#filtering-activities)
 - [Pinning Slots](#pinning-slots)
 - [Scenes](#scenes)
+- [Channels](#channels)
 - [Lock Mode](#lock-mode)
 - [URL Parameters](#url-parameters)
 - [Command-Line Options](#command-line-options)
@@ -79,8 +80,12 @@ All shortcuts work when no input field is focused.
 | **R** | Shuffle — replace all activities with new random ones |
 | **+** or **=** | Increase intensity (max 20) |
 | **-** | Decrease intensity (min 1) |
-| **]** | Add a foreground window (max 20) |
-| **[** | Remove a foreground window (min 0) |
+| **}** | Add a foreground window (max 20) |
+| **{** | Remove a foreground window (min 0) |
+| **]** | Next channel |
+| **[** | Previous channel |
+| **Alt+1**–**Alt+9** | Jump to channel 1–9 |
+| **Alt+0** | Jump to channel 10 |
 | **Space** | Pin/unpin the header bar |
 | **L** | Enter lock mode (cinematic, all UI hidden) |
 | **Escape** | Exit lock mode |
@@ -165,7 +170,7 @@ Floating windows appear above the grid, each showing its own activity. They add 
 - **Drag** any edge or corner to resize
 - **Click** the **×** button to close
 - **Click** anywhere on a window to bring it to front
-- Press **]** to add a window, **[** to remove one
+- Press **}** to add a window, **{** to remove one
 - The header has a window count control as well
 
 Windows have random positions and sizes, and auto-replace themselves on a timer (roughly every 5–150 seconds). The target count (default 5) can be set from 0 to 20.
@@ -292,6 +297,58 @@ Custom scenes are stored in your browser's localStorage and persist across page 
 
 ---
 
+## Channels
+
+Channels let multiple independent shows run on the same server. Each channel has its own activities, theme, intensity, layout, and window count. Clients can switch between channels to watch different shows or create new channels with fresh random content.
+
+### How Channels Work
+
+- The server starts with **Channel 1** as the default
+- Any client can create new channels up to the server's maximum (default 10)
+- Each channel runs its own ActivityManager with independent content and timing
+- Changes to a channel (theme, intensity, layout, etc.) are broadcast only to clients viewing that channel
+- Channel state is ephemeral — all channels are lost on server restart
+- Empty channels persist until server restart
+
+### Channel Controls
+
+The header bar shows a **channel selector dropdown** near the left, displaying all channels with their current viewer counts (e.g., "Channel 1 (3)"). Next to it, a **+** button creates a new channel and switches you to it. The button is disabled when the maximum number of channels has been reached.
+
+A **viewer count** indicator shows how many clients are in your current channel and the total across all channels (e.g., "3/5 Watching").
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| **[** | Switch to previous channel |
+| **]** | Switch to next channel |
+| **Alt+1**–**Alt+9** | Jump directly to channel 1–9 |
+| **Alt+0** | Jump directly to channel 10 |
+
+### Selecting a Channel via URL
+
+You can link directly to a specific channel by name:
+
+```
+http://localhost:5000?channel=Channel+3
+```
+
+The match is case-insensitive. If the named channel exists when the page loads, the client automatically switches to it. If it does not exist, the client stays on the default channel.
+
+This is useful for setting up dedicated displays — for example, one screen per channel on a video wall.
+
+### Server Configuration
+
+The maximum number of channels is controlled at startup:
+
+```bash
+python app.py --max-channels 20
+```
+
+The default is 10, and the allowed range is 1–50.
+
+---
+
 ## Lock Mode
 
 Lock mode hides all UI elements for a clean, cinematic display — perfect for video backgrounds, escape rooms, or unattended ambient screens.
@@ -327,6 +384,7 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=1&lock=1
 | `windows` | 0–20 | 5 | Foreground window count |
 | `muted` | `0` or `1` | `0` | Start muted |
 | `lock` | `1` | off | Start in lock mode |
+| `channel` | Channel name | `Channel 1` | Join a specific channel by name (case-insensitive) |
 
 URL parameters override saved preferences, which override server defaults.
 
@@ -344,6 +402,9 @@ http://localhost:5000?style=lcars&lock=1
 
 # Minimal, muted
 http://localhost:5000?intensity=3&windows=0&muted=1
+
+# Join Channel 3 directly
+http://localhost:5000?channel=Channel+3
 ```
 
 ---
@@ -362,6 +423,7 @@ python app.py [OPTIONS]
 | `--intensity` | `5` | Mean updates per second (1 = serene, 20 = frenetic) |
 | `--fg-target` | `5` | Starting foreground window count (0–20) |
 | `--sync-mode` | `synced` | `synced` (all clients share one show) or `unsynced` (independent) |
+| `--max-channels` | `10` | Maximum number of channels (1–50) |
 | `--host` | `0.0.0.0` | Bind address |
 | `--port` | `5000` | Bind port (or set `$PORT` env var) |
 
@@ -398,18 +460,21 @@ BizzBox supports multiple browser clients connecting to the same server.
 
 ### Synced Mode (default)
 
-All connected clients see the exact same show — same activities, same positions, same timing. Changes made on one client (theme, intensity, layout) propagate to all others. This is ideal for display walls, installations, and synchronized presentations.
+All connected clients in the same **channel** see the exact same show — same activities, same positions, same timing. Changes made on one client (theme, intensity, layout) propagate to all others in that channel. Clients in different channels are completely independent. This is ideal for display walls, installations, and synchronized presentations.
+
+See [Channels](#channels) for details on creating and switching between channels.
 
 ### Unsynced Mode
 
-Each client gets its own independent show with different randomly-generated activities. Set at startup with `--sync-mode unsynced`. Useful for multi-user exploration or when you want each screen to be unique.
+Each client gets its own independent show with different randomly-generated activities. Set at startup with `--sync-mode unsynced`. Channels are not available in unsynced mode. Useful for multi-user exploration or when you want each screen to be unique.
 
 | Feature | Synced | Unsynced |
 |---------|--------|----------|
-| Activities | Same on all clients | Different per client |
-| Theme changes | All clients update | Only sender updates |
-| Intensity changes | All clients update | Only sender updates |
-| Pinned slots | Shared | Independent |
+| Activities | Same for all clients in a channel | Different per client |
+| Theme changes | All clients in channel update | Only sender updates |
+| Intensity changes | All clients in channel update | Only sender updates |
+| Pinned slots | Shared within channel | Independent |
+| Channels | Yes (up to max) | Not available |
 
 Sync mode is set at server startup and cannot be changed at runtime.
 
@@ -451,7 +516,7 @@ Check the intensity setting (press **+** to increase). If the display seems froz
 Press **M** to unmute. If still silent, make sure you've interacted with the page (clicked or pressed a key) — browsers require a user gesture before playing audio. Check that an ambient preset is selected (press **A**).
 
 **Display is lagging?**
-Reduce the intensity (press **-**), remove foreground windows (press **[**), or choose a smaller grid layout. Close other browser tabs to free up resources.
+Reduce the intensity (press **-**), remove foreground windows (press **{**), or choose a smaller grid layout. Close other browser tabs to free up resources.
 
 **UI elements disappeared?**
 You may be in lock mode. Press **L** or **Escape** to exit. Or press **Space** to toggle the header if it's auto-hiding.

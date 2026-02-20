@@ -17,6 +17,7 @@ function parseUrlOverrides() {
   if (params.has('windows'))   o.windows = parseInt(params.get('windows'), 10);
   if (params.has('muted'))     o.muted = params.get('muted') === '1';
   if (params.has('lock'))      o.lock = params.get('lock') === '1';
+  if (params.has('channel'))   o.channel = params.get('channel');
   return o;
 }
 

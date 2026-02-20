@@ -7,6 +7,27 @@ import { audio } from './audio.js';
 
 let _socket = null;
 let _urlOverridesApplied = false;
+let _channelOverrideResolved = false;
+
+/**
+ * If a ?channel= URL override is set and hasn't been resolved yet,
+ * search the current channel list for a case-insensitive match and switch.
+ */
+function tryResolveChannelOverride() {
+  if (_channelOverrideResolved || !urlOverrides.channel) return;
+  if (store.channels.length === 0) return;  // list not yet received
+
+  const target = urlOverrides.channel.toLowerCase();
+  const match = store.channels.find(c => c.name.toLowerCase() === target);
+  if (match && match.id !== store.currentChannel) {
+    _channelOverrideResolved = true;
+    sendChannelSwitch(match.id);
+  } else if (match) {
+    _channelOverrideResolved = true;  // already there
+  }
+  // If no match found, leave unresolved — channel:list may arrive later
+  // with more channels, or the name may simply not exist.
+}
 
 // Per-activity sound timers: activityId → timeout handle
 const _soundTimers = {};
@@ -114,6 +135,9 @@ export function initSocket() {
     if (desiredChannel > 1 && desiredChannel !== serverChannel) {
       sendChannelSwitch(desiredChannel);
     }
+
+    // Try to resolve ?channel= URL override (channel:list may already be available)
+    tryResolveChannelOverride();
   });
 
   _socket.on('activity:spawn', (payload) => {
@@ -173,6 +197,9 @@ export function initSocket() {
     store.channels = data.channels;
     store.totalClients = data.totalClients;
     store.maxChannels = data.maxChannels;
+
+    // Try to resolve ?channel= URL override now that we have the list
+    tryResolveChannelOverride();
   });
 
   _socket.on('channel:switched', (data) => {
