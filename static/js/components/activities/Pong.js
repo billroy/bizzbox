@@ -1,5 +1,7 @@
 /**
  * Self-playing Pong — canvas-based arcade game renderer.
+ * Ball positions are extrapolated client-side between server updates
+ * for smooth 60 fps motion.
  */
 
 function getThemeColors() {
@@ -23,12 +25,18 @@ export default {
     const canvasRef = ref(null);
     let rafId = null;
 
-    // Smooth interpolation state
+    // Smooth interpolation state for paddles
     let smoothLeftY = null;
     let smoothRightY = null;
     const LERP = 0.15;
 
-    function draw() {
+    // Client-side ball extrapolation
+    // Each entry: {x, y, vx, vy} where vx/vy are field-units per second
+    let localBalls = [];
+    let lastServerBalls = [];  // for change detection
+    let lastServerTime = null; // performance.now() when last server frame arrived
+
+    function draw(ts) {
       const canvas = canvasRef.value;
       if (!canvas) { rafId = requestAnimationFrame(draw); return; }
 
@@ -56,14 +64,37 @@ export default {
 
       const paddleW = (state.paddle_w || 12) * sx;
       const paddleH = (state.paddle_h || 80) * sy;
-      const ballR = (state.ball_r || 8) * Math.min(sx, sy);
+      const ballR_field = state.ball_r || 8;
+      const ballR = ballR_field * Math.min(sx, sy);
 
-      // Smooth paddle positions
+      // Smooth paddle positions via LERP
       const targetLeftY = (state.paddle_left_y || fh / 2) * sy;
       const targetRightY = (state.paddle_right_y || fh / 2) * sy;
       if (smoothLeftY === null) { smoothLeftY = targetLeftY; smoothRightY = targetRightY; }
       smoothLeftY += (targetLeftY - smoothLeftY) * LERP;
       smoothRightY += (targetRightY - smoothRightY) * LERP;
+
+      // ── Sync local balls with server state ──
+      const serverBalls = state.balls || [];
+      const changed = serverBalls.length !== lastServerBalls.length ||
+        serverBalls.some((b, i) => {
+          const p = lastServerBalls[i];
+          return !p || b.x !== p.x || b.y !== p.y;
+        });
+
+      if (changed) {
+        // New server frame — snap to server positions, store velocity
+        localBalls = serverBalls.map(b => ({
+          x: b.x, y: b.y,
+          vx: b.vx || 0,   // already in field-units per second
+          vy: b.vy || 0,
+        }));
+        lastServerBalls = serverBalls.map(b => ({ x: b.x, y: b.y }));
+        lastServerTime = ts;
+      }
+
+      // ── Extrapolate ball positions ──
+      const dt = lastServerTime != null ? (ts - lastServerTime) / 1000 : 0;
 
       // ── Background ──
       ctx.fillStyle = colors.bg;
@@ -94,10 +125,16 @@ export default {
       ctx.shadowBlur = 0;
 
       // ── Balls ──
-      const balls = state.balls || [];
-      for (const ball of balls) {
-        const bx = ball.x * sx;
-        const by = ball.y * sy;
+      for (const lb of localBalls) {
+        // Extrapolate from server position using velocity × elapsed time
+        let ex = lb.x + lb.vx * dt;
+        let ey = lb.y + lb.vy * dt;
+        // Clamp to field bounds
+        ex = Math.max(ballR_field, Math.min(fw - ballR_field, ex));
+        ey = Math.max(ballR_field, Math.min(fh - ballR_field, ey));
+
+        const bx = ex * sx;
+        const by = ey * sy;
         ctx.beginPath();
         ctx.arc(bx, by, ballR, 0, Math.PI * 2);
         ctx.fillStyle = colors.text || '#ffffff';

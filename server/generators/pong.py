@@ -179,8 +179,17 @@ class PongActivity(BaseActivity):
                     self._right_skill = random.uniform(0.5, 0.7)
 
     def _get_state(self) -> dict:
+        # Send velocity in field-units per second so the client can
+        # extrapolate the ball position smoothly between server frames.
+        speed_factor = self._speed_mult if self.strategy == "speedup" else 1.0
+        steps_per_frame = 3
+        update_rate = max(1, self.intensity)
+        vel_scale = speed_factor * steps_per_frame * update_rate
         return {
-            "balls": [{"x": b["x"], "y": b["y"]} for b in self.balls],
+            "balls": [{"x": b["x"], "y": b["y"],
+                       "vx": round(b["vx"] * vel_scale, 2),
+                       "vy": round(b["vy"] * vel_scale, 2)}
+                     for b in self.balls],
             "paddle_left_y": round(self.paddle_left_y, 1),
             "paddle_right_y": round(self.paddle_right_y, 1),
             "score_left": self.score_left,
