@@ -26,9 +26,9 @@ export default {
     }
 
     function onMouseMove(evt) {
-      // Only reveal the header when the cursor is near the top of the viewport
-      // or when the header is already visible (so interacting with it keeps it open)
-      if (evt.clientY < 80 || visible.value) {
+      // Reveal header only when cursor hits the very top edge of the screen
+      // (avoids covering top-row activity titlebars at clientY ~10-30px)
+      if (evt.clientY < 5 || visible.value) {
         showHeader();
       }
     }
