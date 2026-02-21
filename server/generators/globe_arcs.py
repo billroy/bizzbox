@@ -115,6 +115,16 @@ class GlobeArcsActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy (static), strip node names (static)
+        nodes = [{"x": n["x"], "y": n["y"], "z": n["z"]} for n in new_state["nodes"]]
+        return {
+            "_delta": True,
+            "nodes": nodes,
+            "arcs": new_state["arcs"],
+            "rotation": new_state["rotation"],
+        }
+
     def next_frame(self) -> dict:
         # Rotate globe
         self._rotation = (self._rotation + 0.008) % _TWO_PI

@@ -69,9 +69,15 @@ class ActivityManager:
         self._pinned_slots: dict[int, str] = {}
 
     def _draw_update_interval(self) -> float:
-        """Draw next update interval from N(1/intensity, 1/(intensity*4)), min 0.05s."""
+        """Draw next update interval from N(2.5/intensity, ...), min 0.05s.
+
+        At intensity 5 this yields ~2 Hz (0.5 s mean), which is sufficient for
+        most data-display generators.  Client-side renderers interpolate between
+        server frames, so visual smoothness is unaffected.  Individual generators
+        can override via ``update_interval_override``.
+        """
         intensity = max(1, self._config.intensity)
-        mean = 1.0 / intensity
+        mean = 2.5 / intensity
         sd = mean / 4.0
         return max(0.05, random.gauss(mean, sd))
 
@@ -108,7 +114,8 @@ class ActivityManager:
         payload = gen.spawn_payload(slot=slot, is_foreground=is_foreground,
                                     position=position, size=size)
         rec = ActivityRecord(gen, slot, is_foreground, position, size)
-        rec.next_update_interval = self._draw_update_interval()
+        override = gen.update_interval_override
+        rec.next_update_interval = override if override is not None else self._draw_update_interval()
         self._activities[gen.id] = rec
         if slot is not None:
             self._bg_slots[slot] = gen.id
@@ -158,7 +165,8 @@ class ActivityManager:
                     rec.last_state = frame
                     self._emitter.emit_update(self._room, act_id, emit_state)
                     rec.last_update = now
-                    rec.next_update_interval = self._draw_update_interval()
+                    override = rec.generator.update_interval_override
+                    rec.next_update_interval = override if override is not None else self._draw_update_interval()
                 # Despawn check
                 if now - rec.spawn_time >= rec.lifespan:
                     self._initiate_despawn(rec, now)

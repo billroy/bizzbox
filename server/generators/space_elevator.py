@@ -99,6 +99,18 @@ class SpaceElevatorActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip max_alt_km (static); climber names/cargo change rarely but are small
+        return {
+            "_delta": True,
+            "climbers": new_state["climbers"],
+            "anchors": new_state["anchors"],
+            "counterweight_pos": new_state["counterweight_pos"],
+            "cable_tension": new_state["cable_tension"],
+            "weather_status": new_state["weather_status"],
+            "wind_speed_kph": new_state["wind_speed_kph"],
+        }
+
     def next_frame(self) -> dict:
         # Move climbers
         for climber in self._climbers:

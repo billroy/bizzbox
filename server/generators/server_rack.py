@@ -139,6 +139,22 @@ class ServerRackActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip rack_label, strategy, and per-unit static fields (name, role, size_u)
+        units = []
+        for u in new_state["units"]:
+            units.append({
+                "status": u["status"],
+                "cpu_load": u["cpu_load"],
+                "leds": u["leds"],
+                "fan_speed": u["fan_speed"],
+            })
+        return {
+            "_delta": True,
+            "units": units,
+            "total_load": new_state["total_load"],
+        }
+
     def next_frame(self) -> dict:
         self._frame_count += 1
 

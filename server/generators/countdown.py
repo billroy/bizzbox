@@ -75,6 +75,16 @@ class CountdownActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip phases (static list)
+        return {
+            "_delta": True,
+            "remaining_ms": new_state["remaining_ms"],
+            "display": new_state["display"],
+            "phase_label": new_state["phase_label"],
+            "phase_style": new_state["phase_style"],
+        }
+
     def next_frame(self) -> dict:
         # Decrement by a realistic interval (200-500ms per update at normal intensity)
         decrement = random.randint(100, 500)

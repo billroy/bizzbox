@@ -279,10 +279,54 @@ export function mergeActivityDelta(id, delta) {
       if (s.rows && s.rows[ri]) s.rows[ri][ci] = val;
     }
 
+  } else if (type === 'matrix_rain') {
+    // Compact delta: head_ys array for positions, patch_columns for char changes
+    if (delta.head_ys && s.columns) {
+      for (let i = 0; i < s.columns.length && i < delta.head_ys.length; i++) {
+        s.columns[i].head_y = delta.head_ys[i];
+      }
+    }
+    if (delta.patch_columns && s.columns) {
+      for (const [i, col] of Object.entries(delta.patch_columns)) {
+        s.columns[parseInt(i, 10)] = col;
+      }
+    }
+
   } else {
-    // Generic shallow merge for any future opt-in activity
+    // Generic delta protocol: append_*, prepend_*, patch_*, or direct assign
+    const limits = delta._limits || {};
     for (const [k, v] of Object.entries(delta)) {
-      if (k !== '_delta') s[k] = v;
+      if (k === '_delta' || k === '_limits') continue;
+
+      if (k.startsWith('append_')) {
+        const field = k.slice(7);
+        const arr = s[field];
+        if (Array.isArray(arr) && Array.isArray(v)) {
+          const maxLen = limits[field] || arr.length;
+          s[field] = [...arr, ...v].slice(-maxLen);
+        }
+      } else if (k.startsWith('prepend_')) {
+        const field = k.slice(8);
+        const arr = s[field];
+        if (Array.isArray(arr) && Array.isArray(v)) {
+          const maxLen = limits[field] || arr.length;
+          s[field] = [...v, ...arr].slice(0, maxLen);
+        }
+      } else if (k.startsWith('patch_')) {
+        const field = k.slice(6);
+        const target = s[field];
+        if (target && typeof target === 'object' && typeof v === 'object') {
+          if (Array.isArray(target)) {
+            for (const [i, val] of Object.entries(v)) {
+              target[parseInt(i, 10)] = val;
+            }
+          } else {
+            Object.assign(target, v);
+          }
+        }
+      } else {
+        s[k] = v;
+      }
     }
   }
 

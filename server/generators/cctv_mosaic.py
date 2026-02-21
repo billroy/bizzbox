@@ -71,6 +71,21 @@ class CctvMosaicActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy, camera id/label/scene_type (static)
+        cameras = []
+        for c in new_state["cameras"]:
+            cameras.append({
+                "status": c["status"],
+                "noise_seed": c["noise_seed"],
+                "brightness": c["brightness"],
+                "motion_detected": c["motion_detected"],
+            })
+        return {
+            "_delta": True,
+            "cameras": cameras,
+        }
+
     def next_frame(self) -> dict:
         for cam in self._cameras:
             r = random.random()

@@ -82,6 +82,14 @@ class AudioSpectrumActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy, bin_count (static)
+        return {
+            "_delta": True,
+            "bands": new_state["bands"],
+            "peaks": new_state["peaks"],
+        }
+
     def next_frame(self) -> dict:
         self._t += 0.05
         return self._get_state()

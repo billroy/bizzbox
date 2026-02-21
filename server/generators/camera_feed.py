@@ -93,6 +93,21 @@ class CameraFeedActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy, grid_rows, grid_cols (static), camera labels (static)
+        cams = []
+        for c in new_state["cameras"]:
+            cams.append({
+                "status": c["status"],
+                "noise_seed": c["noise_seed"],
+                "brightness": c["brightness"],
+                "motion_level": c["motion_level"],
+            })
+        return {
+            "_delta": True,
+            "cameras": cams,
+        }
+
     def next_frame(self) -> dict:
         for cam in self._cameras:
             # Randomly transition camera states

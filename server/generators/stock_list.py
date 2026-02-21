@@ -98,6 +98,23 @@ class StockListActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy; ticker and prev_close rarely change
+        stocks = []
+        for s in new_state["stocks"]:
+            stocks.append({
+                "price": s["price"],
+                "change": s["change"],
+                "change_pct": s["change_pct"],
+                "high": s["high"],
+                "low": s["low"],
+                "gaining": s["gaining"],
+            })
+        return {
+            "_delta": True,
+            "stocks": stocks,
+        }
+
     def next_frame(self) -> dict:
         for stock in self._stocks:
             # Random walk — small percentage moves

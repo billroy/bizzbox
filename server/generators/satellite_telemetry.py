@@ -114,6 +114,27 @@ class SatelliteTelemetryActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip sat_name, designator, strategy (static)
+        return {
+            "_delta": True,
+            "orbit_alt_km": new_state["orbit_alt_km"],
+            "velocity_kms": new_state["velocity_kms"],
+            "signal_strength": new_state["signal_strength"],
+            "uplink_kbps": new_state["uplink_kbps"],
+            "downlink_kbps": new_state["downlink_kbps"],
+            "battery_pct": new_state["battery_pct"],
+            "solar_angle": new_state["solar_angle"],
+            "roll": new_state["roll"],
+            "pitch": new_state["pitch"],
+            "yaw": new_state["yaw"],
+            "lat": new_state["lat"],
+            "lon": new_state["lon"],
+            "next_pass": new_state["next_pass"],
+            "link_margin_db": new_state["link_margin_db"],
+            "los": new_state["los"],
+        }
+
     def next_frame(self) -> dict:
         # Manage LOS events
         if self._los:

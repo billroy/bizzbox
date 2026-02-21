@@ -142,3 +142,9 @@ class TransitMapActivity(BaseActivity):
                 v["direction"] = 1
             v["progress"] = round(v["progress"], 3)
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        return {
+            "_delta": True,
+            "vehicles": new_state["vehicles"],
+        }

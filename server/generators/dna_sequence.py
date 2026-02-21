@@ -175,6 +175,7 @@ class DnaSequenceActivity(BaseActivity):
         n_new = random.randint(_NEW_LINES_PER_FRAME_MIN, _NEW_LINES_PER_FRAME_MAX)
         new_lines = [_make_line(self.strategy) for _ in range(n_new)]
         self._lines = self._lines[n_new:] + new_lines
+        self._last_added = n_new
 
         # Occasionally update the annotation
         if random.random() < _ANNOTATION_CHANGE_PROB:
@@ -182,3 +183,14 @@ class DnaSequenceActivity(BaseActivity):
             self._annotation = _format_annotation(ann_tmpl)
 
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        n = getattr(self, '_last_added', 0)
+        if n and new_state["lines"]:
+            return {
+                "_delta": True,
+                "_limits": {"lines": _N_LINES},
+                "append_lines": new_state["lines"][-n:],
+                "annotation": new_state["annotation"],
+            }
+        return None

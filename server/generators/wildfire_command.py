@@ -111,6 +111,22 @@ class WildfireCommandActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # fire_name is static
+        return {
+            "_delta": True,
+            "zones": new_state["zones"],
+            "crews": new_state["crews"],
+            "air_tankers": new_state["air_tankers"],
+            "wind_speed_mph": new_state["wind_speed_mph"],
+            "wind_dir_deg": new_state["wind_dir_deg"],
+            "humidity_pct": new_state["humidity_pct"],
+            "fuel_moisture_pct": new_state["fuel_moisture_pct"],
+            "containment_pct": new_state["containment_pct"],
+            "acres_burned": new_state["acres_burned"],
+            "evac_zones": new_state["evac_zones"],
+        }
+
     def next_frame(self) -> dict:
         # Wind drift
         self._wind_speed_mph = round(max(0.0, min(60.0, self._wind_speed_mph + random.uniform(-1.5, 1.5))), 1)

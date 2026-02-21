@@ -11,6 +11,7 @@ class BaseActivity(ABC):
     activity_type: str = "base"
     strategies: list[str] = []
     titles: list[str] = ["ACTIVITY"]
+    update_interval_override: float | None = None  # seconds; None = use default tick rate
 
     def __init__(self, activity_id: str = None, intensity: int = 5):
         self.id = activity_id or f"act_{uuid.uuid4().hex[:8]}"

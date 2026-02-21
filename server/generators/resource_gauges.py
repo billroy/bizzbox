@@ -71,6 +71,14 @@ class ResourceGaugesActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy (static); gauge labels/units/thresholds are static but needed
+        # by renderer so we keep them — only strategy is truly redundant per frame
+        return {
+            "_delta": True,
+            "gauges": new_state["gauges"],
+        }
+
     def next_frame(self) -> dict:
         defs = self.GAUGE_DEFS[self.strategy]
         for gauge, d in zip(self._gauges, defs):

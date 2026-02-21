@@ -89,6 +89,15 @@ class GraphActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip y_label, y_range, format, strategy (static); append 1 new point
+        return {
+            "_delta": True,
+            "_limits": {"points": 80},
+            "append_points": [new_state["points"][-1]],
+            "current": new_state["current"],
+        }
+
     def next_frame(self) -> dict:
         self._t += 1
         self._advance_value()

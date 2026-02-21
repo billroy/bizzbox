@@ -73,6 +73,18 @@ class StockGraphActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip ticker, open_price, strategy (static); append 1 new price
+        return {
+            "_delta": True,
+            "_limits": {"prices": 80},
+            "append_prices": [new_state["prices"][-1]],
+            "current_price": new_state["current_price"],
+            "change": new_state["change"],
+            "change_pct": new_state["change_pct"],
+            "gaining": new_state["gaining"],
+        }
+
     def next_frame(self) -> dict:
         cfg = _STRATEGY_CONFIG[self.strategy]
         vol = cfg["volatility"] * (self.intensity / 5.0)

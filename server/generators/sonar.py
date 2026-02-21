@@ -177,3 +177,13 @@ class SonarActivity(BaseActivity):
         self._waterfall = [new_row] + self._waterfall[:self.ROWS - 1]
 
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        return {
+            "_delta": True,
+            "_limits": {"waterfall": self.ROWS},
+            "prepend_waterfall": [new_state["waterfall"][0]],
+            "sweep_bearing": new_state["sweep_bearing"],
+            "contacts": new_state["contacts"],
+            "noise_floor": new_state["noise_floor"],
+        }

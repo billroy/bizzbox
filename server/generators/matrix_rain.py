@@ -85,6 +85,26 @@ class MatrixRainActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Compact: send head_ys (flat float array) + only columns with char changes
+        old_cols = old_state.get("columns", [])
+        new_cols = new_state.get("columns", [])
+        head_ys = [col["head_y"] for col in new_cols]
+        changed = {}
+        for i, new_col in enumerate(new_cols):
+            if i >= len(old_cols):
+                changed[str(i)] = new_col
+                continue
+            old_col = old_cols[i]
+            if (old_col.get("chars") != new_col["chars"] or
+                    old_col.get("length") != new_col["length"] or
+                    old_col.get("drop_speed") != new_col["drop_speed"]):
+                changed[str(i)] = new_col
+        delta = {"_delta": True, "head_ys": head_ys}
+        if changed:
+            delta["patch_columns"] = changed
+        return delta
+
     def next_frame(self) -> dict:
         for col in self._columns:
             self._advance_column(col)

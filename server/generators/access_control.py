@@ -212,6 +212,16 @@ class AccessControlActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        return {
+            "_delta": True,
+            "_limits": {"events": self.BUFFER_SIZE},
+            "append_events": new_state["events"][-1:],
+            "entries_today": new_state["entries_today"],
+            "denied_count": new_state["denied_count"],
+            "zones_active": new_state["zones_active"],
+        }
+
     def next_frame(self) -> dict:
         # Add 1 new event, drop oldest to maintain buffer size
         new_event = self._make_event()

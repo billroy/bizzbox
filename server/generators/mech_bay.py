@@ -98,6 +98,31 @@ class MechBayActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # mech_name is static; strip section id/label/y_frac, weapon name/mount
+        sections = []
+        for s in new_state["sections"]:
+            sections.append({
+                "armor_pct": s["armor_pct"],
+                "internal_pct": s["internal_pct"],
+                "servo_status": s["servo_status"],
+            })
+        weapons = []
+        for w in new_state["weapons"]:
+            weapons.append({
+                "status": w["status"],
+                "ammo_pct": w["ammo_pct"],
+            })
+        return {
+            "_delta": True,
+            "sections": sections,
+            "weapons": weapons,
+            "coolant_pct": new_state["coolant_pct"],
+            "neural_link_pct": new_state["neural_link_pct"],
+            "heat_pct": new_state["heat_pct"],
+            "reactor_output_pct": new_state["reactor_output_pct"],
+        }
+
     def next_frame(self) -> dict:
         # Drift coolant, neural link, heat, reactor
         self._coolant = round(max(20.0, min(100.0, self._coolant + random.uniform(-1.5, 1.5))), 1)

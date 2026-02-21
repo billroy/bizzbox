@@ -125,6 +125,26 @@ class DungeonMasterActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip party name/class/max_hp/max_mp (static until boss reset)
+        party = []
+        for p in new_state["party"]:
+            party.append({
+                "hp": p["hp"],
+                "mp": p["mp"],
+                "status_effects": p["status_effects"],
+                "dps": p["dps"],
+                "alive": p["alive"],
+            })
+        return {
+            "_delta": True,
+            "boss": new_state["boss"],
+            "party": party,
+            "combat_log": new_state["combat_log"],
+            "boss_phase": new_state["boss_phase"],
+            "elapsed_sec": new_state["elapsed_sec"],
+        }
+
     def next_frame(self) -> dict:
         self._elapsed_sec += 1
 

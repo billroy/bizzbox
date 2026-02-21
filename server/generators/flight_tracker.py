@@ -6,6 +6,7 @@ from .base import BaseActivity
 
 class FlightTrackerActivity(BaseActivity):
     activity_type = "flight_tracker"
+    update_interval_override = 0.5  # 2 Hz — large aircraft list with trails
     strategies = [
         "major_airport", "military_airspace", "oceanic_tracking",
         "approach_control", "emergency_divert",
@@ -136,17 +137,17 @@ class FlightTrackerActivity(BaseActivity):
         speed_factor = 0.006
         for ac in self._aircraft:
             # Append current position to trail
-            ac["trail"].append([round(ac["x"], 4), round(ac["y"], 4)])
-            if len(ac["trail"]) > 8:
-                ac["trail"] = ac["trail"][-8:]
+            ac["trail"].append([round(ac["x"], 3), round(ac["y"], 3)])
+            if len(ac["trail"]) > 5:
+                ac["trail"] = ac["trail"][-5:]
 
             # Move along heading
             heading_rad = math.radians(ac["heading"])
             factor = speed_factor * (ac["speed"] / 450)
             ac["x"] += math.sin(heading_rad) * factor
             ac["y"] -= math.cos(heading_rad) * factor
-            ac["x"] = round(ac["x"], 4)
-            ac["y"] = round(ac["y"], 4)
+            ac["x"] = round(ac["x"], 3)
+            ac["y"] = round(ac["y"], 3)
 
             # Random heading change (20% chance)
             if random.random() < 0.20:
@@ -201,6 +202,13 @@ class FlightTrackerActivity(BaseActivity):
 
     def initial_payload(self) -> dict:
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy, range_nm, center_label (static)
+        return {
+            "_delta": True,
+            "aircraft": new_state["aircraft"],
+        }
 
     def next_frame(self) -> dict:
         self._move_aircraft()

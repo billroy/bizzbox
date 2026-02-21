@@ -184,3 +184,11 @@ class Wireframe3DActivity(BaseActivity):
         self._rot_x = (self._rot_x + self._speed_x + random.uniform(-jitter, jitter)) % _TWO_PI
         self._rot_y = (self._rot_y + self._speed_y + random.uniform(-jitter, jitter)) % _TWO_PI
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        # Vertices are STATIC (set once in __init__) — only rotation changes
+        return {
+            "_delta": True,
+            "rot_x": new_state["rot_x"],
+            "rot_y": new_state["rot_y"],
+        }

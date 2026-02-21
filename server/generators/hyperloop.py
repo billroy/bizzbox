@@ -97,6 +97,15 @@ class HyperloopActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # stations is static; pods/segments/junctions mutate in place
+        return {
+            "_delta": True,
+            "pods": new_state["pods"],
+            "segments": new_state["segments"],
+            "junctions": new_state["junctions"],
+        }
+
     def next_frame(self) -> dict:
         # Move pods along segments
         for pod in self._pods:

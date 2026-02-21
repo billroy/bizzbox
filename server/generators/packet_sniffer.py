@@ -200,6 +200,7 @@ class PacketSnifferActivity(BaseActivity):
         for _ in range(new_count):
             self._packets.append(self._make_packet())
         self._packets = self._packets[-self.BUFFER_SIZE:]
+        self._last_added = new_count
 
         # Drift rate metrics
         self._rate_pps += random.randint(-15, 15)
@@ -213,3 +214,15 @@ class PacketSnifferActivity(BaseActivity):
             self._bytes_sec = int(self._bytes_sec * random.uniform(2.0, 5.0))
 
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        n = getattr(self, '_last_added', 0)
+        if n and new_state["packets"]:
+            return {
+                "_delta": True,
+                "_limits": {"packets": self.BUFFER_SIZE},
+                "append_packets": new_state["packets"][-n:],
+                "rate_pps": new_state["rate_pps"],
+                "bytes_sec": new_state["bytes_sec"],
+            }
+        return None

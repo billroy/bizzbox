@@ -207,6 +207,20 @@ class PongActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip field_w, field_h, paddle_w, paddle_h, ball_r (constants)
+        return {
+            "_delta": True,
+            "balls": new_state["balls"],
+            "paddle_left_y": new_state["paddle_left_y"],
+            "paddle_right_y": new_state["paddle_right_y"],
+            "score_left": new_state["score_left"],
+            "score_right": new_state["score_right"],
+            "rally": new_state["rally"],
+            "max_rally": new_state["max_rally"],
+            "strategy": new_state["strategy"],
+        }
+
     def next_frame(self) -> dict:
         # Multiple steps per frame for smooth motion
         for _ in range(3):

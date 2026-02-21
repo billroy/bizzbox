@@ -265,6 +265,18 @@ class PowerGridActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip node id/type/label/x/y (static), edge from_id/to_id (static)
+        nodes = [{"status": n["status"]} for n in new_state["nodes"]]
+        edges = [{"flow": e["flow"]} for e in new_state["edges"]]
+        return {
+            "_delta": True,
+            "nodes": nodes,
+            "edges": edges,
+            "readings": new_state["readings"],
+            "flow_offset": new_state["flow_offset"],
+        }
+
     # ------------------------------------------------------------------
     # Frame advance
     # ------------------------------------------------------------------

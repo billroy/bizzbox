@@ -6,6 +6,7 @@ from .base import BaseActivity
 
 class OscilloscopeActivity(BaseActivity):
     activity_type = "oscilloscope"
+    update_interval_override = 0.5  # 2 Hz — samples fully regenerated each frame
     strategies = ["ecg_heartbeat", "seismic", "radio_carrier", "brain_wave", "power_grid_ac"]
     titles = [
         "OSCILLOSCOPE", "WAVEFORM ANALYSIS", "SIGNAL MONITOR",
@@ -96,7 +97,7 @@ class OscilloscopeActivity(BaseActivity):
 
             # Add noise
             v += random.gauss(0, self._noise_level)
-            samples.append(round(max(-1.2, min(1.2, v)), 4))
+            samples.append(round(max(-1.2, min(1.2, v)), 2))
 
         return samples
 
@@ -109,6 +110,14 @@ class OscilloscopeActivity(BaseActivity):
 
     def initial_payload(self) -> dict:
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        # Samples are fully regenerated each frame (not a buffer), strip strategy
+        return {
+            "_delta": True,
+            "samples": new_state["samples"],
+            "params": new_state["params"],
+        }
 
     def next_frame(self) -> dict:
         self._t += 0.5 + random.uniform(-0.1, 0.1)

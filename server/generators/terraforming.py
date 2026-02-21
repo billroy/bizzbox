@@ -91,6 +91,20 @@ class TerraformingActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip target_temp (static); zone names (static)
+        zones = [{"temp": z["temp"], "status": z["status"]} for z in new_state["zones"]]
+        return {
+            "_delta": True,
+            "gases": new_state["gases"],
+            "surface_temp": new_state["surface_temp"],
+            "ice_cap_pct": new_state["ice_cap_pct"],
+            "seismic_level": new_state["seismic_level"],
+            "mirror_alignment": new_state["mirror_alignment"],
+            "progress_pct": new_state["progress_pct"],
+            "zones": zones,
+        }
+
     def next_frame(self) -> dict:
         # Very slow progress advance
         self._progress_pct = round(min(100.0, self._progress_pct + random.uniform(0.001, 0.01)), 4)

@@ -94,3 +94,9 @@ class GeoMapActivity(BaseActivity):
         if len(self._markers) > 3 and random.random() > 0.9:
             self._markers.pop(random.randrange(len(self._markers)))
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        return {
+            "_delta": True,
+            "markers": new_state["markers"],
+        }

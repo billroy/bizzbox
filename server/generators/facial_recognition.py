@@ -74,6 +74,14 @@ class FacialRecognitionActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy, scene_label (static)
+        return {
+            "_delta": True,
+            "faces": new_state["faces"],
+            "scan_line": new_state["scan_line"],
+        }
+
     def next_frame(self) -> dict:
         # Drift existing boxes slightly
         for f in self._faces:

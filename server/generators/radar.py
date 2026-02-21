@@ -71,6 +71,14 @@ class RadarActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy, range_rings, sweep_speed (static per instance)
+        return {
+            "_delta": True,
+            "blips": new_state["blips"],
+            "sweep_angle": new_state["sweep_angle"],
+        }
+
     def next_frame(self) -> dict:
         # Advance sweep
         self._sweep_angle += self._sweep_speed * 0.2

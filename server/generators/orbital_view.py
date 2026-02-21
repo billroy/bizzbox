@@ -105,6 +105,17 @@ class OrbitalViewActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy; satellite label/orbit_type are static
+        sats = []
+        for s in new_state["satellites"]:
+            sats.append({"x": s["x"], "y": s["y"], "z": s["z"]})
+        return {
+            "_delta": True,
+            "satellites": sats,
+            "rotation": new_state["rotation"],
+        }
+
     def next_frame(self) -> dict:
         # Advance satellite phases
         for sat in self._satellites:

@@ -107,6 +107,31 @@ class NetworkTopologyActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy; node labels and edge from/to are static
+        nodes = []
+        for n in new_state["nodes"]:
+            nodes.append({
+                "id": n["id"],
+                "x": n["x"],
+                "y": n["y"],
+                "active": n["active"],
+                "highlight": n["highlight"],
+            })
+        edges = []
+        for e in new_state["edges"]:
+            edges.append({
+                "id": e["id"],
+                "active": e["active"],
+                "weight": e["weight"],
+                "pulse": e["pulse"],
+            })
+        return {
+            "_delta": True,
+            "nodes": nodes,
+            "edges": edges,
+        }
+
     def next_frame(self) -> dict:
         self._tick += 1
         # Randomly activate/deactivate 1-3 edges

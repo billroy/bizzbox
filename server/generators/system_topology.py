@@ -87,6 +87,21 @@ class SystemTopologyActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy and static name/category per component
+        components = []
+        for c in new_state["components"]:
+            components.append({
+                "status": c["status"],
+                "load": c["load"],
+                "lights": c["lights"],
+                "data_flow": c["data_flow"],
+            })
+        return {
+            "_delta": True,
+            "components": components,
+        }
+
     def next_frame(self) -> dict:
         for comp in self._components:
             # Blink lights

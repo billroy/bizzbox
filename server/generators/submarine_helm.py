@@ -85,6 +85,24 @@ class SubmarineHelmActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip max_depth_m (static)
+        return {
+            "_delta": True,
+            "depth_m": new_state["depth_m"],
+            "target_depth_m": new_state["target_depth_m"],
+            "speed_knots": new_state["speed_knots"],
+            "heading_deg": new_state["heading_deg"],
+            "trim_deg": new_state["trim_deg"],
+            "ballast_fwd_pct": new_state["ballast_fwd_pct"],
+            "ballast_aft_pct": new_state["ballast_aft_pct"],
+            "hull_pressure_pct": new_state["hull_pressure_pct"],
+            "reactor_output_pct": new_state["reactor_output_pct"],
+            "o2_pct": new_state["o2_pct"],
+            "sweep_angle": new_state["sweep_angle"],
+            "contacts": new_state["contacts"],
+        }
+
     def next_frame(self) -> dict:
         # Depth approaches target
         diff = self._target_depth - self._depth_m

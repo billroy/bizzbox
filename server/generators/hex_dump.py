@@ -6,6 +6,7 @@ from .base import BaseActivity
 
 class HexDumpActivity(BaseActivity):
     activity_type = "hex_dump"
+    update_interval_override = 0.33  # ~3 Hz — all rows shift each frame
     strategies = ["network_packet", "executable_header", "encrypted_stream", "image_data", "memory_dump"]
     titles = [
         "HEX DUMP", "BINARY ANALYSIS", "MEMORY INSPECTOR",
@@ -103,3 +104,10 @@ class HexDumpActivity(BaseActivity):
             self._offset += remove
         self._build_rows()
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        # All rows change each frame (offsets shift), send full rows but omit strategy
+        return {
+            "_delta": True,
+            "rows": new_state["rows"],
+        }

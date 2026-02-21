@@ -6,6 +6,7 @@ from .base import BaseActivity
 
 class QamConstellationActivity(BaseActivity):
     activity_type = "qam_constellation"
+    update_interval_override = 1.0  # 1 Hz — points are fully random, undiffable
     strategies = ["256qam_clean", "256qam_noisy", "64qam", "16qam", "bpsk_qpsk"]
     titles = [
         "256-QAM CONSTELLATION", "MODULATION ANALYZER", "SYMBOL DIAGRAM",
@@ -77,13 +78,13 @@ class QamConstellationActivity(BaseActivity):
             # AWGN
             i_rx = i_rot + random.gauss(0, noise_std)
             q_rx = q_rot + random.gauss(0, noise_std)
-            pts.append((round(max(-1.2, min(1.2, i_rx)), 4),
-                        round(max(-1.2, min(1.2, q_rx)), 4)))
+            pts.append((round(max(-1.2, min(1.2, i_rx)), 2),
+                        round(max(-1.2, min(1.2, q_rx)), 2)))
         return pts
 
     def _get_state(self):
         return {
-            "points": self._sample_points(280),
+            "points": self._sample_points(200),
             "strategy": self.strategy,
             "evm": round(self._evm, 2),
             "phase_offset": round(self._phase_offset % (math.pi * 2), 4),

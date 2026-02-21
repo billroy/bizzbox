@@ -179,3 +179,10 @@ class WeatherRadarActivity(BaseActivity):
             self._cells.append(self._make_cell())
 
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        return {
+            "_delta": True,
+            "cells": new_state["cells"],
+            "timestamp": new_state["timestamp"],
+        }

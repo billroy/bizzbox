@@ -115,6 +115,13 @@ class CipherDecryptActivity(BaseActivity):
             ln["progress"] = int(i * ln["max_steps"] / _LINE_COUNT * 0.7)
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy (static)
+        return {
+            "_delta": True,
+            "lines": new_state["lines"],
+        }
+
     def next_frame(self) -> dict:
         for ln in self._lines:
             if ln["status"] == "decrypting":

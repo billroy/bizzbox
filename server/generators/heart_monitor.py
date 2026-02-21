@@ -176,6 +176,18 @@ class HeartMonitorActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Samples regenerated each frame; strip static strategy/label/alarm
+        return {
+            "_delta": True,
+            "ekg_samples": new_state["ekg_samples"],
+            "hr": new_state["hr"],
+            "bp_sys": new_state["bp_sys"],
+            "bp_dia": new_state["bp_dia"],
+            "spo2": new_state["spo2"],
+            "resp": new_state["resp"],
+        }
+
     def next_frame(self) -> dict:
         self._t += 0.5 + random.uniform(-0.1, 0.1)
 

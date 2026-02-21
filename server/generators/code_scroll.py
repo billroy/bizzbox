@@ -234,6 +234,18 @@ class CodeScrollActivity(BaseActivity):
         return self._get_state()
 
     def next_frame(self) -> dict:
-        for _ in range(random.randint(3, 8)):
+        n = random.randint(3, 8)
+        for _ in range(n):
             self._advance()
+        self._last_added = n
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        n = getattr(self, '_last_added', 0)
+        if n and new_state["lines"]:
+            return {
+                "_delta": True,
+                "_limits": {"lines": 50},
+                "append_lines": new_state["lines"][-n:],
+            }
+        return None

@@ -5,6 +5,7 @@ from .base import BaseActivity
 
 class ProcessMonitorActivity(BaseActivity):
     activity_type = "process_monitor"
+    update_interval_override = 0.5  # 2 Hz — large process table, fully dynamic
     strategies = [
         "linux_server",
         "container_orchestrator",
@@ -147,6 +148,16 @@ class ProcessMonitorActivity(BaseActivity):
 
     def initial_payload(self) -> dict:
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        # Strip strategy (static), mem_total (static)
+        return {
+            "_delta": True,
+            "cores": new_state["cores"],
+            "mem_used": new_state["mem_used"],
+            "load_avg": new_state["load_avg"],
+            "processes": new_state["processes"],
+        }
 
     def next_frame(self) -> dict:
         # --- Update core usage ---

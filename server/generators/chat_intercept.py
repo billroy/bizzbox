@@ -247,12 +247,26 @@ class ChatInterceptActivity(BaseActivity):
         return self._get_state()
 
     def next_frame(self) -> dict:
+        added = 0
         # Probability of a new message scales with intensity (1-10)
         # At intensity 1: ~30% chance, at intensity 10: ~95% chance
         probability = 0.25 + (self.intensity / 10.0) * 0.70
         if random.random() < probability:
             self._generate_message()
+            added += 1
         # Small chance of a second message burst at higher intensities
         if self.intensity >= 6 and random.random() < (self.intensity - 5) * 0.08:
             self._generate_message()
+            added += 1
+        self._last_added = added
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        n = getattr(self, '_last_added', 0)
+        if n > 0 and new_state["messages"]:
+            return {
+                "_delta": True,
+                "_limits": {"messages": self.MAX_MESSAGES},
+                "append_messages": new_state["messages"][-n:],
+            }
+        return None

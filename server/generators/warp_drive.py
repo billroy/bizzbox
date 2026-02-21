@@ -115,6 +115,17 @@ class WarpDriveActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip ring static fields (radius_frac, pulse_speed, label) — only intensity/status change
+        rings = [{"intensity": r["intensity"], "status": r["status"]} for r in new_state["rings"]]
+        return {
+            "_delta": True,
+            "readings": new_state["readings"],
+            "rings": rings,
+            "phase": new_state["phase"],
+            "alert": new_state["alert"],
+        }
+
     def next_frame(self) -> dict:
         self._phase += 0.06 + 0.02 * (self.intensity / 10.0)
         if self._phase > math.tau * 100:

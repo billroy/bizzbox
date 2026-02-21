@@ -136,3 +136,11 @@ class SdrWaterfallActivity(BaseActivity):
         self._waterfall = [new_row] + self._waterfall[: self.HISTORY - 1]
 
         return self._get_state()
+
+    def compute_delta(self, old_state, new_state):
+        return {
+            "_delta": True,
+            "_limits": {"waterfall": self.HISTORY},
+            "prepend_waterfall": [new_state["waterfall"][0]],
+            "noise_floor": new_state["noise_floor"],
+        }

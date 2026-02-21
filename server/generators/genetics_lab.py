@@ -85,6 +85,22 @@ class GeneticsLabActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Strip gene_target, guide_rna (static)
+        return {
+            "_delta": True,
+            "visible_sequence": new_state["visible_sequence"],
+            "scroll_offset": new_state["scroll_offset"],
+            "edit_sites": new_state["edit_sites"],
+            "cell_viability_pct": new_state["cell_viability_pct"],
+            "batch_temp_c": new_state["batch_temp_c"],
+            "match_score_pct": new_state["match_score_pct"],
+            "off_target_pct": new_state["off_target_pct"],
+            "protein_fold_conf": new_state["protein_fold_conf"],
+            "cycle_count": new_state["cycle_count"],
+            "phase": new_state["phase"],
+        }
+
     def next_frame(self) -> dict:
         # Scroll sequence
         self._scroll_offset += 1

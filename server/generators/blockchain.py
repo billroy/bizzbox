@@ -147,6 +147,16 @@ class BlockchainActivity(BaseActivity):
     def initial_payload(self) -> dict:
         return self._get_state()
 
+    def compute_delta(self, old_state, new_state):
+        # Transactions mutate in-place (pending→confirmed), so send full array
+        return {
+            "_delta": True,
+            "transactions": new_state["transactions"],
+            "block_height": new_state["block_height"],
+            "mempool_depth": new_state["mempool_depth"],
+            "tps": new_state["tps"],
+        }
+
     def next_frame(self) -> dict:
         self._frame_count += 1
 
