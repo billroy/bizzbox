@@ -40,12 +40,18 @@ def create_app(config: AppConfig):
     @socketio.on("connect")
     def on_connect(auth=None):
         from flask import request
-        sync_manager.handle_connect(request.sid)
+        if request.args.get("monitor") == "true":
+            sync_manager.handle_monitor_connect(request.sid)
+        else:
+            sync_manager.handle_connect(request.sid)
 
     @socketio.on("disconnect")
     def on_disconnect():
         from flask import request
-        sync_manager.handle_disconnect(request.sid)
+        if sync_manager.is_monitor(request.sid):
+            sync_manager.handle_monitor_disconnect(request.sid)
+        else:
+            sync_manager.handle_disconnect(request.sid)
 
     # ── Channel events ────────────────────────────────────────
 

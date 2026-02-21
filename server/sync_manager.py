@@ -45,6 +45,7 @@ class SyncManager:
         self._next_channel_id: int = 0          # incremented before use
         self._sid_to_channel: dict[str, int] = {}
         self._total_clients: int = 0
+        self._monitor_sids: set[str] = set()   # phantom-viewer-free monitors
 
         # ── Unsynced mode (unchanged) ────────────────────────
         self._client_managers: dict[str, ActivityManager] = {}
@@ -85,8 +86,11 @@ class SyncManager:
         current = self._sid_to_channel.get(sid)
         if current == channel_id:
             return  # already there
-        self._switch_client(sid, channel_id)
-        self._broadcast_channel_list()
+        if self.is_monitor(sid):
+            self._switch_monitor(sid, channel_id)
+        else:
+            self._switch_client(sid, channel_id)
+            self._broadcast_channel_list()
 
     def _switch_client(self, sid: str, new_channel_id: int):
         """Move a client from its current channel to a new one."""
@@ -221,6 +225,62 @@ class SyncManager:
             if manager:
                 manager.stop()
             self._emitter.emit_client_count(self._total_clients, room=sid)
+
+    # ── Monitor mode (phantom-viewer-free) ───────────────────
+
+    def is_monitor(self, sid: str) -> bool:
+        """Return True if this sid is a monitor connection."""
+        return sid in self._monitor_sids
+
+    def handle_monitor_connect(self, sid: str):
+        """Connect a monitor — joins channel 1 room without affecting viewer counts."""
+        self._monitor_sids.add(sid)
+
+        if self._config.sync_mode == "synced" and self._channels:
+            first_channel_id = min(self._channels.keys())
+            ch = self._channels[first_channel_id]
+            join_room(ch.room, sid=sid)
+            self._sid_to_channel[sid] = first_channel_id
+
+            # Send full state for this channel
+            state = ch.manager.get_full_state()
+            state["channel"] = {"id": ch.channel_id, "name": ch.name}
+            self._emitter.emit_sync_init(sid, state)
+
+            # Send channel list to monitor only
+            self._sio.emit("channel:list", {
+                "channels": self.get_channel_list(),
+                "totalClients": self._total_clients,
+                "maxChannels": self._config.max_channels,
+            }, room=sid)
+
+    def handle_monitor_disconnect(self, sid: str):
+        """Disconnect a monitor — leaves room without affecting viewer counts."""
+        self._monitor_sids.discard(sid)
+        channel_id = self._sid_to_channel.pop(sid, None)
+        if channel_id is not None and channel_id in self._channels:
+            ch = self._channels[channel_id]
+            leave_room(ch.room, sid=sid)
+
+    def _switch_monitor(self, sid: str, new_channel_id: int):
+        """Move a monitor to a different channel without affecting viewer counts."""
+        old_channel_id = self._sid_to_channel.get(sid)
+        new_ch = self._channels[new_channel_id]
+
+        # Leave old room
+        if old_channel_id is not None and old_channel_id in self._channels:
+            old_ch = self._channels[old_channel_id]
+            leave_room(old_ch.room, sid=sid)
+
+        # Join new room
+        join_room(new_ch.room, sid=sid)
+        self._sid_to_channel[sid] = new_channel_id
+
+        # Send channel switch confirmation + full state
+        self._emitter.emit_channel_switched(sid, new_ch.channel_id, new_ch.name)
+        state = new_ch.manager.get_full_state()
+        state["channel"] = {"id": new_ch.channel_id, "name": new_ch.name}
+        self._emitter.emit_sync_init(sid, state)
 
     # ── Room / manager helpers ────────────────────────────────
 
