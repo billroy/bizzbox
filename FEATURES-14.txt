@@ -1,0 +1,62 @@
+Feature Spec: AI Agent Activity Type
+=====================================
+
+Activity type: ai_agent
+Category: Data & Comms (alongside terminal, code_scroll, log_tail)
+
+Overview
+--------
+A new activity type that renders fake-but-recognizable TTY simulacra of popular
+AI coding-agent CLI tools. Each strategy mimics the visual signature of a real
+tool — ASCII banners, prompt styles, response formatting — using punny names
+to avoid trademark issues. All conversation content is fictional.
+
+Strategies (5)
+--------------
+Each strategy corresponds to a real AI CLI tool, renamed with puns:
+
+  Strategy          | Parodies        | Visual Signature
+  ------------------+-----------------+----------------------------------------
+  clawed_code       | Claude Code     | Box-drawing ╭╮╰╯ header, > prompt,
+                    |                 | ⎿ tool-use brackets, status bar
+  jiminy_cli        | Gemini CLI      | ASCII art banner, ✦ sparkle,
+                    |                 | blue/purple feel, boxed input
+  openeye_codecks   | OpenAI Codex    | Full-screen TUI feel, ─── separators,
+                    |                 | panel borders, muted contrast
+  gitpub_copyleft   | GitHub Copilot  | ASCII banner, timeline separators,
+                    |                 | ▸ action markers
+  cider             | Aider           | No art, dense startup info block,
+                    |                 | green "cider >" prompt, git commits
+
+Architecture
+------------
+Backend:  server/generators/ai_agent.py
+  - Extends BaseActivity (same pattern as terminal.py)
+  - SCRIPTS dict with ~28-30 (text, style) tuples per strategy
+  - Reuses line styles: command, output, result, warn, error
+  - Delta compression via compute_delta (append_lines)
+  - 40-line scrollback buffer
+
+Frontend: static/js/components/activities/AiAgent.js
+  - Same template as Terminal.js (text-scroll with auto-scroll)
+  - CSS class: activity-ai-agent
+  - Shares existing style-* CSS classes
+
+Registration
+------------
+  - activityTypes.js: added to ACTIVITY_TYPES array + Data & Comms category
+  - activity_registry.py: REGISTRY + WEIGHTS (1.2)
+  - app.js: import + app.component('activity-ai-agent', ...)
+  - Feature Zoo: automatic via [...ACTIVITY_TYPES] spread
+
+Scene Integration
+-----------------
+  - Cyber Siege: added to filter (alongside terminal, code_scroll)
+  - Deep Green: added to filter (alongside terminal, code_scroll, hex_dump)
+  - Feature Zoo: auto-included (slot 58 of 58)
+  - All unfiltered scenes (War Room, Hacker Den, etc.): can spawn randomly
+
+CLAUDE.md
+---------
+Added note: new activity types must be added to ACTIVITY_TYPES array in
+activityTypes.js to be auto-included in Feature Zoo.

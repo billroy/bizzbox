@@ -29,3 +29,8 @@ to force DO to re-fetch the latest code from GitHub. Example:
 After deploying, verify the `source_commit_hash` in the deployment status matches
 the expected commit on `origin/main`. If it shows an old commit, you forgot
 `update_all_source_versions`.
+
+## Adding New Activity Types
+When adding a new activity type, always add it to the `ACTIVITY_TYPES` array in
+`static/js/activityTypes.js`. This automatically includes it in the Feature Zoo
+scene (which uses `[...ACTIVITY_TYPES]` for its slots array).

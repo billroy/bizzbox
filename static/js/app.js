@@ -71,6 +71,7 @@ import ActivityGeneticsLab       from './components/activities/GeneticsLab.js';
 import ActivityMissionControl    from './components/activities/MissionControl.js';
 import ActivityPong              from './components/activities/Pong.js';
 import ActivityTicTacToe         from './components/activities/TicTacToe.js';
+import ActivityAiAgent           from './components/activities/AiAgent.js';
 
 const { createApp } = Vue;
 
@@ -269,6 +270,7 @@ app.component('activity-genetics-lab',           ActivityGeneticsLab);
 app.component('activity-mission-control',        ActivityMissionControl);
 app.component('activity-pong',                   ActivityPong);
 app.component('activity-tic-tac-toe',            ActivityTicTacToe);
+app.component('activity-ai-agent',              ActivityAiAgent);
 
 app.mount('#app');
 

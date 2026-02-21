@@ -60,6 +60,7 @@ export const ACTIVITY_TYPES = [
   'mission_control',
   'pong',
   'tic_tac_toe',
+  'ai_agent',
 ];
 
 /**
@@ -89,7 +90,7 @@ export const ACTIVITY_CATEGORIES = {
   'Data & Comms': [
     'terminal', 'code_scroll', 'log_tail', 'hex_dump', 'data_table',
     'notifications', 'progress_bars', 'matrix_rain', 'wireframe_3d',
-    'graph', 'cipher_decrypt',
+    'graph', 'cipher_decrypt', 'ai_agent',
   ],
   'Science': [
     'oscilloscope', 'seismograph', 'sdr_waterfall', 'qam_constellation',
