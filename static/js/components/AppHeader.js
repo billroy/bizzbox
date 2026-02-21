@@ -15,13 +15,32 @@ export default {
 
     const visible = ref(false);
     let hideTimer = null;
+    let mouseInHeader = false;
 
     function showHeader() {
       if (store.lockMode) return;
       visible.value = true;
       clearTimeout(hideTimer);
       if (!store.headerPinned) {
-        hideTimer = setTimeout(() => { visible.value = false; }, 3000);
+        hideTimer = setTimeout(() => {
+          // Only hide if the mouse has left the header
+          if (!mouseInHeader) {
+            visible.value = false;
+          }
+        }, 3000);
+      }
+    }
+
+    function onHeaderMouseEnter() {
+      mouseInHeader = true;
+    }
+
+    function onHeaderMouseLeave() {
+      mouseInHeader = false;
+      // Start hide timer now that mouse has left
+      if (visible.value && !store.headerPinned) {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => { visible.value = false; }, 1000);
       }
     }
 
@@ -33,9 +52,34 @@ export default {
       }
     }
 
+    // ── Scene actions dropdown ──────────────────────────────────
+    const sceneActionsOpen = ref(false);
+
+    function toggleSceneActions() {
+      sceneActionsOpen.value = !sceneActionsOpen.value;
+    }
+
+    function onDocClick(evt) {
+      if (sceneActionsOpen.value && !evt.target.closest('.scene-actions-wrapper')) {
+        sceneActionsOpen.value = false;
+      }
+    }
+
+    // ── Pin toggle ────────────────────────────────────────────────
+    function togglePin() {
+      store.headerPinned = !store.headerPinned;
+      savePrefs();
+      // Reset the hide timer based on new pin state
+      clearTimeout(hideTimer);
+      if (!store.headerPinned && !mouseInHeader) {
+        hideTimer = setTimeout(() => { visible.value = false; }, 3000);
+      }
+    }
+
     onMounted(() => {
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('touchstart', onMouseMove);
+      document.addEventListener('click', onDocClick);
       // Load custom scenes from localStorage
       store.customScenes = loadCustomScenes();
     });
@@ -43,6 +87,7 @@ export default {
     onUnmounted(() => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('touchstart', onMouseMove);
+      document.removeEventListener('click', onDocClick);
       clearTimeout(hideTimer);
     });
 
@@ -312,133 +357,159 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, onHeaderMouseEnter, onHeaderMouseLeave };
   },
 
   template: `
-    <header class="page-header" :class="{ 'is-visible': visible }" v-show="!store.lockMode">
+    <header class="page-header" :class="{ 'is-visible': visible }" v-show="!store.lockMode"
+            @mouseenter="onHeaderMouseEnter" @mouseleave="onHeaderMouseLeave">
 
+      <!-- ROW 1: Identity + Channel/Scene -->
       <div class="header-row">
-        <a class="header-title" href="https://github.com/billroy/bizzbox" target="_blank" rel="noopener">BIZZBOX</a>
-
-        <div class="header-sep"></div>
-
-        <div class="conn-status">
-          <div class="conn-dot" :class="{ connected }"></div>
-          <span class="conn-label">{{ connected ? 'LIVE' : 'OFFLINE' }}</span>
+        <div class="header-group">
+          <a class="header-title" href="https://github.com/billroy/bizzbox" target="_blank" rel="noopener">BIZZBOX</a>
+          <div class="conn-status">
+            <div class="conn-dot" :class="{ connected }"></div>
+            <span class="conn-label">{{ connected ? 'LIVE' : 'OFFLINE' }}</span>
+          </div>
+          <span class="viewer-count" v-if="connected">{{ channelViewers }}/{{ totalClients }}</span>
         </div>
-        <span class="viewer-count" v-if="connected">{{ channelViewers }}/{{ totalClients }} Watching</span>
 
-        <div class="header-sep"></div>
-
-        <span class="header-label">CHANNEL</span>
-        <select class="header-select" :value="currentChannel" @change="switchChannel($event)">
-          <option v-for="ch in channels" :key="ch.id" :value="ch.id">
-            {{ ch.name }} ({{ ch.viewers }})
-          </option>
-        </select>
-        <button class="header-btn" @click="createChannel"
-                :disabled="channels.length >= maxChannels"
-                :title="channels.length >= maxChannels ? 'Max channels reached' : 'Create new channel'">+</button>
-
-        <div class="header-sep"></div>
-
-        <span class="header-label">SCENE</span>
-        <select class="header-select" @change="applyScene">
-          <option value="">---</option>
-          <option v-for="s in scenes" :key="s.name" :value="s.name">{{ s.name.toUpperCase() }}</option>
-          <option v-if="customScenes.length" disabled>────</option>
-          <option v-for="s in customScenes" :key="'c_'+s.name" :value="s.name">{{ s.name.toUpperCase() }} *</option>
-        </select>
-        <button class="header-btn" @click="saveScene" title="Save current config as scene">SAVE</button>
-        <button class="header-btn" @click="doExportScenes" title="Copy custom scenes to clipboard">EXPORT</button>
-        <button class="header-btn" @click="doImportScenes" title="Import scenes from JSON">IMPORT</button>
-        <button class="header-btn" @click="shareScene" title="Copy shareable URL for current config">SHARE</button>
-
-        <div class="header-sep"></div>
-
-        <span class="header-label">STYLE</span>
-        <select class="header-select" v-model="style">
-          <option value="dark">DARK</option>
-          <option value="light">LIGHT</option>
-          <option value="brutalist">BRUTALIST</option>
-          <option value="neon">NEON</option>
-          <option value="rainbow">RAINBOW</option>
-          <option value="sunshine">SUNSHINE</option>
-          <option value="red">RED</option>
-          <option value="black">BLACK</option>
-          <option value="lcars">LCARS</option>
-          <option value="amber">AMBER</option>
-          <option value="arctic">ARCTIC</option>
-          <option value="synthwave">SYNTHWAVE</option>
-          <option value="military">MILITARY</option>
-          <option value="ocean">OCEAN</option>
-          <option value="forest">FOREST</option>
-          <option value="copper">COPPER</option>
-          <option value="vapor">VAPOR</option>
-          <option value="infrared">INFRARED</option>
-          <option value="phosphor">PHOSPHOR</option>
-          <option value="blueprint">BLUEPRINT</option>
-          <option value="sunset">SUNSET</option>
-          <option value="matrix">MATRIX</option>
-          <option value="frost">FROST</option>
-        </select>
-
-        <div class="header-sep"></div>
-
-        <span class="header-label">LAYOUT</span>
-        <select class="header-select" v-model="layout">
-          <option v-for="p in gridPresets" :key="p.label" :value="p.cols + 'x' + p.rows">
-            {{ p.label }}
-          </option>
-        </select>
-
-        <div class="header-sep"></div>
-
-        <span class="header-label">INTENSITY</span>
-        <input class="header-input" type="range" min="1" max="20"
-               :value="intensity" @input="intensity = $event.target.value" />
-        <span class="intensity-value">{{ intensity }}</span>
-
-        <div class="header-sep"></div>
-
-        <span class="header-label">WINDOWS</span>
-        <input class="header-input" type="range" min="0" max="20"
-               :value="fgTarget" @input="fgTarget = $event.target.value" />
-        <span class="intensity-value">{{ fgTarget }}</span>
+        <div class="header-group">
+          <div class="group-section">
+            <span class="group-label">CHANNEL</span>
+            <select class="header-select" :value="currentChannel" @change="switchChannel($event)">
+              <option v-for="ch in channels" :key="ch.id" :value="ch.id">
+                {{ ch.name }} ({{ ch.viewers }})
+              </option>
+            </select>
+            <button class="header-btn" @click="createChannel"
+                    :disabled="channels.length >= maxChannels"
+                    :title="channels.length >= maxChannels ? 'Max channels reached' : 'Create new channel'">+</button>
+          </div>
+          <div class="group-section">
+            <span class="group-label">SCENE</span>
+            <select class="header-select" @change="applyScene">
+              <option value="">---</option>
+              <option v-for="s in scenes" :key="s.name" :value="s.name">{{ s.name.toUpperCase() }}</option>
+              <option v-if="customScenes.length" disabled>────</option>
+              <option v-for="s in customScenes" :key="'c_'+s.name" :value="s.name">{{ s.name.toUpperCase() }} *</option>
+            </select>
+            <div class="scene-actions-wrapper">
+              <button class="header-btn scene-actions-trigger"
+                      @click.stop="toggleSceneActions"
+                      title="Scene actions: save, export, import, share">...</button>
+              <div class="scene-actions-menu" v-show="sceneActionsOpen">
+                <button class="scene-action-item" @click="saveScene(); sceneActionsOpen = false">Save Scene</button>
+                <button class="scene-action-item" @click="doExportScenes(); sceneActionsOpen = false">Export Scenes</button>
+                <button class="scene-action-item" @click="doImportScenes(); sceneActionsOpen = false">Import Scenes</button>
+                <button class="scene-action-item" @click="shareScene(); sceneActionsOpen = false">Share Scene URL</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
+      <!-- ROW 2: Appearance + Activity -->
       <div class="header-row">
-        <select class="header-select" v-model="spawnType">
-          <option :value="null">RANDOM</option>
-          <option v-for="t in activityTypes" :key="t" :value="t">
-            {{ t.toUpperCase().replace(/_/g, ' ') }}
-          </option>
-        </select>
-        <button class="header-btn" @click="spawnWindow" title="Spawn new window">+</button>
-        <button class="header-btn" @click="randomize" title="Randomize all activities">SHUFFLE</button>
-        <button class="header-btn" @click="openFilter" title="Filter activity types">FILTER</button>
+        <div class="header-group">
+          <div class="group-section">
+            <span class="group-label">THEME</span>
+            <select class="header-select" v-model="style">
+              <option value="dark">DARK</option>
+              <option value="light">LIGHT</option>
+              <option value="brutalist">BRUTALIST</option>
+              <option value="neon">NEON</option>
+              <option value="rainbow">RAINBOW</option>
+              <option value="sunshine">SUNSHINE</option>
+              <option value="red">RED</option>
+              <option value="black">BLACK</option>
+              <option value="lcars">LCARS</option>
+              <option value="amber">AMBER</option>
+              <option value="arctic">ARCTIC</option>
+              <option value="synthwave">SYNTHWAVE</option>
+              <option value="military">MILITARY</option>
+              <option value="ocean">OCEAN</option>
+              <option value="forest">FOREST</option>
+              <option value="copper">COPPER</option>
+              <option value="vapor">VAPOR</option>
+              <option value="infrared">INFRARED</option>
+              <option value="phosphor">PHOSPHOR</option>
+              <option value="blueprint">BLUEPRINT</option>
+              <option value="sunset">SUNSET</option>
+              <option value="matrix">MATRIX</option>
+              <option value="frost">FROST</option>
+            </select>
+          </div>
+          <div class="group-section">
+            <span class="group-label">LAYOUT</span>
+            <select class="header-select" v-model="layout">
+              <option v-for="p in gridPresets" :key="p.label" :value="p.cols + 'x' + p.rows">
+                {{ p.label }}
+              </option>
+            </select>
+          </div>
+          <div class="group-section">
+            <span class="group-label" title="Controls animation speed and visual complexity">ENERGY</span>
+            <input class="header-input" type="range" min="1" max="20"
+                   :value="intensity" @input="intensity = $event.target.value" />
+            <span class="range-value">{{ intensity }}</span>
+          </div>
+        </div>
+
+        <div class="header-group">
+          <div class="group-section">
+            <span class="group-label">SPAWN</span>
+            <select class="header-select" v-model="spawnType">
+              <option :value="null">RANDOM</option>
+              <option v-for="t in activityTypes" :key="t" :value="t">
+                {{ t.toUpperCase().replace(/_/g, ' ') }}
+              </option>
+            </select>
+            <button class="header-btn" @click="spawnWindow" title="Spawn new window">+</button>
+          </div>
+          <button class="header-btn" @click="randomize" title="Randomize all activities">SHUFFLE</button>
+          <button class="header-btn" @click="openFilter" title="Filter activity types">FILTER</button>
+          <div class="group-section">
+            <span class="group-label" title="Number of floating foreground windows">WIN COUNT</span>
+            <input class="header-input" type="range" min="0" max="20"
+                   :value="fgTarget" @input="fgTarget = $event.target.value" />
+            <span class="range-value">{{ fgTarget }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 3: Media + Utility -->
+      <div class="header-row">
+        <div class="header-group">
+          <button class="header-btn" @click="muted = !muted"
+                  :class="{ active: muted }">
+            {{ muted ? 'MUTED' : 'SOUND' }}
+          </button>
+          <div class="group-section">
+            <span class="group-label">AMBIENT</span>
+            <select class="header-select" v-model="ambientPreset">
+              <option value="">NONE</option>
+              <option v-for="p in ambientPresets" :key="p.key" :value="p.key">
+                {{ p.label.toUpperCase() }}
+              </option>
+            </select>
+          </div>
+        </div>
 
         <div class="header-spacer"></div>
 
-        <button class="header-btn" @click="muted = !muted"
-                :class="{ active: muted }">
-          {{ muted ? 'MUTED' : 'SOUND' }}
-        </button>
-
-        <span class="header-label">AMBIENT</span>
-        <select class="header-select" v-model="ambientPreset">
-          <option value="">NONE</option>
-          <option v-for="p in ambientPresets" :key="p.key" :value="p.key">
-            {{ p.label.toUpperCase() }}
-          </option>
-        </select>
-
-        <button class="header-btn" @click="toggleFullscreen">
-          {{ isFullscreen ? 'EXIT FS' : 'FULLSCR' }}
-        </button>
-
-        <button class="header-btn" @click="resetPrefs" title="Reset all saved preferences">RESET</button>
+        <div class="header-group">
+          <button class="header-btn" @click="toggleFullscreen">
+            {{ isFullscreen ? 'EXIT FS' : 'FULLSCR' }}
+          </button>
+          <button class="header-btn header-btn--pin"
+                  :class="{ active: store.headerPinned }"
+                  @click="togglePin"
+                  :title="store.headerPinned ? 'Unpin header (Space)' : 'Pin header open (Space)'">PIN</button>
+          <button class="header-btn header-btn--danger" @click="resetPrefs"
+                  title="Reset all saved preferences to defaults">RESET</button>
+        </div>
       </div>
 
     </header>

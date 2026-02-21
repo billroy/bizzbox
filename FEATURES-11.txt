@@ -1,0 +1,9 @@
+
+Header Redesign
+- The header control layout has kind of grown over time to a point where it could benefit from a review and reorganization
+- Propose a beautiful, functional reorganization of the header 
+- Group related controls near each other and make it visually evident they are related
+- Make the fonts much bigger for readability
+- It's okay if the header size grows up to as much as 1/3 of the page if it is required to make room for the readjustments
+- Review usability of the control set and make any suggestions to improve or change the control set or wording for usability
+
