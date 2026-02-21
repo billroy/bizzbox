@@ -126,7 +126,7 @@ export const THEME_LIST = [
   'sunshine', 'red', 'black', 'lcars', 'amber', 'arctic',
   'synthwave', 'military', 'ocean', 'forest', 'copper',
   'vapor', 'infrared', 'phosphor', 'blueprint', 'sunset',
-  'matrix', 'frost',
+  'matrix', 'frost', 'agent',
 ];
 
 // ── Toast helper ────────────────────────────────────────────

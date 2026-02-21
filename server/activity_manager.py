@@ -358,8 +358,17 @@ class ActivityManager:
         self._pinned_slots.pop(slot, None)
 
     def set_activity_filter(self, allowed_types: set[str] | None):
-        """Set the activity type filter. None or empty set means all allowed."""
+        """Set the activity type filter. None or empty set means all allowed.
+        Immediately recycles background activities that don't match the new filter."""
         self._allowed_types = allowed_types if allowed_types else None
+        # Force-recycle background slots whose type isn't in the new allowed set
+        if self._allowed_types:
+            now = time.time()
+            for act_id, rec in list(self._activities.items()):
+                if rec.despawning or rec.is_foreground:
+                    continue
+                if rec.generator.activity_type not in self._allowed_types:
+                    self._initiate_despawn(rec, now)
 
     def configure_slots(self, slots: list[str]):
         """Bulk-pin and replace all background slots with specified types.

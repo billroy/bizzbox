@@ -883,3 +883,38 @@
   --scan-line-color:      rgba(160, 216, 255, 0.02);
   --grid-dot-color:       rgba(160, 216, 255, 0.04);
 }
+
+/* ── AGENT ────────────────────────────────────────────────── */
+:root[data-theme="agent"] {
+  --color-bg:             #080410;
+  --color-surface:        #100a1c;
+  --color-surface-2:      #180e28;
+  --color-border:         #2a1848;
+  --color-border-bright:  #4a2878;
+  --color-text-primary:   #c0b0e0;
+  --color-text-dim:       #4a3868;
+  --color-text-bright:    #e8d8ff;
+  --color-accent-1:       #b040ff;
+  --color-accent-2:       #00e8a0;
+  --color-accent-3:       #ff6040;
+  --color-warn:           #f0c020;
+  --color-error:          #ff3838;
+  --color-crit:           #ff40a0;
+  --color-debug:          #4a3868;
+  --color-info:           #b040ff;
+  --color-glow-1:         rgba(176, 64, 255, 0.15);
+  --color-glow-2:         rgba(0, 232, 160, 0.08);
+
+  --titlebar-bg:          #100a1c;
+  --titlebar-border:      #2a1848;
+  --titlebar-text:        #b040ff;
+  --titlebar-dot-color:   #00e8a0;
+  --header-bg:            rgba(8, 4, 16, 0.94);
+  --header-border:        #2a1848;
+
+  --window-shadow:        0 0 0 1px var(--color-border-bright),
+                          0 8px 32px rgba(0, 0, 0, 0.7),
+                          0 0 28px var(--color-glow-1);
+  --scan-line-color:      rgba(176, 64, 255, 0.03);
+  --grid-dot-color:       rgba(176, 64, 255, 0.06);
+}

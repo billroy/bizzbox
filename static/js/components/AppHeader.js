@@ -439,6 +439,7 @@ export default {
               <option value="sunset">SUNSET</option>
               <option value="matrix">MATRIX</option>
               <option value="frost">FROST</option>
+              <option value="agent">AGENT</option>
             </select>
           </div>
           <div class="group-section">

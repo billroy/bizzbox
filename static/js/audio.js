@@ -873,6 +873,19 @@ const AMBIENT_PRESETS = {
     const sub = makeOsc(ctx, dest, now, 28, 'sine', 0.15);            // deep dread drone
     return [wind, windLfo, creak, creak2, organ, organ2, rattle, sub];
   },
+
+  // Agent den: ominous throbbing bass — deep sub-bass with slow menacing pulse
+  agent_den(ctx, dest, now) {
+    const sub1 = makeOsc(ctx, dest, now, 32, 'sine', 0.45);             // deep sub-bass
+    const sub2 = makeOsc(ctx, dest, now, 32.4, 'sine', 0.45);           // beating against sub1
+    const throb = makeLFO(ctx, dest, now, 0.4, 0.18);                   // slow throb modulation
+    const mid = makeOsc(ctx, dest, now, 64, 'triangle', 0.12);          // low-mid menace
+    const midLfo = makeLFO(ctx, dest, now, 0.15, 0.06);                 // slow mid swell
+    const rumble = makeNoise(ctx, dest, now, 120, 0.8, 0.08);           // dark rumble texture
+    const dread = makeOsc(ctx, dest, now, 48, 'sawtooth', 0.04);        // subtle dread edge
+    const dreadLfo = makeLFO(ctx, dest, now, 0.08, 0.03);               // very slow menace drift
+    return [sub1, sub2, throb, mid, midLfo, rumble, dread, dreadLfo];
+  },
 };
 
 /** Ordered list of ambient preset names for UI */
@@ -908,6 +921,7 @@ export const AMBIENT_PRESET_LIST = [
   { key: 'circuit_board',    label: 'Circuit Board' },
   { key: 'volcano',          label: 'Volcano' },
   { key: 'haunted',          label: 'Haunted Mansion' },
+  { key: 'agent_den',        label: 'Agent Den' },
 ];
 
 export const audio = new AudioEngine();
