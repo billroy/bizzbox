@@ -44,6 +44,8 @@ class ChannelStats:
     sparkline: list = field(default_factory=lambda: [0] * 60)  # last 60 1-second buckets
     spark_second: int = 0  # floor(time) of current bucket
     type_bytes: dict = field(default_factory=dict)  # activity_type -> total bytes
+    total_clients: int = 0       # from channel:viewers (excludes monitors)
+    channel_viewers: int = 0     # viewers on this specific channel
 
     def record(self, ts: float, size: int, event_name: str):
         self.rolling.append((ts, size))
@@ -83,6 +85,12 @@ class ChannelStats:
         if not self.rolling:
             return 0.0
         return sum(s for _, s in self.rolling) / len(self.rolling)
+
+    def estimated_total_bps(self) -> float:
+        """Estimate total bandwidth: per-client * non-monitor clients."""
+        bps = self.bytes_per_sec()
+        clients = max(1, self.total_clients)  # totalClients already excludes monitors
+        return bps * clients
 
 
 # ── Formatting helpers ─────────────────────────────────────────────
@@ -315,6 +323,11 @@ class SocketMonitor:
             stats.record(ts, size, event_name)
         self.total_stats.record(ts, size, event_name)
 
+        # Track viewer counts from channel:viewers
+        if event_name == "channel:viewers" and stats:
+            stats.total_clients = payload.get("totalClients", 0)
+            stats.channel_viewers = payload.get("channelViewers", 0)
+
         # Track per-type bytes for activity:update
         if event_name == "activity:update" and stats:
             # We don't know the activity type from the event alone,
@@ -480,7 +493,8 @@ class SocketMonitor:
         title = f"BizzBox Monitor │ {self.host}:{self.port} │ {hrs:d}:{mins:02d}:{secs:02d}"
         total_eps = self.total_stats.events_per_sec()
         total_bps = self.total_stats.bytes_per_sec()
-        metrics = f"{total_eps:.0f} evt/s  {format_size(int(total_bps))}/s"
+        total_est = sum(st.estimated_total_bps() for st in self.channel_stats.values())
+        metrics = f"{total_eps:.0f} evt/s  ({format_size(int(total_bps))}/{format_size(int(total_est))})/s"
 
         # Compose line
         line = f" {title} │ {metrics} │ {channels_str} "
@@ -503,7 +517,9 @@ class SocketMonitor:
             avg = st.avg_bytes()
             spark = sparkline(st.sparkline, min(20, width - 50))
 
-            line = (f" CH{cid}: {eps:5.0f} evt/s  {format_size(int(bps)):>6s}/s"
+            est_total = st.estimated_total_bps()
+            bw_display = f"({format_size(int(bps))}/{format_size(int(est_total))})"
+            line = (f" CH{cid}: {eps:5.0f} evt/s  {bw_display:>14s}/s"
                     f"  avg={format_size(int(avg)):>5s}  {spark}")
             color = curses.color_pair(4) if st.connected else curses.color_pair(2)
             try:

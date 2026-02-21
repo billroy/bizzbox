@@ -1,6 +1,12 @@
 /**
  * Preset scene definitions + custom scene persistence.
  */
+import { ACTIVITY_TYPES } from './activityTypes.js';
+
+// Dynamic Feature Zoo: one of each activity type in selector order
+const zooCols = 10;
+const zooRows = Math.ceil(ACTIVITY_TYPES.length / zooCols);  // 6 rows for 57 types (60 slots, 3 empty)
+
 export const SCENES = [
   { name: 'War Room',        style: 'red',       cols: 6, rows: 4, intensity: 15, fgTarget: 5,  ambientPreset: 'war_room',         filter: null },
   { name: 'Ambient',         style: 'dark',      cols: 3, rows: 2, intensity: 2,  fgTarget: 0,  ambientPreset: 'deep_space',       filter: null },
@@ -28,6 +34,7 @@ export const SCENES = [
   { name: 'Jungle Outpost',  style: 'forest',     cols: 5, rows: 3, intensity: 9,  fgTarget: 3,  ambientPreset: 'jungle_night',     filter: ['weather_radar', 'geo_map', 'satellite_telemetry', 'radar', 'seismograph', 'notifications'] },
   { name: 'Eruption',        style: 'matrix',     cols: 6, rows: 4, intensity: 17, fgTarget: 7,  ambientPreset: 'volcano',          filter: ['seismograph', 'power_grid', 'resource_gauges', 'weather_radar', 'countdown', 'notifications', 'graph', 'oscilloscope'] },
   { name: 'Frozen Vault',    style: 'frost',      cols: 4, rows: 3, intensity: 8,  fgTarget: 2,  ambientPreset: 'ice_cave',         filter: ['blockchain', 'cipher_decrypt', 'access_control', 'data_table', 'server_rack', 'hex_dump'] },
+  { name: 'Feature Zoo',    style: 'dark',       cols: zooCols, rows: zooRows, intensity: 5,  fgTarget: 0,  ambientPreset: null, filter: null, slots: [...ACTIVITY_TYPES] },
 ];
 
 const CUSTOM_KEY = 'bizzbox_custom_scenes';

@@ -215,5 +215,9 @@ def make_activity(activity_type: str = None, activity_id: str = None,
     """Instantiate an activity generator of the given type (or random if None)."""
     if activity_type is None:
         activity_type = random_type(allowed=allowed_types, exclude=exclude_types)
-    cls = REGISTRY[activity_type]
+    cls = REGISTRY.get(activity_type)
+    if cls is None:
+        # Unknown type — fall back to random
+        activity_type = random_type(allowed=allowed_types, exclude=exclude_types)
+        cls = REGISTRY[activity_type]
     return cls(activity_id=activity_id, intensity=intensity)

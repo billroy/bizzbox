@@ -341,6 +341,10 @@ export function sendUnpinSlot(slot) {
   if (_socket) _socket.emit('window:unpin', { slot });
 }
 
+export function sendConfigureSlots(slots) {
+  if (_socket) _socket.emit('configure:slots', { slots });
+}
+
 // ── Channel helpers ─────────────────────────────────────────
 
 export function sendChannelCreate() {

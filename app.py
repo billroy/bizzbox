@@ -100,8 +100,8 @@ def create_app(config: AppConfig):
     @socketio.on("configure:layout")
     def on_layout(data):
         from flask import request
-        cols = max(1, min(6, int(data.get("cols", 6))))
-        rows = max(1, min(8, int(data.get("rows", 4))))
+        cols = max(1, min(10, int(data.get("cols", 6))))
+        rows = max(1, min(10, int(data.get("rows", 4))))
         sync_manager.set_channel_layout(request.sid, cols, rows)
         room = sync_manager.get_room_for_client(request.sid)
         sync_manager.set_layout(request.sid, cols, rows)
@@ -121,6 +121,13 @@ def create_app(config: AppConfig):
         from flask import request
         allowed = data.get("allowed")  # list of type names or None
         sync_manager.set_activity_filter(request.sid, allowed)
+
+    @socketio.on("configure:slots")
+    def on_configure_slots(data):
+        from flask import request
+        slots = data.get("slots")  # list of type_name strings, indexed by slot
+        if slots and isinstance(slots, list):
+            sync_manager.configure_slots(request.sid, slots)
 
     @socketio.on("window:replace")
     def on_window_replace(data):

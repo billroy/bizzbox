@@ -361,6 +361,29 @@ class ActivityManager:
         """Set the activity type filter. None or empty set means all allowed."""
         self._allowed_types = allowed_types if allowed_types else None
 
+    def configure_slots(self, slots: list[str]):
+        """Bulk-pin and replace all background slots with specified types.
+
+        ``slots`` is a list where index = slot number, value = activity type name.
+        Slots beyond current grid size are ignored.  Unknown types are skipped.
+        """
+        from server.activity_registry import REGISTRY
+        # Pin each slot (skip unknown types)
+        self._pinned_slots.clear()
+        for i, type_name in enumerate(slots):
+            if i < self._bg_count and type_name and type_name in REGISTRY:
+                self._pinned_slots[i] = type_name
+
+        # Replace background activities whose type doesn't match the pin
+        for slot_idx in range(min(len(slots), self._bg_count)):
+            if slot_idx not in self._pinned_slots:
+                continue  # unknown type was skipped
+            act_id = self._bg_slots[slot_idx]
+            if act_id and act_id in self._activities:
+                rec = self._activities[act_id]
+                if not rec.despawning and rec.generator.activity_type != self._pinned_slots[slot_idx]:
+                    self.replace_window(act_id, self._pinned_slots[slot_idx])
+
     def get_full_state(self) -> dict:
         """Return complete state for sync:init payload."""
         activities = []

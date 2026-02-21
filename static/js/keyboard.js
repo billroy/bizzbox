@@ -2,7 +2,7 @@
  * Keyboard shortcut handler + lock mode.
  */
 import { store, savePrefs, showToast, THEME_LIST } from './store.js';
-import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendActivityFilter, sendChannelSwitch, sendChannelCreate } from './socket.js';
+import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendActivityFilter, sendChannelSwitch, sendChannelCreate, sendConfigureSlots } from './socket.js';
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 import { SCENES } from './scenes.js';
 import { ACTIVITY_TYPES } from './activityTypes.js';
@@ -62,6 +62,13 @@ export function applyScene(scene) {
     for (const t of ACTIVITY_TYPES) filterObj[t] = true;
     store.activityFilter = filterObj;
     sendActivityFilter(ACTIVITY_TYPES);
+  }
+  // Bulk slot assignment (e.g. Feature Zoo)
+  if (scene.slots && Array.isArray(scene.slots)) {
+    // Delay to let layout resize settle before assigning slots
+    setTimeout(() => {
+      sendConfigureSlots(scene.slots);
+    }, 500);
   }
   savePrefs();
 }

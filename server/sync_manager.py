@@ -354,6 +354,11 @@ class SyncManager:
         if manager:
             manager.set_activity_filter(allowed)
 
+    def configure_slots(self, sid: str, slots: list[str]):
+        manager = self._get_manager_for_sid(sid)
+        if manager:
+            manager.configure_slots(slots)
+
     def pin_slot(self, sid: str, slot: int, type_name: str):
         manager = self._get_manager_for_sid(sid)
         if manager:
