@@ -7,6 +7,7 @@ import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '../activityTypes.js';
 import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportScenes, importScenes, encodeSceneToBase64 } from '../scenes.js';
 import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
+import { copyConfigUrl } from '../configUrl.js';
 
 export default {
   name: 'AppHeader',
@@ -290,6 +291,27 @@ export default {
     }
 
     function shareScene() {
+      // Check if current config matches a built-in scene — use vanity URL if so
+      const builtinMatch = SCENES.find(s => {
+        if (s.style !== store.config.style) return false;
+        if (store.grid && (s.cols !== store.grid.cols || s.rows !== store.grid.rows)) return false;
+        if (s.intensity !== store.config.intensity) return false;
+        if ((s.ambientPreset || null) !== (store.ambientPreset || null)) return false;
+        return true;
+      });
+
+      if (builtinMatch) {
+        const slug = builtinMatch.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const url = `${window.location.origin}/${slug}`;
+        navigator.clipboard.writeText(url).then(() => {
+          window.alert('Scene URL copied to clipboard!');
+        }).catch(() => {
+          window.prompt('Copy this URL:', url);
+        });
+        return;
+      }
+
+      // Fall back to scene_data encoding for custom configs
       const scene = {
         name: 'Shared Scene',
         style: store.config.style,
@@ -300,7 +322,6 @@ export default {
         ambientPreset: store.ambientPreset || null,
         filter: null,
       };
-      // Include current activity filter if not "all enabled"
       const allEnabled = ACTIVITY_TYPES.every(t => store.activityFilter[t]);
       if (!allEnabled) {
         scene.filter = ACTIVITY_TYPES.filter(t => store.activityFilter[t]);
@@ -314,8 +335,42 @@ export default {
       });
     }
 
+    function copyConfigLink() {
+      copyConfigUrl().then(() => {
+        import('../store.js').then(m => m.showToast('CONFIG URL COPIED'));
+      });
+    }
+
+    async function takeScreenshot() {
+      const header = document.querySelector('.page-header');
+      if (header) header.style.display = 'none';
+      try {
+        // Brief flash for feedback
+        const flash = document.createElement('div');
+        flash.className = 'screenshot-flash';
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 300);
+
+        const canvas = await html2canvas(document.body, {
+          backgroundColor: null,
+          scale: window.devicePixelRatio || 1,
+          logging: false,
+        });
+        const link = document.createElement('a');
+        link.download = `bizzbox-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } finally {
+        if (header) header.style.display = '';
+      }
+    }
+
     function openFilter() {
       store.filterModalOpen = true;
+    }
+
+    function openEmbed() {
+      store.embedModalOpen = true;
     }
 
     function resetPrefs() {
@@ -357,7 +412,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, openFilter, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, onHeaderMouseEnter, onHeaderMouseLeave };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, onHeaderMouseEnter, onHeaderMouseLeave };
   },
 
   template: `
@@ -404,6 +459,7 @@ export default {
                 <button class="scene-action-item" @click="doExportScenes(); sceneActionsOpen = false">Export Scenes</button>
                 <button class="scene-action-item" @click="doImportScenes(); sceneActionsOpen = false">Import Scenes</button>
                 <button class="scene-action-item" @click="shareScene(); sceneActionsOpen = false">Share Scene URL</button>
+                <button class="scene-action-item" @click="openEmbed(); sceneActionsOpen = false">Embed Code</button>
               </div>
             </div>
           </div>
@@ -501,6 +557,8 @@ export default {
         <div class="header-spacer"></div>
 
         <div class="header-group">
+          <button class="header-btn" @click="takeScreenshot" title="Save screenshot as PNG">SNAP</button>
+          <button class="header-btn" @click="copyConfigLink" title="Copy shareable config URL to clipboard">LINK</button>
           <button class="header-btn" @click="toggleFullscreen">
             {{ isFullscreen ? 'EXIT FS' : 'FULLSCR' }}
           </button>

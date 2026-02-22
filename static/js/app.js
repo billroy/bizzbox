@@ -12,6 +12,7 @@ import ForegroundLayer from './components/ForegroundLayer.js';
 import ActivityWindow  from './components/ActivityWindow.js';
 import HelpOverlay     from './components/HelpOverlay.js';
 import FilterModal     from './components/FilterModal.js';
+import EmbedModal      from './components/EmbedModal.js';
 import Toast           from './components/Toast.js';
 
 // Activity renderers
@@ -83,6 +84,7 @@ const RootComponent = {
     ForegroundLayer,
     HelpOverlay,
     FilterModal,
+    EmbedModal,
     Toast,
   },
   setup() {
@@ -103,6 +105,12 @@ const RootComponent = {
       };
       document.addEventListener('click', enterFs, { once: true });
       document.addEventListener('keydown', enterFs, { once: true });
+    }
+
+    // OBS mode: transparent background for use as OBS browser source
+    if (urlOverrides.obs) {
+      document.documentElement.classList.add('obs-mode');
+      store.lockMode = true;
     }
 
     // Viewer mode: simplified mobile experience — hides chrome, allows gestures + tap info
@@ -192,6 +200,7 @@ const RootComponent = {
     <ForegroundLayer v-if="store.grid" />
     <HelpOverlay v-if="store.helpOverlay" />
     <FilterModal v-if="store.filterModalOpen" />
+    <EmbedModal v-if="store.embedModalOpen" />
     <Toast />
     <div v-if="store.lockMode" class="lock-overlay"></div>
     <div v-if="store.viewerMode && viewerInfoVisible" class="viewer-info-bar">

@@ -8,12 +8,13 @@ import os
 import gevent.monkey
 gevent.monkey.patch_all()
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO
 
 from server.config import AppConfig
 from server.event_emitter import EventEmitter
 from server.sync_manager import SyncManager
+from server.scene_slugs import SCENE_SLUGS
 
 
 def create_app(config: AppConfig):
@@ -32,6 +33,13 @@ def create_app(config: AppConfig):
 
     emitter = EventEmitter(socketio)
     sync_manager = SyncManager(socketio, emitter, config)
+
+    @app.route("/<slug>")
+    def scene_vanity(slug):
+        scene_name = SCENE_SLUGS.get(slug.lower())
+        if scene_name:
+            return redirect(f"/?scene={scene_name}", code=302)
+        return render_template("index.html")
 
     @app.route("/")
     def index():

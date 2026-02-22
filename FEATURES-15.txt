@@ -1,0 +1,619 @@
+FEATURES-15: OBS Mode, Vanity URLs, Screenshot, Embed, Filter Search, Config Links
+================================================================================
+Date: 2026-02-22
+Source: BizzBox_Roadmap.docx — "Quick wins" batch
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE 1: ?obs=1 Transparent Background Mode
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Effort: XS (1 CSS rule + 1 URL param)
+
+PURPOSE
+  Unlocks BizzBox as an OBS Browser Source. OBS composites transparent areas
+  with the layer below, so setting background to transparent makes BizzBox a
+  live overlay on top of a camera feed, game capture, or other scene.
+
+CURRENT STATE
+  - URL params parsed in store.js:11-28 (parseUrlOverrides). Already supports
+    ?kiosk, ?viewer, ?lock — same pattern.
+  - Backgrounds come from CSS vars: --color-bg on html/body (layout.css:15),
+    .background-grid (layout.css:53), .bg-slot--empty (layout.css:66).
+  - CRT scanline overlay: body::after (layout.css:23-36).
+  - Boot screen uses var(--color-bg) (index.html:22).
+
+IMPLEMENTATION
+
+  1. store.js — add ?obs=1 param (1 line)
+     In parseUrlOverrides(), add:
+       if (params.has('obs')) o.obs = params.get('obs') === '1';
+
+  2. app.js — apply class on mount (2 lines)
+     In the setup function, after kiosk/viewer mode checks:
+       if (urlOverrides.obs) document.documentElement.classList.add('obs-mode');
+
+  3. layout.css — add .obs-mode rules (~8 lines)
+       html.obs-mode,
+       html.obs-mode body {
+         background: transparent !important;
+       }
+       html.obs-mode .background-grid {
+         background: transparent;
+       }
+       html.obs-mode .bg-slot--empty {
+         background: transparent;
+       }
+       html.obs-mode body::after {
+         display: none;                /* kill scanline overlay */
+       }
+       html.obs-mode .boot-screen {
+         background: transparent;
+       }
+
+  4. (Optional) Hide header in OBS mode by default — streamers won't need
+     controls. Consider auto-applying lock mode:
+       if (urlOverrides.obs) { urlOverrides.lock = true; }
+
+USAGE
+  OBS → Sources → Browser → URL:
+    https://bizzbox-lkbxm.ondigitalocean.app/?obs=1&scene=War%20Room&lock=1
+
+TESTING
+  - Open ?obs=1 in Chrome: background should show as white (browser's default
+    for transparent). Confirm no scanlines, no dark bg behind grid gaps.
+  - Activity content (tiles, windows) should render normally.
+  - In OBS, verify chroma-key-free transparency works.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE 2: Scene-Specific Vanity URLs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Effort: S (Flask route + slug lookup)
+
+PURPOSE
+  "bizzbox.app/war-room" is far more shareable than "?scene=War%20Room".
+  Improves SEO for scene names and looks professional in social shares.
+
+CURRENT STATE
+  - Single Flask route: @app.route("/") → render_template("index.html")
+    (app.py:36-38).
+  - 27 built-in scenes defined in scenes.js:10-39 with name field.
+  - ?scene=Name already works — socket.js applies it on sync:init.
+  - Custom scenes live in localStorage (not shareable server-side).
+
+DESIGN DECISION: Server redirect vs. client routing
+  Recommend server-side catch-all that redirects to /?scene=<name>.
+  Keeps the SPA architecture intact — no client-side router needed.
+
+IMPLEMENTATION
+
+  1. Create slug mapping (server/scene_slugs.py or inline dict in app.py)
+     Build from scene names: "War Room" → "war-room", "Hacker Den" → "hacker-den"
+
+       import re
+       SCENE_SLUGS = {
+           'war-room': 'War Room',
+           'ambient': 'Ambient',
+           'hacker-den': 'Hacker Den',
+           'mission-control': 'Mission Control',
+           'surveillance': 'Surveillance',
+           'chaos': 'Chaos',
+           'starship-bridge': 'Starship Bridge',
+           'agent-den': 'Agent Den',
+           'feature-zoo': 'Feature Zoo',
+           # ... all 27 scenes
+       }
+
+  2. app.py — add catch-all route BEFORE the "/" route:
+
+       from flask import redirect, url_for
+       from server.scene_slugs import SCENE_SLUGS
+
+       @app.route("/<slug>")
+       def scene_vanity(slug):
+           scene_name = SCENE_SLUGS.get(slug.lower())
+           if scene_name:
+               return redirect(f"/?scene={scene_name}", code=302)
+           # Unknown slug — serve main app (could show 404 or just load app)
+           return render_template("index.html")
+
+  3. (Optional) Generate <link rel="canonical"> and <meta og:url> for SEO.
+     Pass scene_name into Jinja template context:
+
+       @app.route("/<slug>")
+       def scene_vanity(slug):
+           scene_name = SCENE_SLUGS.get(slug.lower())
+           if scene_name:
+               return render_template("index.html", scene=scene_name, slug=slug)
+           return render_template("index.html")
+
+     In index.html <head>:
+       {% if scene %}<meta property="og:title" content="BizzBox — {{ scene }}">{% endif %}
+
+  4. Auto-generate slugs from SCENES to keep list in sync:
+       def slugify(name):
+           return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+
+  5. Update shareScene() in AppHeader.js to prefer vanity URL for built-in
+     scenes. Check if current scene matches a SCENES entry by name:
+       const slug = sceneName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+       const url = `${origin}/${slug}`;
+
+EDGE CASES
+  - Slug collision with static assets: won't happen — Flask serves /static/
+    via its own rule, which takes priority.
+  - Custom scenes: can't have vanity URLs (localStorage-only). Use
+    ?scene_data=BASE64 for those. Could add server-side custom scene
+    persistence later.
+
+TESTING
+  - GET /war-room → 302 redirect to /?scene=War%20Room → app loads scene.
+  - GET /nonexistent-slug → serves app normally (no crash).
+  - GET /static/js/app.js → still serves static file (no conflict).
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE 3: Screenshot Export Button
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Effort: S-M (html2canvas integration + header button)
+
+PURPOSE
+  One-click capture of the current display state — share on social media,
+  embed in docs, or archive a moment.
+
+CURRENT STATE
+  - No screenshot capability exists.
+  - Activities render via HTML/CSS (DOM elements, not <canvas>).
+  - Foreground windows are absolutely-positioned divs.
+  - Header auto-hides; needs to be hidden during capture.
+
+APPROACH: html2canvas
+  html2canvas renders the DOM to a <canvas>, then exports as PNG.
+  It's the de-facto standard for client-side screenshots. ~40KB gzipped.
+  Alternative: native browser APIs (not available cross-browser for full-page).
+
+IMPLEMENTATION
+
+  1. Add html2canvas library
+     Option A (CDN, simplest):
+       <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+     Option B (local copy, like socket.io and Vue):
+       Download to static/js/html2canvas.min.js, add <script> to index.html.
+     Recommend Option B for consistency with existing local-vendor approach.
+
+  2. AppHeader.js — add screenshot button to Row 3 utility group
+     Between FULLSCR and PIN buttons (AppHeader.js:503-510):
+
+       <button class="header-btn" @click="takeScreenshot" title="Save screenshot">SNAP</button>
+
+  3. AppHeader.js — add takeScreenshot function in setup():
+
+       async function takeScreenshot() {
+         // Temporarily hide header so it's not in the screenshot
+         const header = document.querySelector('.page-header');
+         if (header) header.style.display = 'none';
+
+         try {
+           const canvas = await html2canvas(document.body, {
+             backgroundColor: null,     // preserve transparent if OBS mode
+             scale: window.devicePixelRatio || 1,
+             useCORS: true,
+             logging: false,
+           });
+
+           // Trigger download
+           const link = document.createElement('a');
+           link.download = `bizzbox-${Date.now()}.png`;
+           link.href = canvas.toDataURL('image/png');
+           link.click();
+         } finally {
+           if (header) header.style.display = '';
+         }
+       }
+
+  4. (Optional) Add brief flash animation to indicate capture:
+       .screenshot-flash {
+         position: fixed; inset: 0;
+         background: white;
+         opacity: 0;
+         animation: flash 200ms ease-out;
+         pointer-events: none;
+         z-index: 9999;
+       }
+       @keyframes flash { 0% { opacity: 0.6; } 100% { opacity: 0; } }
+
+  5. Export to return object: add takeScreenshot to the setup return.
+
+CONSIDERATIONS
+  - html2canvas has known limitations with some CSS (backdrop-filter,
+    mix-blend-mode). Test with each theme.
+  - The CRT scanline overlay (body::after) may or may not render correctly —
+    test and potentially exclude it from capture.
+  - Large grids (10x6 Feature Zoo) will produce large PNGs.
+
+TESTING
+  - Click SNAP → PNG downloads with current timestamp name.
+  - Header should NOT appear in the screenshot.
+  - Test across themes: dark, neon, lcars, light, etc.
+  - Test with foreground windows visible.
+  - Test in OBS mode (?obs=1) — should get transparent PNG.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE 4: Embed Code Generator UI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Effort: S (modal dialog + URL builder)
+
+PURPOSE
+  One-click iframe snippet for embedding BizzBox in Notion, Confluence,
+  internal dashboards, or any page that supports iframes.
+
+CURRENT STATE
+  - shareScene() already serializes current config to a URL with ?scene_data=
+    (AppHeader.js:292-315). This is 80% of the logic needed.
+  - No modal/dialog for embed code exists.
+
+IMPLEMENTATION
+
+  1. New component: static/js/components/EmbedModal.js
+
+     Minimal modal with:
+       - Live-updating iframe preview (small thumbnail)
+       - Width/Height inputs (defaults: 1280 x 720)
+       - Checkboxes: Lock mode (hides header), Muted, OBS transparent
+       - Generated <iframe> code in a <textarea>
+       - COPY button
+
+  2. EmbedModal.js structure:
+
+     setup() {
+       const width = ref(1280);
+       const height = ref(720);
+       const lockMode = ref(true);
+       const muted = ref(true);
+       const obsMode = ref(false);
+
+       const embedUrl = computed(() => {
+         const params = new URLSearchParams();
+         // Serialize current scene
+         const scene = buildSceneFromCurrentState();  // reuse shareScene logic
+         params.set('scene_data', encodeSceneToBase64(scene));
+         if (lockMode.value) params.set('lock', '1');
+         if (muted.value) params.set('muted', '1');
+         if (obsMode.value) params.set('obs', '1');
+         return `${origin}/?${params}`;
+       });
+
+       const embedCode = computed(() =>
+         `<iframe src="${embedUrl.value}" width="${width.value}" ` +
+         `height="${height.value}" frameborder="0" allowfullscreen></iframe>`
+       );
+
+       function copyCode() {
+         navigator.clipboard.writeText(embedCode.value);
+       }
+
+       return { width, height, lockMode, muted, obsMode, embedCode, copyCode, close };
+     }
+
+  3. Template: modal overlay with retro BizzBox styling (.filter-overlay reuse):
+
+       <div class="filter-overlay" @click.self="close">
+         <div class="filter-panel embed-panel">
+           <div class="filter-title">EMBED CODE</div>
+           <div class="embed-options">
+             <label>Width: <input type="number" v-model="width" /></label>
+             <label>Height: <input type="number" v-model="height" /></label>
+             <label><input type="checkbox" v-model="lockMode" /> Lock mode</label>
+             <label><input type="checkbox" v-model="muted" /> Muted</label>
+             <label><input type="checkbox" v-model="obsMode" /> Transparent BG</label>
+           </div>
+           <textarea class="embed-code" readonly>{{ embedCode }}</textarea>
+           <button class="header-btn" @click="copyCode">COPY</button>
+           <div class="filter-close" @click="close">CLOSE</div>
+         </div>
+       </div>
+
+  4. Wire up:
+     - Add store.embedModalOpen = false to store.js
+     - Add "Embed Code" button to scene actions menu in AppHeader.js:402-407
+     - Register EmbedModal component in app.js
+     - Add to app.js root template: <embed-modal v-if="store.embedModalOpen" />
+
+  5. CSS (in layout.css):
+       .embed-panel { max-width: 600px; }
+       .embed-code {
+         width: 100%; height: 80px;
+         background: var(--color-surface);
+         color: var(--color-accent-1);
+         font-family: var(--font-mono);
+         font-size: 11px;
+         border: 1px solid var(--color-border);
+         resize: none;
+         padding: 8px;
+       }
+
+TESTING
+  - Open embed modal → code appears with current config baked in.
+  - Change width/height → code updates live.
+  - Toggle lock/muted/obs → URL params update.
+  - Click COPY → clipboard contains valid iframe HTML.
+  - Paste into Notion embed block → BizzBox renders.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE 5: Activity Search in Filter Modal (Enhancement)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Effort: XS (search already exists — improve it)
+
+PURPOSE
+  With 57+ activity types, finding a specific one by scrolling is painful.
+  A search box dramatically improves filter UX.
+
+CURRENT STATE — SEARCH ALREADY EXISTS!
+  FilterModal.js:26 — searchQuery ref
+  FilterModal.js:29-40 — filteredCategories computed filters by search
+  FilterModal.js:112 — <input class="filter-search" v-model="searchQuery">
+  Works: typing "radar" hides all categories/types except matches.
+
+  However, the UX can be improved:
+
+ENHANCEMENTS
+
+  1. Auto-focus search on modal open
+     FilterModal.js already has ref="searchInput" on the input.
+     Add onMounted:
+
+       const searchInput = ref(null);
+       onMounted(() => {
+         nextTick(() => { if (searchInput.value) searchInput.value.focus(); });
+       });
+
+     Currently uses the Vue template ref but doesn't auto-focus it.
+
+  2. Show match count
+     Below the search box, show "N of 57 types visible":
+
+       const matchCount = computed(() =>
+         filteredCategories.value.reduce((sum, c) => sum + c.types.length, 0)
+       );
+
+     Template:
+       <div class="filter-match-count" v-if="searchQuery">
+         {{ matchCount }} of {{ totalTypes }} types
+       </div>
+
+  3. Clear button (X) inside search input
+     When searchQuery is non-empty, show a clear button:
+
+       <div class="filter-search-wrap">
+         <input class="filter-search" v-model="searchQuery" ... />
+         <button v-if="searchQuery" class="filter-search-clear"
+                 @click="searchQuery = ''">✕</button>
+       </div>
+
+     CSS:
+       .filter-search-wrap { position: relative; }
+       .filter-search-clear {
+         position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+         background: none; border: none; color: var(--color-text-dim);
+         cursor: pointer; font-size: 14px;
+       }
+
+  4. Highlight matching text in results
+     In template, replace {{ formatName(t) }} with a highlight function:
+
+       function highlightMatch(name) {
+         if (!searchQuery.value) return name;
+         const q = searchQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+         return name.replace(new RegExp(`(${q})`, 'gi'), '<mark>$1</mark>');
+       }
+
+     Template uses v-html: <span v-html="highlightMatch(formatName(t))"></span>
+
+  5. (Optional) Keyboard shortcut: press "/" in filter modal to focus search.
+
+FILES CHANGED
+  - static/js/components/FilterModal.js (all changes)
+  - static/css/layout.css (minor: .filter-search-wrap, .filter-search-clear,
+    .filter-match-count, mark styling)
+
+TESTING
+  - Open filter → search auto-focuses.
+  - Type "radar" → only Weather Radar, Radar visible. Count shows "2 of 57".
+  - Clear button appears and works.
+  - Matched text is highlighted.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE 6: Right-Click "Copy Link to This Config"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Effort: S (context menu + URL serializer)
+
+PURPOSE
+  Right-click anywhere → "Copy link to this config" → clipboard gets a full
+  URL with every current setting. Faster than using the scene actions menu.
+
+CURRENT STATE
+  - shareScene() in AppHeader.js:292-315 builds a ?scene_data= URL from
+    current state. This is close, but it only captures scene-level params.
+  - BackgroundGrid.js has a right-click context menu for PIN SLOT
+    (lines 27-60, 72-109). Proves the right-click pattern works.
+  - No global right-click menu exists.
+
+DESIGN DECISION: Global context menu vs. dedicated button
+  Implement BOTH:
+  (a) A global right-click context menu (anywhere on the page, not on a slot).
+  (b) A "LINK" button in Row 3 of AppHeader for discoverability.
+
+IMPLEMENTATION
+
+  1. Create utility function: static/js/configUrl.js
+
+       import { store } from './store.js';
+       import { ACTIVITY_TYPES } from './activityTypes.js';
+       import { encodeSceneToBase64 } from './scenes.js';
+
+       /**
+        * Build a full shareable URL from current app state.
+        * Uses individual params (not scene_data) for readability.
+        */
+       export function buildConfigUrl() {
+         const params = new URLSearchParams();
+         params.set('style', store.config.style);
+         params.set('layout', `${store.grid.cols}x${store.grid.rows}`);
+         params.set('intensity', store.config.intensity);
+         params.set('windows', store.config.fgTarget);
+         if (store.config.muted) params.set('muted', '1');
+
+         // Activity filter: only include if not "all enabled"
+         const allEnabled = ACTIVITY_TYPES.every(t => store.activityFilter[t]);
+         if (!allEnabled) {
+           // Encode as scene_data to keep URL shorter
+           const scene = {
+             name: 'Shared',
+             style: store.config.style,
+             cols: store.grid.cols,
+             rows: store.grid.rows,
+             intensity: store.config.intensity,
+             fgTarget: store.config.fgTarget,
+             ambientPreset: store.ambientPreset || null,
+             filter: ACTIVITY_TYPES.filter(t => store.activityFilter[t]),
+           };
+           // Switch to scene_data encoding when filter is active
+           return `${origin}/?scene_data=${encodeSceneToBase64(scene)}`;
+         }
+
+         if (store.ambientPreset) {
+           // Ambient can't be set via basic params — use scene_data
+           const scene = {
+             name: 'Shared',
+             style: store.config.style,
+             cols: store.grid.cols,
+             rows: store.grid.rows,
+             intensity: store.config.intensity,
+             fgTarget: store.config.fgTarget,
+             ambientPreset: store.ambientPreset,
+             filter: null,
+           };
+           return `${origin}/?scene_data=${encodeSceneToBase64(scene)}`;
+         }
+
+         return `${origin}/?${params}`;
+       }
+
+       export function copyConfigUrl() {
+         const url = buildConfigUrl();
+         return navigator.clipboard.writeText(url).then(() => url);
+       }
+
+  2. Global context menu component: static/js/components/ContextMenu.js
+
+     Listens for contextmenu on document. Shows a single-item menu:
+     "Copy Link to This Config". Positioned at cursor.
+
+       setup() {
+         const visible = ref(false);
+         const x = ref(0);
+         const y = ref(0);
+
+         function onContextMenu(evt) {
+           // Don't override slot context menus (BackgroundGrid handles those)
+           if (evt.target.closest('.bg-slot') || evt.target.closest('.foreground-window')) return;
+           evt.preventDefault();
+           x.value = evt.clientX;
+           y.value = evt.clientY;
+           visible.value = true;
+         }
+
+         async function copyLink() {
+           await copyConfigUrl();
+           visible.value = false;
+           // Brief toast or flash to confirm
+         }
+
+         function hide() { visible.value = false; }
+
+         onMounted(() => {
+           document.addEventListener('contextmenu', onContextMenu);
+           document.addEventListener('click', hide);
+         });
+         onUnmounted(() => {
+           document.removeEventListener('contextmenu', onContextMenu);
+           document.removeEventListener('click', hide);
+         });
+
+         return { visible, x, y, copyLink };
+       }
+
+     Template:
+       <div v-if="visible" class="ctx-menu"
+            :style="{ left: x + 'px', top: y + 'px' }">
+         <div class="ctx-item" @click="copyLink">COPY LINK TO THIS CONFIG</div>
+       </div>
+
+  3. AppHeader.js — add LINK button to Row 3 (near SNAP):
+
+       <button class="header-btn" @click="copyConfigLink" title="Copy config URL">LINK</button>
+
+     Where copyConfigLink calls copyConfigUrl() and shows a brief confirmation.
+
+  4. CSS for context menu (.ctx-menu already partially styled for slot menus):
+       Reuse .slot-ctx-menu styling or create .global-ctx-menu variant.
+
+  5. Wire up:
+     - Register ContextMenu component in app.js
+     - Add to root template: <context-menu />
+     - Import copyConfigUrl in AppHeader.js
+
+TESTING
+  - Right-click on empty area → context menu with "COPY LINK TO THIS CONFIG".
+  - Click it → URL in clipboard. Paste in new tab → identical config loads.
+  - Right-click on a bg-slot → existing PIN SLOT menu (no conflict).
+  - Click LINK button in header → same result.
+  - Test with filters active → URL uses scene_data encoding.
+  - Test with ambient preset active → captured in URL.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPLEMENTATION ORDER (recommended)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Priority  Feature                          Effort  Dependencies
+  ────────  ───────────────────────────────  ──────  ────────────
+  1         ?obs=1 transparent mode          XS      None
+  2         Filter search enhancements       XS      None
+  3         Copy config link (button+menu)   S       None (creates configUrl.js)
+  4         Embed code generator             S       Depends on configUrl.js
+  5         Screenshot export                S-M     html2canvas vendor file
+  6         Vanity URLs                      S       Server-side change
+
+Rationale:
+  - OBS mode (#1) is literally one CSS rule — ship it immediately.
+  - Filter search (#2) is enhancing existing code — fast and high-impact.
+  - Config link (#3) creates the shared URL utility (configUrl.js) that
+    embed code (#4) also needs, so build it first.
+  - Screenshot (#5) needs a new vendor library added.
+  - Vanity URLs (#6) is the only server-side change; do last to keep
+    client-side features independent of deploys.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILES CREATED / MODIFIED SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  New files:
+    static/js/configUrl.js              — shared URL builder utility
+    static/js/components/EmbedModal.js  — embed code dialog
+    static/js/components/ContextMenu.js — global right-click menu
+    static/js/html2canvas.min.js        — vendor library (screenshot)
+    server/scene_slugs.py               — vanity URL slug map (optional)
+
+  Modified files:
+    static/js/store.js                  — add ?obs param parsing
+    static/js/app.js                    — obs-mode class, register components
+    static/js/components/AppHeader.js   — SNAP, LINK, Embed Code buttons
+    static/js/components/FilterModal.js — auto-focus, count, clear, highlight
+    static/css/layout.css               — obs-mode rules, embed/context styles
+    templates/index.html                — html2canvas script tag, OG meta
+    app.py                              — vanity URL route

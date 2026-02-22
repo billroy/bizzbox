@@ -24,6 +24,7 @@ function parseUrlOverrides() {
   if (params.has('scene_data')) o.scene_data = params.get('scene_data');
   if (params.has('slideshow_filter')) o.slideshow_filter = params.get('slideshow_filter');
   if (params.has('viewer'))   o.viewer = params.get('viewer') === '1';
+  if (params.has('obs'))      o.obs = params.get('obs') === '1';
   return o;
 }
 
@@ -101,6 +102,7 @@ export const store = reactive({
   headerPinned: false,
   ambientPreset: null,    // null = off, or one of AMBIENT_PRESET_LIST keys
   filterModalOpen: false,
+  embedModalOpen: false,
   activityFilter: {},   // type → boolean, all true by default
 
   // Custom scenes (loaded from localStorage)

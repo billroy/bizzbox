@@ -1,9 +1,10 @@
 /**
  * Fixed tiled background grid layout with slot pinning support.
  */
-import { store, getBackgroundSlots, pinSlot, unpinSlot } from '../store.js';
+import { store, getBackgroundSlots, pinSlot, unpinSlot, showToast } from '../store.js';
 import { sendPinSlot, sendUnpinSlot } from '../socket.js';
 import { ACTIVITY_TYPES } from '../activityTypes.js';
+import { copyConfigUrl } from '../configUrl.js';
 import ActivityWindow from './ActivityWindow.js';
 
 export default {
@@ -67,7 +68,12 @@ export default {
       return store.pinnedSlots[slotIndex] || '';
     }
 
-    return { gridStyle, slots, store, ctxMenu, activityTypes, onSlotContextMenu, pinToType, unpinSlotAction, isPinned, pinnedType };
+    function copyLink() {
+      copyConfigUrl().then(() => showToast('CONFIG URL COPIED'));
+      closeCtxMenu();
+    }
+
+    return { gridStyle, slots, store, ctxMenu, activityTypes, onSlotContextMenu, pinToType, unpinSlotAction, isPinned, pinnedType, copyLink };
   },
   template: `
     <div class="background-grid" :style="gridStyle">
@@ -103,6 +109,9 @@ export default {
           class="ctx-menu-item ctx-menu-unpin"
           @pointerdown.stop="unpinSlotAction()"
         >UNPIN</div>
+        <div class="ctx-menu-item ctx-menu-link"
+             @pointerdown.stop="copyLink()"
+        >COPY CONFIG LINK</div>
       </div>
     </Teleport>
   `,

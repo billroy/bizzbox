@@ -14,7 +14,7 @@ const CATEGORY_ORDER = [
 export default {
   name: 'FilterModal',
   setup() {
-    const { ref, computed } = Vue;
+    const { ref, computed, onMounted, nextTick } = Vue;
 
     // Ensure filter map is populated for all types
     for (const t of ACTIVITY_TYPES) {
@@ -24,6 +24,13 @@ export default {
     }
 
     const searchQuery = ref('');
+    const searchInput = ref(null);
+    const totalTypes = ACTIVITY_TYPES.length;
+
+    // Auto-focus search on mount
+    onMounted(() => {
+      nextTick(() => { if (searchInput.value) searchInput.value.focus(); });
+    });
 
     // Build filtered categories: each category with its types filtered by search
     const filteredCategories = computed(() => {
@@ -38,6 +45,10 @@ export default {
       }
       return result;
     });
+
+    const matchCount = computed(() =>
+      filteredCategories.value.reduce((sum, c) => sum + c.types.length, 0)
+    );
 
     function toggle(t) {
       store.activityFilter[t] = !store.activityFilter[t];
@@ -98,10 +109,17 @@ export default {
       return t.replace(/_/g, ' ').toUpperCase();
     }
 
+    function highlightMatch(name) {
+      if (!searchQuery.value) return name;
+      const escaped = searchQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return name.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+    }
+
     return {
-      filteredCategories, toggle, toggleCategory, isCategoryAllChecked,
-      isCategoryPartial, selectAll, selectNone, invert, close, onKey,
-      formatName, filter: store.activityFilter, searchQuery,
+      filteredCategories, matchCount, totalTypes, toggle, toggleCategory,
+      isCategoryAllChecked, isCategoryPartial, selectAll, selectNone,
+      invert, close, onKey, formatName, highlightMatch,
+      filter: store.activityFilter, searchQuery, searchInput,
     };
   },
   template: `
@@ -109,8 +127,16 @@ export default {
       <div class="filter-panel">
         <div class="filter-title">ACTIVITY FILTER</div>
 
-        <input class="filter-search" type="text" v-model="searchQuery"
-               placeholder="Search types..." @keydown.escape="close" ref="searchInput" />
+        <div class="filter-search-wrap">
+          <input class="filter-search" type="text" v-model="searchQuery"
+                 placeholder="Search types..." @keydown.escape="close" ref="searchInput" />
+          <button v-if="searchQuery" class="filter-search-clear"
+                  @click="searchQuery = ''" title="Clear search">&times;</button>
+        </div>
+
+        <div class="filter-match-count" v-if="searchQuery">
+          {{ matchCount }} of {{ totalTypes }} types
+        </div>
 
         <div class="filter-actions">
           <button class="filter-action-btn" @click="selectAll">ALL</button>
@@ -130,7 +156,7 @@ export default {
             <div class="filter-grid">
               <label v-for="t in cat.types" :key="t" class="filter-item" @click.prevent="toggle(t)">
                 <span class="filter-check" :class="{ checked: filter[t] }">{{ filter[t] ? '\\u2713' : '' }}</span>
-                <span class="filter-name">{{ formatName(t) }}</span>
+                <span class="filter-name" v-html="highlightMatch(formatName(t))"></span>
               </label>
             </div>
           </div>

@@ -1,0 +1,33 @@
+
+
+
+- Add a scene named "Feature Zoo" containing one of each type of activity widget in the background grid.  Choose a layout size dynamically based on the number activities.  It's okay if you have to leave a few empty slots in the background grid layout, just don't leave a whole row.
+
+  CLAUDE: Good idea — this will be great for visual regression testing and demos.
+  We have ~50 generator types in GENERATOR_MAP, so the grid needs to be at
+  least 8x7 (56 slots). I'd generate the scene definition dynamically from
+  GENERATOR_MAP.keys() rather than hard-coding the list, so it stays current
+  as new generators are added. Each slot gets one instance at default
+  intensity. One question: should the zoo use a fixed seed for consistency
+  (same strategies each time), or random?
+Assign the slots based on the order in the activity selector, mapped to left-to-right then top-to-bottom.  Not random.
+
+- Use the scene "Feature Zoo" to test all the widget types at once
+
+  CLAUDE: Agreed — this is the main payoff of the zoo. After implementing it,
+  I'll load the scene and screenshot/verify every renderer is displaying
+  correctly, especially after the bandwidth work which changed update rates
+  and delta payloads. This is also a good way to catch any renderers that
+  depend on static fields that got stripped by compute_delta.
+
+- Socket-log improvement: show per-client and total bandwidth per channel display in the header.  Format like (200k/4.2M).  Estimate total bandwidth by taking the per-client measurement and multiplying by the number of non-socketlog clients.
+
+  CLAUDE: Nice enhancement. The server already tracks bytes per emit in
+  activity_manager.py, so I can expose a bandwidth stats endpoint or
+  piggyback on the existing socketlog channel. I'll track a rolling window
+  (e.g. last 5 seconds) of bytes per channel per client, then aggregate.
+  The multiplier for total estimate is (connected_clients - socketlog_clients).
+  Format: compact human-readable like "48k/192k" (per-client / estimated total).
+  One note: with the delta compression work just shipped, per-client bandwidth
+  should now show ~49 KB/s instead of the old ~250 KB/s.
+

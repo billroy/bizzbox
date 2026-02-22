@@ -1,0 +1,10 @@
+Feature development task.  Produce a feature analysis and specification for this: 
+- Add a new Activity type: "AI Agent".  
+- Survey the top 6 AI CLI interfaces and make Activity TTY simulacra of their init time logo and a short conversations.  
+- Include at least Claude Code CLI, Gemini, and OpenAI's offering.  
+- Ensure the simulacra are character-accurate against current AI agent CLIs so they could be recognized from a distance, but the data should all be fake.  
+- Add the new activity type to the Feature Zoo, and save a note to CLAUDE.md that all new activities should be added to the Feature Zoo.  
+- In addition to displaying here, write the feature spec to the next available FEATURES file.
+- Review existing scene definitions and ensure they have a balanced selection of new activity types created after their time, including this one.
+
+

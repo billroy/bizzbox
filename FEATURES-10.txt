@@ -1,0 +1,22 @@
+- The header is sometimes difficult to see because the type is too dim to read in some of the low-contrast styles.  Make it more visible.  Perhaps give it a permanent style instead of rotating with the page style.  Perhaps more like Brutalist style, just in the header.  
+
+- The header has become too wide for landscape mode on a macbook air.  Some fields extend off the right.  Propose a fix.
+
+- It's okay if the header has to become bigger to do the previous two items.
+
+- Add a self-playing Pong activity
+
+- Add a self-playing tic-tac-toe activity
+
+- New activity spawning probability fix still results in many copies of the same activity in the background grid in random layouts.  Reduce the probability of multiple instances of a widget in random background grid layouts to zero.  Foreground windows can be of unrestricted type.
+
+- Make the word "BizzBox" in the header a clickable link to the github repo
+
+- Explain what can be done to avoid this warning at startup:
+"""Eventlet is deprecated. It is currently being maintained in bugfix mode, and
+we strongly recommend against using it for new projects.
+
+If you are already using Eventlet, we recommend migrating to a different
+framework.  For more detail see
+https://eventlet.readthedocs.io/en/latest/asyncio/migration.html"""
+
