@@ -381,4 +381,4 @@ class SyncManager:
         state = rec.generator.next_frame()
         rec.last_state = state
         room = self.get_room_for_client(sid)
-        self._emitter.emit_update(room, activity_id, state)
+        self._emitter.emit_update(room, activity_id, state, skip_sid=sid)

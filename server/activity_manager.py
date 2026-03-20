@@ -4,10 +4,13 @@ Manages spawn/despawn/update cycles for one set of clients (either global synced
 or per-client in unsynced mode).
 """
 import json
+import logging
 import random
 import math
 import time
 import uuid
+
+logger = logging.getLogger(__name__)
 
 from . import activity_registry as registry
 from .event_emitter import EventEmitter
@@ -147,7 +150,19 @@ class ActivityManager:
                     continue
                 # Update check
                 if now - rec.last_update >= rec.next_update_interval:
-                    frame = rec.generator.next_frame()
+                    try:
+                        frame = rec.generator.next_frame()
+                    except Exception:
+                        logger.exception(
+                            "Generator %s (%s) crashed in next_frame(); removing activity %s",
+                            rec.generator.activity_type, type(rec.generator).__name__, act_id,
+                        )
+                        rec.despawning = True
+                        self._emitter.emit_despawn(self._room, act_id)
+                        self._activities.pop(act_id, None)
+                        if rec.slot is not None and rec.slot < len(self._bg_slots):
+                            self._bg_slots[rec.slot] = None
+                        continue
                     rec.frame_count += 1
                     emit_state = frame  # default: full frame
 

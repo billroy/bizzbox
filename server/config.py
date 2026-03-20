@@ -12,7 +12,7 @@ class AppConfig:
     host: str = "0.0.0.0"
     port: int = 5000
     style: str = "dark"         # current global style
-    muted: bool = True          # global mute state (off by default)
+    muted: bool = False         # global mute state
     grid_cols: int = 6          # background grid columns
     grid_rows: int = 4          # background grid rows
     fg_target: int = 0          # target foreground window count (0-20)

@@ -17,6 +17,14 @@ from server.sync_manager import SyncManager
 from server.scene_slugs import SCENE_SLUGS
 
 
+def _safe_int(val, default: int) -> int:
+    """Convert val to int, returning default on failure."""
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return default
+
+
 def create_app(config: AppConfig):
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "bizzbox-dev-secret")
@@ -73,7 +81,7 @@ def create_app(config: AppConfig):
     @socketio.on("channel:switch")
     def on_channel_switch(data):
         from flask import request
-        channel_id = int(data.get("channelId", 1))
+        channel_id = _safe_int(data.get("channelId"), 1)
         sync_manager.switch_channel(request.sid, channel_id)
 
     # ── Configure events ──────────────────────────────────────
@@ -89,7 +97,7 @@ def create_app(config: AppConfig):
     @socketio.on("configure:intensity")
     def on_intensity(data):
         from flask import request
-        value = max(1, min(20, int(data.get("value", 5))))
+        value = max(1, min(20, _safe_int(data.get("value"), 5)))
         sync_manager.set_channel_intensity(request.sid, value)
         room = sync_manager.get_room_for_client(request.sid)
         emitter.broadcast_intensity(value, room=room)
@@ -110,8 +118,8 @@ def create_app(config: AppConfig):
     @socketio.on("configure:layout")
     def on_layout(data):
         from flask import request
-        cols = max(1, min(10, int(data.get("cols", 6))))
-        rows = max(1, min(10, int(data.get("rows", 4))))
+        cols = max(1, min(10, _safe_int(data.get("cols"), 6)))
+        rows = max(1, min(10, _safe_int(data.get("rows"), 4)))
         sync_manager.set_channel_layout(request.sid, cols, rows)
         room = sync_manager.get_room_for_client(request.sid)
         sync_manager.set_layout(request.sid, cols, rows)
@@ -120,7 +128,7 @@ def create_app(config: AppConfig):
     @socketio.on("configure:fg_count")
     def on_fg_count(data):
         from flask import request
-        value = max(0, min(20, int(data.get("value", 0))))
+        value = max(0, min(20, _safe_int(data.get("value"), 0)))
         sync_manager.set_channel_fg_target(request.sid, value)
         room = sync_manager.get_room_for_client(request.sid)
         sync_manager.set_fg_target(request.sid, value)
@@ -204,18 +212,24 @@ def create_app(config: AppConfig):
         slot = data.get("slot")
         type_name = data.get("type")
         if slot is not None and type_name:
-            sync_manager.pin_slot(request.sid, int(slot), type_name)
+            safe_slot = _safe_int(slot, -1)
+            if safe_slot < 0:
+                return
+            sync_manager.pin_slot(request.sid, safe_slot, type_name)
             room = sync_manager.get_room_for_client(request.sid)
-            socketio.emit("window:pin", {"slot": int(slot), "type": type_name}, room=room)
+            socketio.emit("window:pin", {"slot": safe_slot, "type": type_name}, room=room)
 
     @socketio.on("window:unpin")
     def on_window_unpin(data):
         from flask import request
         slot = data.get("slot")
         if slot is not None:
-            sync_manager.unpin_slot(request.sid, int(slot))
+            safe_slot = _safe_int(slot, -1)
+            if safe_slot < 0:
+                return
+            sync_manager.unpin_slot(request.sid, safe_slot)
             room = sync_manager.get_room_for_client(request.sid)
-            socketio.emit("window:unpin", {"slot": int(slot)}, room=room)
+            socketio.emit("window:unpin", {"slot": safe_slot}, room=room)
 
     return app, socketio
 

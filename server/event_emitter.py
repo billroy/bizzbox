@@ -8,8 +8,9 @@ class EventEmitter:
     def emit_spawn(self, room: str, payload: dict):
         self._sio.emit("activity:spawn", payload, room=room)
 
-    def emit_update(self, room: str, activity_id: str, state: dict):
-        self._sio.emit("activity:update", {"id": activity_id, "state": state}, room=room)
+    def emit_update(self, room: str, activity_id: str, state: dict, skip_sid: str = None):
+        self._sio.emit("activity:update", {"id": activity_id, "state": state},
+                        room=room, skip_sid=skip_sid)
 
     def emit_despawn(self, room: str, activity_id: str):
         self._sio.emit("activity:despawn", {"id": activity_id}, room=room)
