@@ -29,8 +29,13 @@ class TextActivity(BaseActivity):
     def set_text(self, text: str, editor_sid: str = None):
         """Called by the socket handler when a client edits the text."""
         self.text = text[:10000]  # cap at 10k chars
-        self.last_editor = editor_sid
+        self.last_editor = self._opaque_label(editor_sid) if editor_sid else None
         self.updated_at = time.time()
+
+    @staticmethod
+    def _opaque_label(sid: str) -> str:
+        """Convert a raw SID to a short opaque label for broadcast."""
+        return f"#{abs(hash(sid)) % 9999:04d}"
 
     def _get_state(self) -> dict:
         return {

@@ -351,13 +351,12 @@ def test_game_of_life_delta_roundtrip():
 3. ✅ **Fix Q5** — Added `skip_sid` param to `EventEmitter.emit_update`; `SyncManager.update_text` passes `skip_sid=sid` to avoid self-echo.
 4. ✅ **Fix L1** — Changed `server/config.py` default to `muted: bool = False`.
 
-### Stage 2 — Security Hardening (~2 hours)
-*Apply before next public deployment.*
+### Stage 2 — Security Hardening ✅ COMPLETE
 
-5. **Fix H1** — Remove `"bizzbox-dev-secret"` fallback; generate a per-process random key (`secrets.token_hex(32)`) when `SECRET_KEY` env var is not set, with a startup warning. `[app.py]`
-6. **Fix H2/H3** — Implement the token-bucket rate limiter in `app.py` (as designed above) covering all socket events, with tighter limits for `text:update`, `configure:slots`, `window:randomize`, and `channel:create`. Add the 100 ms broadcast debounce to `SyncManager.update_text`. `[app.py, server/sync_manager.py]`
-7. **Fix M1** — Add `len(slots) <= 500` guard in `on_configure_slots`. `[app.py]`
-8. **Fix M2** — Replace `last_editor` SID with an opaque label (e.g., `f"#{abs(hash(sid)) % 9999:04d}"`) in `TextActivity`. `[server/generators/text.py]`
+5. ✅ **Fix H1** — Removed hardcoded fallback; generates random key via `secrets.token_hex(32)` with startup warning.
+6. ✅ **Fix H2/H3** — Added per-SID token-bucket rate limiter; tighter limits for `text:update`, `configure:slots`, `window:randomize`, `channel:create`. Added 100 ms broadcast debounce in `SyncManager.update_text`.
+7. ✅ **Fix M1** — Added `len(slots) > 500` guard in `on_configure_slots`.
+8. ✅ **Fix M2** — Replaced raw SID with opaque `#NNNN` label in `TextActivity`.
 
 ### Stage 3 — Code Quality & Refactoring (~3 hours)
 *Clean up before the codebase grows further.*

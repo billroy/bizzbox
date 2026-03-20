@@ -4,6 +4,8 @@ Parses CLI args, sets up Flask-SocketIO, handles all socket events.
 """
 import argparse
 import os
+import secrets
+import time
 
 import gevent.monkey
 gevent.monkey.patch_all()
@@ -25,9 +27,44 @@ def _safe_int(val, default: int) -> int:
         return default
 
 
+# ── Per-SID token-bucket rate limiter ──────────────────────
+_rate_buckets: dict[str, dict] = {}  # sid → {tokens, last_refill}
+
+RATE_LIMIT = {
+    "default":           (20, 20),   # (bucket_size, refill_per_sec)
+    "configure:slots":   (2,  1),
+    "window:randomize":  (3,  1),
+    "channel:create":    (2,  0.5),
+    "text:update":       (10, 10),
+}
+
+
+def _check_rate(sid: str, event: str) -> bool:
+    """Return True if the event is allowed, False if rate-limited."""
+    size, rate = RATE_LIMIT.get(event, RATE_LIMIT["default"])
+    now = time.monotonic()
+    b = _rate_buckets.setdefault(sid, {"tokens": size, "last": now})
+    elapsed = now - b["last"]
+    b["tokens"] = min(size, b["tokens"] + elapsed * rate)
+    b["last"] = now
+    if b["tokens"] >= 1:
+        b["tokens"] -= 1
+        return True
+    return False
+
+
+def _cleanup_rate_bucket(sid: str):
+    """Remove rate-limit state for a disconnected client."""
+    _rate_buckets.pop(sid, None)
+
+
 def create_app(config: AppConfig):
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "bizzbox-dev-secret")
+    secret = os.environ.get("SECRET_KEY")
+    if not secret:
+        secret = secrets.token_hex(32)
+        print("⚠️  SECRET_KEY not set — using random per-process key")
+    app.config["SECRET_KEY"] = secret
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.jinja_env.auto_reload = True
 
@@ -66,6 +103,7 @@ def create_app(config: AppConfig):
     @socketio.on("disconnect")
     def on_disconnect():
         from flask import request
+        _cleanup_rate_bucket(request.sid)
         if sync_manager.is_monitor(request.sid):
             sync_manager.handle_monitor_disconnect(request.sid)
         else:
@@ -76,6 +114,8 @@ def create_app(config: AppConfig):
     @socketio.on("channel:create")
     def on_channel_create(data=None):
         from flask import request
+        if not _check_rate(request.sid, "channel:create"):
+            return
         sync_manager.create_channel_for_client(request.sid)
 
     @socketio.on("channel:switch")
@@ -143,13 +183,19 @@ def create_app(config: AppConfig):
     @socketio.on("configure:slots")
     def on_configure_slots(data):
         from flask import request
+        if not _check_rate(request.sid, "configure:slots"):
+            return
         slots = data.get("slots")  # list of type_name strings, indexed by slot
         if slots and isinstance(slots, list):
+            if len(slots) > 500:
+                return
             sync_manager.configure_slots(request.sid, slots)
 
     @socketio.on("text:update")
     def on_text_update(data):
         from flask import request
+        if not _check_rate(request.sid, "text:update"):
+            return
         activity_id = data.get("id", "")
         text = data.get("text", "")
         if activity_id and isinstance(text, str):
@@ -173,6 +219,8 @@ def create_app(config: AppConfig):
     @socketio.on("window:randomize")
     def on_window_randomize(data=None):
         from flask import request
+        if not _check_rate(request.sid, "window:randomize"):
+            return
         sync_manager.randomize_all(request.sid)
 
     @socketio.on("window:spawn")

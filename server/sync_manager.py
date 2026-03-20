@@ -5,6 +5,8 @@ Synced mode:  multiple channels, each with its own ActivityManager and Socket.IO
               Clients join one channel at a time; changes broadcast within that channel only.
 Unsynced mode: each client sid gets its own ActivityManager instance (channels disabled).
 """
+import time
+
 from flask_socketio import join_room, leave_room
 from .activity_manager import ActivityManager
 from .event_emitter import EventEmitter
@@ -49,6 +51,8 @@ class SyncManager:
 
         # ── Unsynced mode (unchanged) ────────────────────────
         self._client_managers: dict[str, ActivityManager] = {}
+        # Text broadcast debounce: activity_id → monotonic timestamp
+        self._text_last_broadcast: dict[str, float] = {}
 
         if config.sync_mode == "synced":
             self._create_channel()  # Channel 1
@@ -380,5 +384,11 @@ class SyncManager:
         rec.generator.set_text(text, sid)
         state = rec.generator.next_frame()
         rec.last_state = state
+        # Debounce broadcasts: max 10 Hz per activity
+        now = time.monotonic()
+        last = self._text_last_broadcast.get(activity_id, 0)
+        if now - last < 0.1:
+            return
+        self._text_last_broadcast[activity_id] = now
         room = self.get_room_for_client(sid)
         self._emitter.emit_update(room, activity_id, state, skip_sid=sid)
