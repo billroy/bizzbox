@@ -19,6 +19,10 @@ BizzBox is a real-time cinematic operations dashboard that generates an endless 
 - [Scenes](#scenes)
 - [Channels](#channels)
 - [Lock Mode](#lock-mode)
+- [Vanity URLs](#vanity-urls)
+- [Screenshot Export](#screenshot-export)
+- [Config Links & Embed Codes](#config-links--embed-codes)
+- [OBS / Streaming](#obs--streaming)
 - [URL Parameters](#url-parameters)
 - [Command-Line Options](#command-line-options)
 - [Multi-Client Sync](#multi-client-sync)
@@ -63,7 +67,7 @@ BizzBox has three visual layers:
 
 3. **Header Bar** — A translucent control strip along the top edge. It auto-hides when you move the mouse away. Press **Space** to pin it in place.
 
-Every panel displays a different simulated visualization — radar sweeps, scrolling code, network graphs, heartbeat monitors, and 50 more types. All data is procedurally generated; nothing is real.
+Every panel displays a different simulated visualization — radar sweeps, scrolling code, network graphs, heartbeat monitors, and 50+ more types. All data is procedurally generated; nothing is real.
 
 ---
 
@@ -73,7 +77,7 @@ All shortcuts work when no input field is focused.
 
 | Key | Action |
 |-----|--------|
-| **T** | Cycle through all 23 themes |
+| **T** | Cycle through all 24 themes |
 | **A** | Cycle through ambient audio presets (or turn off) |
 | **M** | Toggle mute (all audio on/off) |
 | **F** | Toggle fullscreen |
@@ -99,7 +103,7 @@ Each shortcut shows a brief toast notification confirming the action.
 
 ## Themes
 
-BizzBox includes 23 color themes. Press **T** to cycle through them, or select one from the header dropdown.
+BizzBox includes 24 color themes. Press **T** to cycle through them, or select one from the header dropdown.
 
 | Theme | Description |
 |-------|-------------|
@@ -126,6 +130,7 @@ BizzBox includes 23 color themes. Press **T** to cycle through them, or select o
 | **Sunset** | Dark plum with coral, amber, and rose. Twilight horizon. |
 | **Matrix** | Black with green code rain tones. Digital simulation. |
 | **Frost** | Dark slate blue with icy white and pale blue. Frozen glass. |
+| **Agent** | Dark teal with green and cyan accents. AI operations. |
 
 Themes are applied via CSS custom properties, so every element — canvas visualizations, text panels, borders, headers — all adapt instantly.
 
@@ -170,8 +175,20 @@ BizzBox synthesizes immersive background soundscapes using the Web Audio API —
 | **Circuit Board** | Coil whine, clock pulse, data bus hum. Electronic micro-scale. |
 | **Volcano** | Deep rumble, gas vent hiss, magma bubble, seismic tremor. Volcanic. |
 | **Haunted Mansion** | Creaky wood, wind through gaps, organ drone. Eerie and abandoned. |
+| **Agent Den** | Neural network hum, data stream pulse, processing rhythm. AI workspace. |
 
 Volume scales with the intensity setting — higher intensity means louder ambient audio. Press **M** to mute all audio.
+
+### Volume Control
+
+A volume slider in the header (between the MUTED/SOUND button and the AMBIENT dropdown) lets you set the master volume from 0% to 100%. The slider controls all audio output — ambient soundscapes and event sounds alike.
+
+- **Drag** the slider to adjust volume in real-time
+- Dragging to **0%** automatically mutes; dragging above 0% while muted automatically unmutes
+- The **MUTED/SOUND** button preserves the slider position — muting sets gain to zero, unmuting restores the slider value
+- Volume is saved to localStorage and persists across reloads
+- Set volume via URL: `?vol=50` (0–100, integer percentage). `vol=0` is equivalent to `muted=1`
+- If both `vol` and `muted=1` are present, the display starts muted but the slider reflects the `vol` value for when you unmute
 
 ---
 
@@ -213,7 +230,7 @@ Each window's title bar shows the activity type. You can click the dropdown to r
 
 ## Activity Types
 
-BizzBox includes **54 activity types** — 40 canvas-based animated visualizations and 14 DOM/text-based panels. Each type has multiple strategy variants with different titles and data patterns.
+BizzBox includes **57 activity types** — 42 canvas-based animated visualizations and 15 DOM/text-based panels. Each type has multiple strategy variants with different titles and data patterns.
 
 ### Canvas Visualizations
 
@@ -259,6 +276,8 @@ BizzBox includes **54 activity types** — 40 canvas-based animated visualizatio
 | **Hyperloop** | Pod transit display with tube pressure, schedule, and velocity graph |
 | **Genetics Lab** | Gene sequencer with CRISPR targets, mutation rates, and protein folding |
 | **Mission Control** | Flight director console with telemetry, trajectory, and comm status |
+| **Pong** | Classic two-paddle pong game with AI opponents and score tracking |
+| **Tic Tac Toe** | Automated X vs O games with strategy commentary |
 
 ### Text/DOM Panels
 
@@ -278,6 +297,7 @@ BizzBox includes **54 activity types** — 40 canvas-based animated visualizatio
 | **Cipher Decrypt** | Animated cipher-breaking process |
 | **System Topology** | ASCII system architecture diagram |
 | **Graph** | Dynamic line/bar/scatter chart |
+| **AI Agent** | Simulated AI agent CLI with strategy parodies and task execution |
 
 Every type has 5 strategy variants with unique titles and data characteristics. The server picks randomly from weighted probabilities when spawning activities.
 
@@ -293,7 +313,7 @@ If you don't want certain activity types to appear, you can filter them out.
 
 Filtered types won't spawn in new slots or windows. Already-running activities of filtered types continue until they naturally expire. The filter is saved automatically.
 
-The filter modal includes a search box to quickly find specific types, and activities are organized by category.
+The filter modal includes a search box to quickly find specific types, and activities are organized by category. The search highlights matching text in type names and shows a match count (e.g., "2 of 57"). A clear button (×) next to the search input resets the search. The search input auto-focuses when the modal opens.
 
 ---
 
@@ -317,14 +337,38 @@ Scenes are preset combinations of theme, grid layout, intensity, window count, a
 
 ### Built-In Scenes
 
-| Scene | Theme | Grid | Intensity | Windows | Ambient |
-|-------|-------|------|-----------|---------|---------|
-| **War Room** | Red | 6×4 | 15 | 5 | War Room |
-| **Ambient** | Dark | 3×2 | 2 | 0 | Deep Space |
-| **Hacker Den** | Neon | 4×3 | 10 | 3 | Server Room |
-| **Mission Control** | Black | 6×4 | 8 | 0 | Bunker Countdown |
-| **Surveillance** | Brutalist | 5×4 | 6 | 2 | Power Plant |
-| **Chaos** | Rainbow | 6×8 | 20 | 10 | (none) |
+BizzBox ships with 28 preset scenes. Each configures theme, grid, intensity, window count, ambient audio, and optionally an activity filter.
+
+| Scene | Theme | Grid | Intensity | Windows | Ambient | Filter |
+|-------|-------|------|-----------|---------|---------|--------|
+| **War Room** | Red | 6×4 | 15 | 5 | War Room | — |
+| **Ambient** | Dark | 3×2 | 2 | 0 | Deep Space | — |
+| **Hacker Den** | Neon | 4×3 | 10 | 3 | Server Room | — |
+| **Mission Control** | Black | 6×4 | 8 | 0 | Bunker Countdown | — |
+| **Surveillance** | Brutalist | 5×4 | 6 | 2 | Power Plant | — |
+| **Chaos** | Rainbow | 6×8 | 20 | 10 | (none) | — |
+| **Starship Bridge** | LCARS | 5×3 | 8 | 4 | Warp Engine | Sci-fi types |
+| **Mech Hangar** | Military | 4×3 | 12 | 3 | Mech Hangar | Mech & infra |
+| **Planet Forge** | Amber | 3×2 | 3 | 0 | Terraforming Drone | Planetary |
+| **Dungeon Crawl** | Neon | 4×3 | 14 | 5 | Tavern Hearth | Fantasy & RPG |
+| **Launch Day** | Black | 6×4 | 10 | 2 | Rocket Launch | Space launch |
+| **Abyss** | Arctic | 4×3 | 6 | 2 | Submarine Sonar | Undersea |
+| **Firebreak** | Red | 5×4 | 16 | 6 | Wildfire Crackle | Fire response |
+| **Transit Hub** | Synthwave | 5×3 | 9 | 3 | Hyperloop Tube | Transit |
+| **Bio Lab** | Light | 3×2 | 5 | 1 | Genetics Hum | Science |
+| **Cyber Siege** | Brutalist | 6×4 | 18 | 8 | Digital Warfare | Cyber ops |
+| **Coral Reef** | Ocean | 4×3 | 4 | 1 | Coral Reef | Aquatic |
+| **Ironworks** | Copper | 5×4 | 14 | 4 | Steel Mill | Industrial |
+| **Neon Dreams** | Vapor | 4×3 | 7 | 2 | Radio Static | Signals |
+| **Thermal Scan** | Infrared | 5×3 | 11 | 3 | Circuit Board | Surveillance |
+| **Deep Green** | Phosphor | 3×3 | 6 | 0 | Server Room | Terminal/code |
+| **Architect** | Blueprint | 4×2 | 5 | 1 | Cathedral | Diagrams |
+| **Golden Hour** | Sunset | 3×2 | 3 | 0 | Train Station | Travel & finance |
+| **Jungle Outpost** | Forest | 5×3 | 9 | 3 | Jungle Night | Outdoor |
+| **Eruption** | Matrix | 6×4 | 17 | 7 | Volcano | Seismic |
+| **Frozen Vault** | Frost | 4×3 | 8 | 2 | Ice Cave | Crypto & data |
+| **Agent Den** | Agent | 6×4 | 10 | 0 | Agent Den | AI Agent only |
+| **Feature Zoo** | Dark | 10×6 | 5 | 0 | (none) | All 57 types |
 
 ### Custom Scenes
 
@@ -418,6 +462,70 @@ You can also start in lock mode via URL: `?lock=1`
 
 ---
 
+## Vanity URLs
+
+Every built-in scene has a short vanity URL. The slug is the scene name in lowercase with spaces replaced by hyphens:
+
+```
+http://localhost:5000/war-room
+http://localhost:5000/hacker-den
+http://localhost:5000/starship-bridge
+http://localhost:5000/feature-zoo
+```
+
+These redirect to `/?scene=Name` and can be combined with query parameters:
+
+```
+http://localhost:5000/war-room?obs=1&vol=30
+http://localhost:5000/ambient?lock=1
+```
+
+All 28 built-in scenes have vanity URLs.
+
+---
+
+## Screenshot Export
+
+The **SNAP** button in the header captures a PNG screenshot of the current display. The header is automatically hidden during capture so it doesn't appear in the image.
+
+The screenshot is saved as `bizzbox-TIMESTAMP.png` and downloads automatically. In OBS mode (`?obs=1`), the PNG has a transparent background.
+
+This is useful for creating OBS scene thumbnails, promotional images, or sharing a specific moment of the display.
+
+---
+
+## Config Links & Embed Codes
+
+### Copy Config Link
+
+The **LINK** button in the header copies a shareable URL to the clipboard that encodes your current configuration (theme, layout, intensity, window count, volume, and filters). Anyone who opens the URL will see the same display settings.
+
+You can also right-click any background grid slot and select **COPY CONFIG LINK** from the context menu.
+
+### Embed Code
+
+To embed BizzBox in another page (Notion, Confluence, dashboards, etc.):
+
+1. Click the **"..."** button next to the Scene dropdown, then **Embed Code**
+2. Adjust options: dimensions, lock mode, muted, transparent background, volume
+3. Copy the generated `<iframe>` snippet
+
+The embed code generator uses your current configuration as the base URL and adds the selected options as query parameters.
+
+---
+
+## OBS / Streaming
+
+BizzBox works as a browser source in OBS Studio for stream overlays, backgrounds, or full-screen visuals. Add `?obs=1` to the URL for transparent background mode — this makes all backgrounds transparent, hides the header, and removes the scanline overlay.
+
+```
+http://localhost:5000?obs=1&scene=War+Room
+```
+
+See **[README-OBS.md](README-OBS.md)** for the full OBS setup guide, including recommended URL configurations, audio settings, performance tips, and troubleshooting.
+
+---
+
 ## URL Parameters
 
 Override any setting by adding query parameters to the URL:
@@ -433,6 +541,8 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=1&lock=1
 | `layout` | `COLSxROWS` | `3x2` | Grid dimensions |
 | `windows` | 0–20 | 5 | Foreground window count |
 | `muted` | `0` or `1` | `0` | Start muted |
+| `vol` | 0–100 | 100 | Volume level (percentage). `vol=0` is equivalent to `muted=1` |
+| `obs` | `1` | off | OBS mode: transparent background, hides header, removes scanlines |
 | `lock` | `1` | off | Start in lock mode |
 | `channel` | Channel name | `Channel 1` | Join a specific channel by name (case-insensitive) |
 | `scene` | Scene name | — | Load a built-in or custom scene by name (case-insensitive; spaces, hyphens, underscores interchangeable) |
@@ -479,6 +589,16 @@ http://localhost:5000?slideshow=30&slideshow_filter=War+Room,Chaos,Abyss
 
 # Mobile viewer mode (simplified touch-friendly display)
 http://localhost:5000?viewer=1
+
+# OBS overlay with transparent background
+http://localhost:5000?obs=1&scene=War+Room
+
+# Half volume with ambient scene
+http://localhost:5000?vol=50&scene=Ambient
+
+# Vanity URL (shortcut to built-in scene)
+http://localhost:5000/war-room
+http://localhost:5000/hacker-den?obs=1&vol=30
 ```
 
 ---
@@ -506,7 +626,7 @@ python app.py [OPTIONS]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--style` | `dark` | Initial theme (any of the 23 theme names) |
+| `--style` | `dark` | Initial theme (any of the 24 theme names) |
 | `--intensity` | `5` | Mean updates per second (1 = serene, 20 = frenetic) |
 | `--fg-target` | `5` | Starting foreground window count (0–20) |
 | `--sync-mode` | `synced` | `synced` (all clients share one show) or `unsynced` (independent) |
@@ -575,6 +695,7 @@ Your settings are automatically saved to your browser's localStorage and restore
 - Grid layout
 - Intensity
 - Mute state
+- Volume level
 - Ambient preset
 - Activity filter
 - Foreground window count

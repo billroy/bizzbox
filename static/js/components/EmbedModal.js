@@ -15,13 +15,18 @@ export default {
     const lockMode = ref(true);
     const muted = ref(true);
     const obsMode = ref(false);
+    const startVol = ref(store.config.volume);
 
     const embedUrl = computed(() => {
       const base = buildConfigUrl();
       const url = new URL(base);
+      // Clear muted/vol from base URL — embed modal manages these independently
+      url.searchParams.delete('muted');
+      url.searchParams.delete('vol');
       if (lockMode.value) url.searchParams.set('lock', '1');
       if (muted.value)    url.searchParams.set('muted', '1');
       if (obsMode.value)  url.searchParams.set('obs', '1');
+      if (!muted.value && startVol.value !== 100) url.searchParams.set('vol', startVol.value);
       return url.toString();
     });
 
@@ -45,7 +50,7 @@ export default {
       if (evt.key === 'Escape') close();
     }
 
-    return { width, height, lockMode, muted, obsMode, embedCode, copyCode, close, onKey };
+    return { width, height, lockMode, muted, obsMode, startVol, embedCode, copyCode, close, onKey };
   },
   template: `
     <div class="filter-overlay" @click.self="close" @keydown="onKey" tabindex="-1">
@@ -72,6 +77,13 @@ export default {
             </label>
             <label class="embed-check-label">
               <input type="checkbox" v-model="obsMode" /> Transparent background
+            </label>
+          </div>
+          <div class="embed-row" v-if="!muted">
+            <label class="embed-label">
+              VOLUME
+              <input class="header-vol" type="range" min="0" max="100" v-model.number="startVol" style="width:100px" />
+              <span class="vol-label">{{ startVol }}%</span>
             </label>
           </div>
         </div>

@@ -22,3 +22,6 @@ env/
 
 # Logs
 *.log
+
+# Claude Code
+.claude/

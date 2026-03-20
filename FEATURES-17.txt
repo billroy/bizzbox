@@ -1,0 +1,161 @@
+FEATURES-17 — TTT Scene, Life World Scene, Text Widget
+======================================================
+
+## Feature 1: TTT Scene
+
+A dedicated scene that fills a 6×4 grid (24 slots) entirely with self-playing
+tic-tac-toe games. Each cell runs its own independent game at different paces,
+creating a mesmerizing wall of X's and O's.
+
+### Design
+- Scene name: "TTT"
+- Grid: 6 cols × 4 rows (24 simultaneous games)
+- Theme: `neon` — bright X/O marks on dark backgrounds, game-show energy
+- Intensity: 8 — moderate pace so games are readable but always moving
+- Foreground windows: 0 — full grid, no floating panels
+- Ambient preset: `server_room` — low electronic hum fits the constant calculation
+- Filter: `['tic_tac_toe']` — only tic-tac-toe activities
+- No `slots` array needed — filter already constrains to tic_tac_toe
+
+### Files to change
+- `static/js/scenes.js` — add TTT scene object
+- `static/js/scenes.js` → `SCENE_SLUGS` import (if slug auto-generated) or
+  `server/scene_slugs.py` — add `"ttt"` vanity URL slug
+
+---
+
+## Feature 2: Life World Scene
+
+A dedicated scene filling a 6×4 grid with Conway's Game of Life simulations.
+Each cell runs its own independent universe with different seeding strategies,
+creating a hypnotic wall of evolving cellular automata.
+
+### Design
+- Scene name: "Life World"
+- Grid: 6 cols × 4 rows (24 simultaneous life simulations)
+- Theme: `phosphor` — green-on-black CRT look matches the classic Life aesthetic
+- Intensity: 6 — relaxed enough to watch patterns evolve
+- Foreground windows: 0 — full grid immersion
+- Ambient preset: `genetics_hum` — organic/scientific feel for cellular automata
+- Filter: `['game_of_life']` — only Game of Life activities
+
+### Files to change
+- `static/js/scenes.js` — add Life World scene object
+- `server/scene_slugs.py` — add `"life-world"` vanity URL slug
+
+---
+
+## Feature 3: Text Widget
+
+A new activity type called `text` that displays a shared, editable text box.
+When any viewer on the channel types into it, the text appears on all connected
+monitors in real time — a persistent shared notepad per channel.
+
+### Design
+
+**Display:**
+- A simple text area filling the activity panel
+- Monospace font, themed to match the current style
+- Subtle blinking cursor indicator when someone is actively typing
+- Title bar shows "TEXT" (or a random title from a set: "SHARED PAD", "MEMO",
+  "BROADCAST TEXT", "LIVE NOTE", "CHANNEL MSG")
+
+**Behavior:**
+- Text state is authoritative on the server (stored per-activity in the channel)
+- Typing emits `text:update` events with the full text content (debounced ~300ms)
+- Server stores the text and broadcasts to all clients on the channel
+- On connect/sync, clients receive the current text content in the activity state
+- Text persists as long as the activity is alive; cleared on respawn
+- OBS mode: text area is read-only (no cursor, no editing)
+
+**Server generator:**
+- `TextActivity` in `server/generators/text.py`
+- Unlike other generators, this one does NOT auto-advance frames
+- State: `{ "text": "", "last_editor": null, "updated_at": null }`
+- `next_frame()` returns current state unchanged (no autonomous updates)
+- Receives external text updates via a new method (e.g., `set_text(text, editor)`)
+
+**Socket protocol:**
+- Client → Server: `text:update { id, text }` — user typed something
+- Server stores in activity state, broadcasts `activity:update` to channel
+- No delta protocol needed — text payloads are small
+
+**Activity registration:**
+- Add `'text'` to `ACTIVITY_TYPES` in `activityTypes.js`
+- Add to `ACTIVITY_CATEGORIES` under a new or existing group
+- Add `TextActivity` to `server/activity_registry.py` REGISTRY
+- Low weight (0.3) in WEIGHTS — shouldn't dominate random scenes
+- Register `activity-text` component in `app.js`
+
+### Files to create
+- `server/generators/text.py` — TextActivity generator class
+- `static/js/components/activities/Text.js` — Vue component
+
+### Files to modify
+- `static/js/activityTypes.js` — add `'text'` to ACTIVITY_TYPES + categories
+- `server/activity_registry.py` — register TextActivity, set weight
+- `static/js/app.js` — import and register `activity-text` component
+- `app.py` — add `text:update` socket event handler
+- `static/css/activities.css` — minimal styling for text area
+
+
+======================================================
+IMPLEMENTATION PLAN — Phased in ~20-minute chunks
+======================================================
+
+## Phase 1: TTT + Life World scenes (~15 min)
+Checkpoint: two new scenes selectable from the scene picker, vanity URLs work
+
+### Tasks
+1. Add TTT scene to `SCENES` array in `static/js/scenes.js`
+2. Add Life World scene to `SCENES` array in `static/js/scenes.js`
+3. Add vanity slugs `"ttt"` and `"life-world"` in `server/scene_slugs.py`
+4. Smoke test: start server on 5051, verify both scenes load and show
+   correct activity types in the grid
+5. **COMMIT** — "Add TTT and Life World scenes"
+
+---
+
+## Phase 2: Text widget — server side (~20 min)
+Checkpoint: TextActivity class works, registered in the activity system
+
+### Tasks
+1. Create `server/generators/text.py` with `TextActivity` class:
+   - `strategies`: ["notepad", "broadcast", "memo", "sticky"]
+     (cosmetic only — no behavior difference)
+   - `titles`: ["SHARED PAD", "MEMO", "BROADCAST TEXT", "LIVE NOTE", "CHANNEL MSG"]
+   - `initial_payload()` returns `{ text: "", last_editor: null }`
+   - `next_frame()` returns current state unchanged
+   - `set_text(text, editor_sid)` method to update text from socket event
+2. Register in `server/activity_registry.py`:
+   - Import `TextActivity`
+   - Add `"text": TextActivity` to REGISTRY
+   - Add `"text": 0.3` to WEIGHTS
+3. Add `text:update` socket handler in `app.py`:
+   - Receive `{ id, text }`, look up activity by ID in sync_manager
+   - Call `set_text()` on the generator, broadcast updated state to channel
+4. **COMMIT** — "Add Text activity server generator and socket handler"
+
+---
+
+## Phase 3: Text widget — client side (~20 min)
+Checkpoint: Text widget renders, editing broadcasts to all clients
+
+### Tasks
+1. Create `static/js/components/activities/Text.js`:
+   - `<textarea>` filling the activity panel
+   - Bind to `activity.state.text`, emit `text:update` on input (debounced 300ms)
+   - Read-only when in OBS/locked mode
+   - Monospace font, transparent background, themed text color
+2. Add `'text'` to `ACTIVITY_TYPES` array in `static/js/activityTypes.js`
+3. Add `'text'` to appropriate category in `ACTIVITY_CATEGORIES`
+4. Import and register `activity-text` in `static/js/app.js`
+5. Add CSS for `.activity-text textarea` in `static/css/activities.css`
+6. Add `text:update` emit function in `static/js/socket.js`
+7. Smoke test: pin a text widget, type in it, verify it appears on a
+   second browser tab on the same channel
+8. **COMMIT** — "Add Text widget client component with real-time sync"
+
+---
+
+## Total estimated: ~55 minutes across 3 phases, 3 commits

@@ -30,7 +30,11 @@ export function buildConfigUrl() {
       ambientPreset: store.ambientPreset || null,
       filter: allFilterEnabled ? null : ACTIVITY_TYPES.filter(t => store.activityFilter[t]),
     };
-    return `${origin}${path}?scene_data=${encodeSceneToBase64(scene)}`;
+    const url = new URL(`${origin}${path}`);
+    url.searchParams.set('scene_data', encodeSceneToBase64(scene));
+    if (store.config.muted) url.searchParams.set('muted', '1');
+    if (store.config.volume !== 100) url.searchParams.set('vol', store.config.volume);
+    return url.toString();
   }
 
   // Simple params for basic configs
@@ -40,6 +44,7 @@ export function buildConfigUrl() {
   params.set('intensity', store.config.intensity);
   params.set('windows', store.config.fgTarget);
   if (store.config.muted) params.set('muted', '1');
+  if (store.config.volume !== 100) params.set('vol', store.config.volume);
 
   return `${origin}${path}?${params}`;
 }

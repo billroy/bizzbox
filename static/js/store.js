@@ -25,6 +25,7 @@ function parseUrlOverrides() {
   if (params.has('slideshow_filter')) o.slideshow_filter = params.get('slideshow_filter');
   if (params.has('viewer'))   o.viewer = params.get('viewer') === '1';
   if (params.has('obs'))      o.obs = params.get('obs') === '1';
+  if (params.has('vol'))      o.vol = parseInt(params.get('vol'), 10);
   return o;
 }
 
@@ -44,6 +45,7 @@ export function savePrefs() {
       activityFilter: store.activityFilter,
       fgTarget: store.config.fgTarget,
       headerPinned: store.headerPinned,
+      volume: store.config.volume,
     };
     localStorage.setItem(PREFS_KEY, JSON.stringify(p));
   } catch (_) { /* storage full or unavailable */ }
@@ -83,6 +85,7 @@ export const store = reactive({
     muted: false,
     syncMode: 'synced',
     fgTarget: 5,
+    volume: 100,       // 0-100 integer for display; internal gain = (volume/100) * 0.4
   },
 
   // Layout (fixed for session)

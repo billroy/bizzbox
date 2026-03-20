@@ -1,0 +1,256 @@
+FEATURES-16: Volume Control, OBS Guide, and Documentation Updates
+=================================================================
+
+Three items: a volume slider for the header, an OBS-specific setup guide,
+and documentation updates covering FEATURES-15 + FEATURES-16 additions.
+
+
+1. Volume Control in Header
+---------------------------
+
+### Current State
+
+Audio is binary: MUTED (gain 0) or SOUND (master gain hardcoded at 0.4).
+The AudioEngine in audio.js controls:
+  - masterGain: single GainNode gating all output (0.4 or 0)
+  - ambientGain: per-preset gain that scales with intensity
+  - event sounds: playSpawn, playDespawn, playActivitySound, etc.
+
+All audio flows through masterGain, so a single volume knob controls everything.
+
+### Design
+
+Add a range slider next to the MUTED/SOUND button in Row 3. The slider
+controls master volume (0-100%, stored as 0.0-1.0 internally). Mute sets
+gain to 0 without moving the slider; unmute restores the slider value.
+
+URL parameter: `vol=0`..`100` (integer percentage). Example: `?vol=30`
+maps to internal gain 0.3 * 0.4 = 0.12. The 0.4 base gain stays as the
+ceiling; vol scales within it. vol=100 means 0.4 gain (current max).
+
+If `muted=1` is also set, the slider position is preserved but gain is 0.
+
+### Files to Modify
+
+**static/js/audio.js**
+  - Add `_volume` property (default 1.0, meaning 100%)
+  - Add `setVolume(v)` method: stores _volume, sets masterGain to
+    v * 0.4 (unless muted, then stays 0)
+  - Add `getVolume()` getter
+  - Modify `unmute()` to use _volume * 0.4 instead of hardcoded 0.4
+  - Modify `mute()` to set gain 0 without changing _volume
+
+**static/js/store.js**
+  - Add `volume` URL param: `if (params.has('vol')) o.vol = parseInt(params.get('vol'), 10);`
+  - Add `config.volume: 100` to reactive store (integer 0-100 for display)
+
+**static/js/socket.js**
+  - No server sync needed — volume is a local/client preference, not
+    broadcast to other clients. Just persist in localStorage.
+
+**static/js/components/AppHeader.js**
+  - Add `volume` computed property (get/set from store.config.volume)
+  - On set: call audio.setVolume(v / 100), persist via savePrefs()
+  - Add range input between MUTED/SOUND button and AMBIENT dropdown:
+    `<input type="range" min="0" max="100" v-model.number="volume"
+            class="header-slider header-vol" title="Volume">`
+  - Show percentage label: `<span class="vol-label">{{ volume }}%</span>`
+  - When slider hits 0, auto-mute; when slider moves above 0 while muted,
+    auto-unmute
+
+**static/css/layout.css**
+  - `.header-vol` — styled range input matching theme (accent color track,
+    small thumb). Use CSS custom properties for theme integration.
+  - `.vol-label` — small mono text, dim color
+
+**static/js/store.js (savePrefs/loadPrefs)**
+  - Add `volume` to saved prefs object
+  - On load, apply volume from prefs (after URL override if present)
+
+**static/js/configUrl.js**
+  - Include `vol` param in buildConfigUrl() when volume != 100
+
+**static/js/components/EmbedModal.js**
+  - Add volume option (range or checkbox for "start muted")
+
+**static/js/components/HelpOverlay.js**
+  - No new keyboard shortcut needed (slider is mouse/touch only)
+
+### URL Parameter
+
+  `vol=N` where N is 0-100 (integer percentage)
+
+  - `vol=0` is equivalent to `muted=1` (gain = 0)
+  - `vol=100` is full volume (gain = 0.4, the existing max)
+  - `vol=50` is half volume (gain = 0.2)
+  - Omitting `vol` defaults to 100 (or saved preference)
+  - If both `vol` and `muted=1` are present, muted wins (gain=0),
+    but slider position reflects vol value for when user unmutes
+
+### Interaction with Mute
+
+  - Clicking MUTED/SOUND toggles mute. Muting sets gain to 0 but
+    preserves the slider position. Unmuting restores gain to slider value.
+  - Dragging slider to 0 auto-mutes. Dragging above 0 auto-unmutes.
+  - The MUTED/SOUND button label reflects the mute state, not the
+    slider position.
+
+### Effort: Small (1-2 hours)
+
+
+2. README-OBS.md — OBS Setup Guide
+-----------------------------------
+
+### Purpose
+
+A standalone guide for OBS Studio users who want to use BizzBox as a
+browser source overlay or background. Covers setup, recommended settings,
+and common configurations.
+
+### Content Outline
+
+  1. Quick Start
+     - Add Browser Source in OBS
+     - Set URL to BizzBox instance (local or hosted)
+     - Recommended dimensions (1920x1080 or match canvas)
+     - Check "Shutdown source when not visible"
+
+  2. Transparent Background Mode
+     - Use `?obs=1` parameter
+     - Explains what it does: transparent bg, no header, no scanlines
+     - Combined with scenes: `?obs=1&scene=War+Room`
+     - Note: OBS browser source must have transparent bg enabled
+
+  3. Recommended URL Configurations
+     - Full-screen background: `?scene=Ambient&lock=1`
+     - Overlay with transparency: `?obs=1&scene=Hacker+Den`
+     - Specific activity only: `?obs=1&layout=1x1&windows=0`
+     - Muted (if using own audio): `?obs=1&muted=1`
+     - With volume control: `?obs=1&vol=30`
+     - Kiosk mode: `?kiosk=1&scene=War+Room`
+
+  4. Performance Tips
+     - Lower intensity for less CPU: `&intensity=3`
+     - Fewer windows: `&windows=0`
+     - Smaller grid: `&layout=3x2`
+     - "Shutdown source when not visible" in OBS
+     - Hardware acceleration in OBS browser source settings
+
+  5. Embed Code
+     - Mention the Embed Code generator in the header
+     - Show example OBS-ready URL from embed modal
+
+  6. Vanity URLs
+     - Scene shortcuts: `/war-room`, `/hacker-den`, etc.
+     - Can combine with params: `/war-room?obs=1&vol=50`
+
+  7. Troubleshooting
+     - Black screen: check URL, check server running
+     - White background instead of transparent: add `?obs=1`
+     - Audio: OBS browser sources can play audio; use vol param
+     - Lag: reduce intensity and window count
+     - Reconnecting: OBS browser source may need refresh
+
+### Effort: Small (30-60 min writing)
+
+
+3. Documentation Updates
+------------------------
+
+### USERS-GUIDE.md Updates
+
+Items that need adding or updating to reflect FEATURES-15 and FEATURES-16:
+
+a) **Themes table** — Add "Agent" theme (24th theme, currently 23 listed).
+   Update count from "23 themes" to "24 themes" wherever mentioned.
+
+b) **Ambient Audio table** — Add "Agent Den" preset (currently missing).
+
+c) **Scenes table** — Currently only lists the original 6. Add all 28
+   built-in scenes (War Room through Feature Zoo) or at minimum reference
+   them.
+
+d) **Activity Types section** — Update count from "54" to "57" (or
+   whatever current count is). Add any missing types: AI Agent, Pong,
+   Tic Tac Toe.
+
+e) **URL Parameters table** — Add these new parameters:
+   - `obs=1` — OBS transparent background mode
+   - `vol=0..100` — Volume level (percentage)
+   - `scene_data` already documented, good
+   - `viewer` already documented, good
+
+f) **URL Parameters example URLs** — Add:
+   - OBS mode: `?obs=1&scene=War+Room`
+   - Volume control: `?vol=30&scene=Ambient`
+   - Vanity URL: just `/war-room`
+
+g) **New section: Vanity URLs** — Brief section explaining `/war-room`,
+   `/hacker-den`, etc. as shortcuts to built-in scenes. Note they can
+   be combined with query params.
+
+h) **New section: OBS / Streaming** — Brief section pointing to
+   README-OBS.md for detailed setup, with a quick summary of `?obs=1`.
+
+i) **New section: Screenshot Export** — Document the SNAP button.
+
+j) **New section: Config Links & Embed Codes** — Document the LINK
+   button, right-click "Copy Config Link", and the Embed Code modal.
+
+k) **Filtering Activities section** — Update to mention search
+   highlighting, match count, and clear button.
+
+l) **Volume Control** — Add to the Ambient Audio section or create a
+   subsection. Document the slider, the vol URL param, and interaction
+   with mute.
+
+m) **Keyboard Shortcuts table** — Verify all shortcuts are listed and
+   accurate. No new shortcuts for FEATURES-15/16 (all are mouse-driven).
+
+### README.md Updates
+
+Lighter touch — just update the headline stats:
+  - Activity types count (update if changed)
+  - Theme count: 24
+  - Ambient presets count: 32
+  - Scene count: 28 built-in
+  - Add `obs`, `vol` to URL params table
+  - Add OBS/embed/screenshot to feature list
+  - Add vanity URLs to feature list
+  - Mention README-OBS.md in deployment section or a new "OBS" section
+
+### HelpOverlay.js
+
+No changes needed — keyboard shortcuts haven't changed.
+
+### Effort: Medium (1-2 hours for all doc updates)
+
+
+Build Order
+-----------
+
+1. Volume control (audio.js, store.js, AppHeader.js, layout.css,
+   configUrl.js, EmbedModal.js)
+2. README-OBS.md (standalone, no code dependencies)
+3. USERS-GUIDE.md updates (after volume is implemented so docs are accurate)
+4. README.md updates (after all features are final)
+
+Steps 2-4 can be parallelized since they're pure documentation.
+
+
+Verification
+------------
+
+1. Volume slider visible in Row 3 between MUTED and AMBIENT
+2. Dragging slider changes audio volume in real-time
+3. Slider at 0 auto-mutes; moving above 0 auto-unmutes
+4. Mute button preserves slider position
+5. `?vol=50` starts at half volume
+6. `?vol=0` starts muted
+7. `?muted=1&vol=50` starts muted, unmuting goes to 50%
+8. Volume persists in localStorage across reload
+9. LINK button includes vol param when != 100
+10. Embed modal reflects volume setting
+11. README-OBS.md renders correctly, all URLs are accurate
+12. USERS-GUIDE.md has all new features documented
+13. README.md headline stats are accurate

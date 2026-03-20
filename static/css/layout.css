@@ -410,6 +410,44 @@ html.obs-mode .boot-screen      { background: transparent; }
   cursor: pointer;
 }
 
+/* Volume slider (narrower than energy/win-count sliders) */
+.header-vol {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 70px;
+  height: 4px;
+  background: #333;
+  border: none;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  vertical-align: middle;
+  accent-color: var(--color-accent-1, #ffffff);
+}
+.header-vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-accent-1, #ffffff);
+  cursor: pointer;
+}
+.header-vol::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-accent-1, #ffffff);
+  border: none;
+  cursor: pointer;
+}
+.vol-label {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #888;
+  min-width: 32px;
+  text-align: center;
+}
+
 .header-btn {
   padding: 4px 11px;
   letter-spacing: 0.05em;

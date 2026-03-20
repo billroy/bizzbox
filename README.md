@@ -6,17 +6,27 @@ No data is real. No databases required. Everything is procedurally generated in 
 
 ## Features
 
-- **38 activity types** — canvas-rendered visualizations (radar, globe arcs, wireframe 3D, game of life, weather radar, etc.) and DOM-based panels (terminals, log tails, data tables, stock tickers, chat intercepts, etc.)
-- **11 color themes** — Dark, Light, Brutalist, Neon, Rainbow, Sunshine, Red, Black, LCARS, Amber, Arctic
-- **9 synthesized ambient soundscapes** — server room hum, forest rain, deep space drone, war room tension, and more — all generated via Web Audio API with zero audio files
-- **6 preset scenes** — War Room, Ambient, Hacker Den, Mission Control, Surveillance, Chaos — plus custom scene save/load
-- **Configurable grid layouts** — from 2x1 to 6x8 background panels
+- **57 activity types** — 42 canvas-rendered visualizations (radar, globe arcs, wireframe 3D, game of life, weather radar, pong, tic tac toe, etc.) and 15 DOM-based panels (terminals, log tails, data tables, stock tickers, AI agent, etc.)
+- **24 color themes** — Dark, Light, Brutalist, Neon, Rainbow, Sunshine, Red, Black, LCARS, Amber, Arctic, Synthwave, Military, Ocean, Forest, Copper, Vapor, Infrared, Phosphor, Blueprint, Sunset, Matrix, Frost, Agent
+- **32 synthesized ambient soundscapes** — server room hum, forest rain, deep space drone, war room tension, warp engine, volcano, cathedral, and more — all generated via Web Audio API with zero audio files
+- **28 preset scenes** — War Room, Ambient, Hacker Den, Starship Bridge, Cyber Siege, Feature Zoo, and 22 more — plus custom scene save/load/export/import/share
+- **Scene vanity URLs** — `/war-room`, `/hacker-den`, `/starship-bridge`, etc.
+- **Configurable grid layouts** — from 2x1 to 10x6 background panels
 - **Draggable/resizable foreground windows** with z-ordering
 - **Background slot pinning** — right-click any background panel to lock it to a specific activity type
-- **Activity type filtering** — exclude specific activity types from spawning
+- **Activity type filtering** — exclude specific types with search, highlighting, and match count
+- **Volume control** — master volume slider with URL parameter (`?vol=50`) and mute interaction
+- **OBS / streaming support** — transparent background mode (`?obs=1`) for browser source overlays
+- **Screenshot export** — SNAP button captures PNG (transparent in OBS mode)
+- **Embed code generator** — generate `<iframe>` snippets for dashboards and wikis
+- **Config link sharing** — LINK button copies a shareable URL encoding current settings
+- **Multi-channel support** — up to 50 independent channels on one server
 - **Lock mode** — hides all UI for clean ambient display; cursor auto-hides after 2 seconds
+- **Kiosk mode** — full-screen, chrome-free display with auto-fullscreen on first click
+- **Slideshow mode** — auto-cycle through scenes at a configurable interval
+- **Mobile / touch support** — swipe gestures, viewer mode, responsive layout
 - **Multi-client sync** — all connected browsers see the same show (synced mode) or run independently (unsynced mode)
-- **Delta state compression** — bandwidth-optimized updates for data-heavy activities (seismograph, game of life, data tables)
+- **Delta state compression** — bandwidth-optimized updates for data-heavy activities
 - **URL query parameters** — link directly to a specific configuration
 - **localStorage persistence** — your preferences survive page reloads
 - **Zero build step** — no webpack, no npm, no bundler. Vue 3 and Socket.IO loaded directly. Just Python.
@@ -49,8 +59,11 @@ Open **http://localhost:5000** in your browser.
 python app.py [OPTIONS]
 
   --style THEME        Initial theme (default: dark)
-                       Choices: dark, light, brutalist, neon, rainbow,
-                       sunshine, red, black, lcars, amber, arctic
+                       24 themes: dark, light, brutalist, neon, rainbow,
+                       sunshine, red, black, lcars, amber, arctic,
+                       synthwave, military, ocean, forest, copper,
+                       vapor, infrared, phosphor, blueprint, sunset,
+                       matrix, frost, agent
 
   --intensity N        Mean updates per second, 1-20 (default: 5)
                        1 = serene, 5 = moderate, 10+ = frenetic
@@ -108,28 +121,36 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=0&lock=1
 | `layout` | `COLSxROWS` (e.g. `6x4`) | Override background grid size |
 | `windows` | 0-20 | Override foreground window count |
 | `muted` | `0` or `1` | Start unmuted or muted |
+| `vol` | 0-100 | Volume level (percentage) |
+| `obs` | `1` | Transparent background mode for OBS |
 | `lock` | `1` | Start in lock mode |
+| `kiosk` | `1` | Kiosk mode (no chrome, auto-fullscreen) |
+| `scene` | Scene name | Load a built-in or custom scene |
+| `channel` | Channel name | Join a specific channel |
+| `slideshow` | seconds | Auto-cycle scenes at interval |
+| `viewer` | `1` | Simplified mobile viewer |
 
-URL parameters take priority over saved preferences.
+URL parameters take priority over saved preferences. Vanity URLs also work: `/war-room`, `/hacker-den`, etc.
 
 ## Scenes
 
-Six built-in scenes configure theme, layout, intensity, window count, and ambient audio as a preset:
+28 built-in scenes configure theme, layout, intensity, window count, ambient audio, and activity filters as a preset. A few highlights:
 
-| Scene | Theme | Grid | Intensity | Windows | Ambient |
-|-------|-------|------|-----------|---------|---------|
-| War Room | Red | 6x4 | 15 | 5 | War Room |
-| Ambient | Dark | 3x2 | 2 | 0 | Deep Space |
-| Hacker Den | Neon | 4x3 | 10 | 3 | Server Room |
-| Mission Control | Black | 6x4 | 8 | 0 | Bunker Countdown |
-| Surveillance | Brutalist | 5x4 | 6 | 2 | Power Plant |
-| Chaos | Rainbow | 6x8 | 20 | 10 | None |
+| Scene | Theme | Grid | Intensity | Ambient |
+|-------|-------|------|-----------|---------|
+| War Room | Red | 6x4 | 15 | War Room |
+| Ambient | Dark | 3x2 | 2 | Deep Space |
+| Hacker Den | Neon | 4x3 | 10 | Server Room |
+| Starship Bridge | LCARS | 5x3 | 8 | Warp Engine |
+| Cyber Siege | Brutalist | 6x4 | 18 | Digital Warfare |
+| Agent Den | Agent | 6x4 | 10 | Agent Den |
+| Feature Zoo | Dark | 10x6 | 5 | — |
 
-Custom scenes can be saved and loaded from the header dropdown. They persist in localStorage.
+Custom scenes can be saved, loaded, exported, imported, and shared via URL from the header. They persist in localStorage. See [USERS-GUIDE.md](USERS-GUIDE.md) for the complete scene list.
 
 ## Activity Types
 
-### Canvas Visualizations
+### Canvas Visualizations (42)
 
 | Activity | Description |
 |----------|-------------|
@@ -157,8 +178,26 @@ Custom scenes can be saved and loaded from the header dropdown. They persist in 
 | Packet Sniffer | Network packet capture visualization |
 | Access Control | Badge/access log with entry tracking |
 | Stock Graph | Candlestick/line stock chart |
+| Sonar | Sonar sweep with bearing-time waterfall |
+| Process Monitor | System process table with CPU/memory bars |
+| CCTV Mosaic | Multi-camera surveillance grid |
+| Server Rack | Rack unit display with LEDs and status badges |
+| Flight Tracker | Aircraft radar with range rings and trails |
+| Blockchain | Block creation and transaction visualization |
+| Warp Drive | Warp nacelle with plasma conduit and energy flow |
+| Mech Bay | Mech hangar with hydraulic systems and diagnostics |
+| Terraforming | Atmospheric processor with planetary conditions |
+| Dungeon Master | Fantasy dungeon map with party tracking |
+| Space Elevator | Cable car with altitude and payload readouts |
+| Submarine Helm | Submarine console with depth and heading |
+| Wildfire Command | Fire incident command with crew deployment |
+| Hyperloop | Pod transit display with velocity graph |
+| Genetics Lab | Gene sequencer with CRISPR targets |
+| Mission Control | Flight director console with telemetry |
+| Pong | Classic two-paddle pong with AI opponents |
+| Tic Tac Toe | Automated X vs O games with commentary |
 
-### DOM/Text Panels
+### DOM/Text Panels (15)
 
 | Activity | Description |
 |----------|-------------|
@@ -175,6 +214,8 @@ Custom scenes can be saved and loaded from the header dropdown. They persist in 
 | Chat Intercept | Simulated message intercept feed |
 | Cipher Decrypt | Animated cipher-breaking display |
 | System Topology | System architecture diagram |
+| Graph | Dynamic line/bar/scatter chart |
+| AI Agent | Simulated AI agent CLI with strategy parodies |
 
 Each activity type has multiple visual strategies (e.g., Game of Life has random soup, glider storm, oscillator garden, spaceship fleet, and methuselah seedings).
 
@@ -186,8 +227,8 @@ Client (Browser)                    Server (Python)
 Vue 3 reactive store     <──WS──>   Flask-SocketIO + gevent
   ├── BackgroundGrid                  ├── SyncManager (rooms, state sync)
   ├── ForegroundLayer                 ├── ActivityManager (lifecycle loop)
-  ├── AppHeader                       └── Generators (38 BaseActivity subclasses)
-  └── 36 activity components              └── Each produces state dicts at ~30 Hz
+  ├── AppHeader                       └── Generators (57 BaseActivity subclasses)
+  └── 57 activity components              └── Each produces state dicts at ~30 Hz
 ```
 
 - **Server** runs a ~30 Hz loop per room, ticking each activity generator and emitting state updates over WebSocket. Activities have randomized lifespans and are automatically replaced when they expire.
@@ -225,6 +266,11 @@ CMD ["python", "app.py"]
 | `SECRET_KEY` | `bizzbox-dev-secret` | Flask secret key (change in production) |
 
 Copy `.env.example` to `.env` to configure locally.
+
+## Documentation
+
+- **[USERS-GUIDE.md](USERS-GUIDE.md)** — Complete user guide with all features, settings, and keyboard shortcuts
+- **[README-OBS.md](README-OBS.md)** — OBS Studio setup guide for streaming overlays and browser sources
 
 ## License
 

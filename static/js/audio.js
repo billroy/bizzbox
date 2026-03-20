@@ -8,6 +8,7 @@ class AudioEngine {
     this._ctx = null;
     this._masterGain = null;
     this._muted = false;
+    this._volume = 1.0;   // 0.0–1.0, scales within 0.4 ceiling
     this._ready = false;
     // Ambient state
     this._ambientNodes = null;
@@ -20,7 +21,7 @@ class AudioEngine {
     try {
       this._ctx = new (window.AudioContext || window.webkitAudioContext)();
       this._masterGain = this._ctx.createGain();
-      this._masterGain.gain.value = this._muted ? 0 : 0.4;
+      this._masterGain.gain.value = this._muted ? 0 : this._volume * 0.4;
       this._masterGain.connect(this._ctx.destination);
       this._ready = true;
     } catch (e) {
@@ -96,11 +97,23 @@ class AudioEngine {
 
   unmute() {
     this._muted = false;
-    if (this._masterGain) this._masterGain.gain.value = 0.4;
+    if (this._masterGain) this._masterGain.gain.value = this._volume * 0.4;
   }
 
   setMuted(val) {
     val ? this.mute() : this.unmute();
+  }
+
+  /** Set volume 0.0–1.0. Scales within the 0.4 master ceiling. */
+  setVolume(v) {
+    this._volume = Math.max(0, Math.min(1, v));
+    if (!this._muted && this._masterGain) {
+      this._masterGain.gain.value = this._volume * 0.4;
+    }
+  }
+
+  getVolume() {
+    return this._volume;
   }
 
   // ── Ambient soundscape presets ──────────────────────────────
