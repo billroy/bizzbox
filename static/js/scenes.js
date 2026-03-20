@@ -35,6 +35,8 @@ export const SCENES = [
   { name: 'Eruption',        style: 'matrix',     cols: 6, rows: 4, intensity: 17, fgTarget: 7,  ambientPreset: 'volcano',          filter: ['seismograph', 'power_grid', 'resource_gauges', 'weather_radar', 'countdown', 'notifications', 'graph', 'oscilloscope'] },
   { name: 'Frozen Vault',    style: 'frost',      cols: 4, rows: 3, intensity: 8,  fgTarget: 2,  ambientPreset: 'ice_cave',         filter: ['blockchain', 'cipher_decrypt', 'access_control', 'data_table', 'server_rack', 'hex_dump'] },
   { name: 'Agent Den',      style: 'agent',      cols: 6, rows: 4, intensity: 10, fgTarget: 0,  ambientPreset: 'agent_den',        filter: ['ai_agent'] },
+  { name: 'TTT',            style: 'neon',       cols: 6, rows: 4, intensity: 8,  fgTarget: 0,  ambientPreset: 'server_room',      filter: ['tic_tac_toe'] },
+  { name: 'Life World',     style: 'phosphor',   cols: 6, rows: 4, intensity: 6,  fgTarget: 0,  ambientPreset: 'genetics_hum',     filter: ['game_of_life'] },
   { name: 'Feature Zoo',    style: 'dark',       cols: zooCols, rows: zooRows, intensity: 5,  fgTarget: 0,  ambientPreset: null, filter: null, slots: [...ACTIVITY_TYPES] },
 ];
 
