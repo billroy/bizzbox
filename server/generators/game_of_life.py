@@ -303,10 +303,10 @@ class GameOfLifeActivity(BaseActivity):
         if len(self._prev_populations) > 20:
             self._prev_populations.pop(0)
 
-        # Auto-reseed when dead or stable for 20+ frames
+        # Auto-reseed when dead, stable, or in a period-2 oscillation for 20+ frames
         if self.population == 0 or (
             len(self._prev_populations) >= 20
-            and len(set(self._prev_populations)) == 1
+            and len(set(self._prev_populations)) <= 2
         ):
             self.strategy = random.choice(self.strategies)
             self._seed_grid()

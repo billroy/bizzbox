@@ -12,16 +12,15 @@ export default {
 
     const localText = ref('');
     let debounceTimer = null;
-    let suppressNextWatch = false;
+    let lastLocalEdit = 0;
 
     const readOnly = computed(() => store.lockMode);
 
-    // Sync incoming server state → local (unless we just typed)
+    // Sync incoming server state → local (suppress for 1s after local edit)
     watch(
       () => props.activity?.state?.text,
       (newText) => {
-        if (suppressNextWatch) {
-          suppressNextWatch = false;
+        if (Date.now() - lastLocalEdit < 1000) {
           return;
         }
         if (newText != null) {
@@ -33,7 +32,7 @@ export default {
 
     function onInput(e) {
       localText.value = e.target.value;
-      suppressNextWatch = true;
+      lastLocalEdit = Date.now();
 
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {

@@ -3,7 +3,6 @@ Activity lifecycle engine.
 Manages spawn/despawn/update cycles for one set of clients (either global synced,
 or per-client in unsynced mode).
 """
-import json
 import logging
 import random
 import math
@@ -170,12 +169,7 @@ class ActivityManager:
                     if rec.last_state and rec.frame_count % 30 != 0:
                         delta = rec.generator.compute_delta(rec.last_state, frame)
                         if delta is not None:
-                            # Only use delta if it's actually smaller
-                            try:
-                                if len(json.dumps(delta, separators=(',', ':'))) < len(json.dumps(frame, separators=(',', ':'))):
-                                    emit_state = delta
-                            except (TypeError, ValueError):
-                                pass  # JSON encoding error — fall back to full frame
+                            emit_state = delta
 
                     rec.last_state = frame
                     self._emitter.emit_update(self._room, act_id, emit_state)
@@ -344,10 +338,14 @@ class ActivityManager:
                     self._emitter.emit_despawn(self._room, rec.id)
                     # Remove immediately (no replacement scheduled)
                     self._activities.pop(act_id, None)
-            # Also remove any pending replacements for removed slots
+            # Also remove any pending replacements/closures for removed slots
             self._pending_replacements = [
                 r for r in self._pending_replacements
                 if not (r[0] is not None and r[0] >= new_count)
+            ]
+            self._pending_closures = [
+                (oid, t) for oid, t in self._pending_closures
+                if oid != act_id
             ]
 
         # Resize the slots list
@@ -363,6 +361,16 @@ class ActivityManager:
         # Spawn activities for newly empty slots
         for slot_idx in range(old_count, new_count):
             self._spawn_activity(slot_idx, is_foreground=False)
+
+    def update_text_activity(self, activity_id: str, text: str, sid: str) -> dict | None:
+        """Update text for a text activity. Returns new state, or None if invalid."""
+        rec = self._activities.get(activity_id)
+        if rec is None or rec.generator.activity_type != "text":
+            return None
+        rec.generator.set_text(text, sid)
+        state = rec.generator.next_frame()
+        rec.last_state = state
+        return state
 
     def pin_slot(self, slot: int, type_name: str):
         """Pin a background slot to always respawn with the given activity type."""

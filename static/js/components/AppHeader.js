@@ -1,13 +1,14 @@
 /**
  * Auto-hiding page header with all controls.
  */
-import { store, savePrefs, clearPrefs } from '../store.js';
+import { store, savePrefs, clearPrefs, showToast } from '../store.js';
 import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize, sendActivityFilter, sendChannelCreate, sendChannelSwitch } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '../activityTypes.js';
 import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportScenes, importScenes, encodeSceneToBase64 } from '../scenes.js';
 import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
 import { copyConfigUrl } from '../configUrl.js';
+import { applyScene as applySceneAction } from '../keyboard.js';
 
 export default {
   name: 'AppHeader',
@@ -154,45 +155,11 @@ export default {
     const scenes = SCENES;
     const customScenes = computed(() => store.customScenes);
 
-    function _applySceneObj(scene) {
-      sendStyle(scene.style);
-      sendLayout(scene.cols, scene.rows);
-      sendIntensity(scene.intensity);
-      sendFgTarget(scene.fgTarget);
-      // Apply ambient preset if defined
-      if (scene.ambientPreset !== undefined) {
-        const key = scene.ambientPreset || null;
-        store.ambientPreset = key;
-        if (key) {
-          audio.startAmbient(key, scene.intensity);
-        } else {
-          audio.stopAmbient();
-        }
-        savePrefs();
-      }
-      // Apply activity filter if defined
-      if (scene.filter && Array.isArray(scene.filter)) {
-        const filterObj = {};
-        for (const t of ACTIVITY_TYPES) filterObj[t] = false;
-        for (const t of scene.filter) filterObj[t] = true;
-        store.activityFilter = filterObj;
-        sendActivityFilter(scene.filter);
-        savePrefs();
-      } else if (scene.filter === null) {
-        // null = all enabled — reset filter
-        const filterObj = {};
-        for (const t of ACTIVITY_TYPES) filterObj[t] = true;
-        store.activityFilter = filterObj;
-        sendActivityFilter(ACTIVITY_TYPES);
-        savePrefs();
-      }
-    }
-
     function applyScene(evt) {
       const name = evt.target.value;
       if (!name) return;
       const scene = SCENES.find(s => s.name === name) || store.customScenes.find(s => s.name === name);
-      if (scene) _applySceneObj(scene);
+      if (scene) applySceneAction(scene);
       evt.target.value = '';
     }
 
@@ -242,14 +209,12 @@ export default {
 
     function doExportScenes() {
       const json = exportScenes();
-      navigator.clipboard.writeText(json).then(() => {
-        // Inline import to avoid circular deps
-        const { showToast } = store;
-        // showToast is on the store module, use the imported one
-      }).catch(() => {});
-      // Show feedback via alert as toast might not be imported here
       const count = JSON.parse(json).length;
-      window.alert(`${count} custom scene(s) copied to clipboard.`);
+      navigator.clipboard.writeText(json).then(() => {
+        showToast(`${count} SCENE(S) COPIED`);
+      }).catch(() => {
+        window.alert(`${count} custom scene(s) copied to clipboard.`);
+      });
     }
 
     function doImportScenes() {
@@ -378,6 +343,23 @@ export default {
       location.reload();
     }
 
+    // ── Volume control ────────────────────────────────────────
+    const volume = computed({
+      get: () => store.config.volume,
+      set: (v) => {
+        const val = Math.max(0, Math.min(100, Number(v)));
+        store.config.volume = val;
+        audio.setVolume(val / 100);
+        // Auto-mute at 0, auto-unmute above 0
+        if (val === 0 && !store.config.muted) {
+          sendMute(true);
+        } else if (val > 0 && store.config.muted) {
+          sendMute(false);
+        }
+        savePrefs();
+      },
+    });
+
     const ambientPresets = AMBIENT_PRESET_LIST;
 
     const ambientPreset = computed({
@@ -412,7 +394,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, onHeaderMouseEnter, onHeaderMouseLeave };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, onHeaderMouseEnter, onHeaderMouseLeave };
   },
 
   template: `
@@ -543,6 +525,9 @@ export default {
                   :class="{ active: muted }">
             {{ muted ? 'MUTED' : 'SOUND' }}
           </button>
+          <input type="range" min="0" max="100" v-model.number="volume"
+                 class="header-slider header-vol" title="Volume" />
+          <span class="vol-label">{{ volume }}%</span>
           <div class="group-section">
             <span class="group-label">AMBIENT</span>
             <select class="header-select" v-model="ambientPreset">

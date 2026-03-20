@@ -358,16 +358,15 @@ def test_game_of_life_delta_roundtrip():
 7. ✅ **Fix M1** — Added `len(slots) > 500` guard in `on_configure_slots`.
 8. ✅ **Fix M2** — Replaced raw SID with opaque `#NNNN` label in `TextActivity`.
 
-### Stage 3 — Code Quality & Refactoring (~3 hours)
-*Clean up before the codebase grows further.*
+### Stage 3 — Code Quality & Refactoring ✅ COMPLETE
 
-9. **Fix Q1** — Add `ActivityManager.update_text_activity(id, text, sid)` method; remove direct `_activities` access from `SyncManager`. `[server/activity_manager.py, server/sync_manager.py]`
-10. **Fix Q2** — Remove the `json.dumps` size comparison in `_loop`; always prefer delta when `compute_delta` returns non-None. `[server/activity_manager.py]`
-11. **Fix D1** — Delete `AppHeader._applySceneObj`; import and call `applyScene` from `keyboard.js`. `[static/js/components/AppHeader.js]`
-12. **Fix Q3** — Import `showToast` in `AppHeader.js` and use it in `doExportScenes`. `[static/js/components/AppHeader.js]`
-13. **Fix Q4** — Replace `suppressNextWatch` boolean with a `lastLocalEdit = Date.now()` timestamp; suppress server updates for 1 second after the last keystroke. `[static/js/components/activities/Text.js]`
-14. **Fix Q6** — Filter `_pending_closures` in `set_grid` when slots are removed. `[server/activity_manager.py]`
-15. **Fix Q7** — Add period-2 oscillator detection to `GameOfLife` reseed check. `[server/generators/game_of_life.py]`
+9. ✅ **Fix Q1** — Added `ActivityManager.update_text_activity()` method; `SyncManager` no longer accesses `_activities` directly.
+10. ✅ **Fix Q2** — Removed `json.dumps` size comparison; always prefer delta when `compute_delta` returns non-None. Removed unused `import json`.
+11. ✅ **Fix D1** — Deleted `_applySceneObj` from AppHeader; imports and calls `applyScene` from `keyboard.js`.
+12. ✅ **Fix Q3** — Imported `showToast` in `AppHeader.js`; `doExportScenes` uses toast on success, alert on clipboard failure.
+13. ✅ **Fix Q4** — Replaced `suppressNextWatch` boolean with `lastLocalEdit = Date.now()` timestamp; suppresses server updates for 1s after keystroke.
+14. ✅ **Fix Q6** — `set_grid` now filters `_pending_closures` when slots are removed.
+15. ✅ **Fix Q7** — GameOfLife reseed check now detects period-2 oscillators (`len(set(...)) <= 2`).
 
 ### Stage 4 — Test Suite (~4–8 hours)
 *Build the safety net before adding more features.*

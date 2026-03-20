@@ -378,12 +378,9 @@ class SyncManager:
         manager = self._get_manager_for_sid(sid)
         if not manager:
             return
-        rec = manager._activities.get(activity_id)
-        if rec is None or rec.generator.activity_type != "text":
+        state = manager.update_text_activity(activity_id, text, sid)
+        if state is None:
             return
-        rec.generator.set_text(text, sid)
-        state = rec.generator.next_frame()
-        rec.last_state = state
         # Debounce broadcasts: max 10 Hz per activity
         now = time.monotonic()
         last = self._text_last_broadcast.get(activity_id, 0)
