@@ -74,6 +74,8 @@ import ActivityPong              from './components/activities/Pong.js';
 import ActivityTicTacToe         from './components/activities/TicTacToe.js';
 import ActivityAiAgent           from './components/activities/AiAgent.js';
 import ActivityText              from './components/activities/Text.js';
+import ActivityAquarium          from './components/activities/Aquarium.js';
+import ActivityAntFarm           from './components/activities/AntFarm.js';
 
 const { createApp } = Vue;
 
@@ -282,6 +284,8 @@ app.component('activity-pong',                   ActivityPong);
 app.component('activity-tic-tac-toe',            ActivityTicTacToe);
 app.component('activity-ai-agent',              ActivityAiAgent);
 app.component('activity-text',                  ActivityText);
+app.component('activity-aquarium',              ActivityAquarium);
+app.component('activity-ant-farm',              ActivityAntFarm);
 
 app.mount('#app');
 

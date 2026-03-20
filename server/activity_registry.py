@@ -58,6 +58,8 @@ from .generators.pong import PongActivity
 from .generators.tic_tac_toe import TicTacToeActivity
 from .generators.ai_agent import AiAgentActivity
 from .generators.text import TextActivity
+from .generators.aquarium import AquariumActivity
+from .generators.ant_farm import AntFarmActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -118,6 +120,8 @@ REGISTRY: dict[str, type] = {
     "tic_tac_toe":                        TicTacToeActivity,
     "ai_agent":                               AiAgentActivity,
     "text":                                       TextActivity,
+    "aquarium":                                       AquariumActivity,
+    "ant_farm":                                        AntFarmActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -180,6 +184,8 @@ WEIGHTS: dict[str, float] = {
     "tic_tac_toe":                        1.6,
     "ai_agent":                               1.2,
     "text":                                       0.3,
+    "aquarium":                                       1.5,
+    "ant_farm":                                        1.4,
 }
 
 _types = list(REGISTRY.keys())

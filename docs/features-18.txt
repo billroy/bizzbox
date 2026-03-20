@@ -1,0 +1,73 @@
+## Feature 18: Aquarium & Ant Farm Activity Types
+
+### Aquarium
+
+Canvas-rendered fish tank with 3-6 fish swimming around. Fish wrap-around when
+leaving one wall (reappear on opposite side).
+
+**Backend** (`server/generators/aquarium.py`):
+- Extends BaseActivity
+- Fish state: {id, x, y, vx, vy, size, type, color_idx, facing, phase, speed_mult}
+- Movement: advance by velocity each frame, wrap at ±0.1 beyond edges, 5% chance
+  of velocity perturbation per frame, vertical sine bobbing for natural motion
+- Static decorations: bubbles (rising columns), plants (swaying), rocks — sent only
+  in initial_payload, omitted from deltas
+- Strategies: tropical_reef, deep_sea, koi_pond, jellyfish_drift, coral_garden
+- Titles: AQUARIUM, FISH TANK, MARINE LIFE, REEF CAM, AQUATIC VIEW
+
+**Frontend** (`static/js/components/activities/Aquarium.js`):
+- Blue gradient background (darker at bottom) + sand floor
+- Fish drawn with canvas paths: ellipse body, triangle tail (oscillates for swimming),
+  dorsal fin, eye dot. ctx.translate/rotate/scale for positioning and facing.
+- Jellyfish variant (jellyfish_drift strategy): semicircle dome + wavy bezier tentacles,
+  semi-transparent
+- Decorations: bubble rings rising with wobble, swaying plant stems, rounded rocks
+- Hardcoded color palettes per strategy (tropical = bright, deep_sea = bioluminescent,
+  koi = warm orange/gold/red, jellyfish = pastels, coral = warm coral tones)
+
+---
+
+### Ant Farm
+
+Canvas-rendered cross-section of an ant farm with 8-15 ants navigating pre-generated
+tunnel networks. Lower update rate (~7fps) since ants move discretely.
+
+**Backend** (`server/generators/ant_farm.py`):
+- Extends BaseActivity, update_interval_override = 0.15
+- Tunnel system (static graph, generated at init):
+  - nodes: {id, x, y, type} — entrance (top), junction, chamber
+  - segments: {from, to} — node ID pairs
+  - Generation: 1-2 entrances at top → random-walk downward → branch at junctions
+    → chamber endpoints. ~15-25 nodes, ~20-35 segments. Tree + cross-links.
+- Ant state: {id, segment_idx, t (0-1 progress), direction, speed, carrying, size, type}
+  - At nodes: pick random connected segment (exclude previous)
+  - carrying: None/food/dirt/egg — toggled at chambers
+  - type: worker (common), soldier (larger mandibles), queen (rare, in chambers)
+- Strategies: sandy_farm, forest_floor, desert_colony, crystal_caves, volcanic_soil
+- Titles: ANT FARM, COLONY VIEW, FORMICARIUM, ANT COLONY, TUNNEL NETWORK
+
+**Frontend** (`static/js/components/activities/AntFarm.js`):
+- Background: sky strip at top + 3-4 horizontal dirt color bands
+- Tunnels: thick rounded lines for segments, filled circles for chambers, arches at
+  entrances
+- Ants drawn with canvas paths: 3 circles (head/thorax/abdomen), 6 legs with tripod
+  gait animation (client-side sin() oscillation), 2 antennae lines. ctx.rotate to
+  face along segment direction. Cargo dot above ant if carrying.
+- Soldier variant: larger head with mandible lines. Queen: 1.5x scale, larger abdomen.
+- Soil palettes per strategy (sandy = tan/brown, forest = dark, desert = warm beige,
+  crystal = blue/purple, volcanic = dark grey/red)
+
+---
+
+### Registration (both activities)
+
+- `static/js/activityTypes.js`: Add to ACTIVITY_TYPES array. Create new 'Nature'
+  category in ACTIVITY_CATEGORIES: ['aquarium', 'ant_farm']
+- `server/activity_registry.py`: Import classes, add to REGISTRY and WEIGHTS
+  (aquarium: 1.5, ant_farm: 1.4)
+- `static/js/app.js`: Import components, register with app.component()
+
+### Implementation Order
+
+1. Aquarium backend + frontend + registration + test
+2. Ant Farm backend + frontend + registration + test

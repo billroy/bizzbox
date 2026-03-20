@@ -62,6 +62,8 @@ export const ACTIVITY_TYPES = [
   'tic_tac_toe',
   'ai_agent',
   'text',
+  'aquarium',
+  'ant_farm',
 ];
 
 /**
@@ -103,5 +105,8 @@ export const ACTIVITY_CATEGORIES = {
   ],
   'Games': [
     'pong', 'tic_tac_toe', 'game_of_life',
+  ],
+  'Nature': [
+    'aquarium', 'ant_farm',
   ],
 };
