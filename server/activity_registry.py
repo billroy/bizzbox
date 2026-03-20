@@ -57,6 +57,7 @@ from .generators.mission_control import MissionControlActivity
 from .generators.pong import PongActivity
 from .generators.tic_tac_toe import TicTacToeActivity
 from .generators.ai_agent import AiAgentActivity
+from .generators.text import TextActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -116,6 +117,7 @@ REGISTRY: dict[str, type] = {
     "pong":                               PongActivity,
     "tic_tac_toe":                        TicTacToeActivity,
     "ai_agent":                               AiAgentActivity,
+    "text":                                       TextActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -177,6 +179,7 @@ WEIGHTS: dict[str, float] = {
     "pong":                               1.8,
     "tic_tac_toe":                        1.6,
     "ai_agent":                               1.2,
+    "text":                                       0.3,
 }
 
 _types = list(REGISTRY.keys())

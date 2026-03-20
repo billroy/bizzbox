@@ -368,3 +368,17 @@ class SyncManager:
         manager = self._get_manager_for_sid(sid)
         if manager:
             manager.unpin_slot(slot)
+
+    def update_text(self, sid: str, activity_id: str, text: str):
+        """Update text content for a Text activity and broadcast to channel."""
+        manager = self._get_manager_for_sid(sid)
+        if not manager:
+            return
+        rec = manager._activities.get(activity_id)
+        if rec is None or rec.generator.activity_type != "text":
+            return
+        rec.generator.set_text(text, sid)
+        state = rec.generator.next_frame()
+        rec.last_state = state
+        room = self.get_room_for_client(sid)
+        self._emitter.emit_update(room, activity_id, state)

@@ -8,7 +8,7 @@ import os
 import gevent.monkey
 gevent.monkey.patch_all()
 
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 from flask_socketio import SocketIO
 
 from server.config import AppConfig
@@ -38,7 +38,9 @@ def create_app(config: AppConfig):
     def scene_vanity(slug):
         scene_name = SCENE_SLUGS.get(slug.lower())
         if scene_name:
-            return redirect(f"/?scene={scene_name}", code=302)
+            qs = request.query_string.decode()
+            sep = "&" if qs else ""
+            return redirect(f"/?scene={scene_name}{sep}{qs}", code=302)
         return render_template("index.html")
 
     @app.route("/")
@@ -136,6 +138,14 @@ def create_app(config: AppConfig):
         slots = data.get("slots")  # list of type_name strings, indexed by slot
         if slots and isinstance(slots, list):
             sync_manager.configure_slots(request.sid, slots)
+
+    @socketio.on("text:update")
+    def on_text_update(data):
+        from flask import request
+        activity_id = data.get("id", "")
+        text = data.get("text", "")
+        if activity_id and isinstance(text, str):
+            sync_manager.update_text(request.sid, activity_id, text)
 
     @socketio.on("window:replace")
     def on_window_replace(data):
