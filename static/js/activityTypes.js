@@ -61,6 +61,7 @@ export const ACTIVITY_TYPES = [
   'pong',
   'tic_tac_toe',
   'ai_agent',
+  'text',
 ];
 
 /**
@@ -90,7 +91,7 @@ export const ACTIVITY_CATEGORIES = {
   'Data & Comms': [
     'terminal', 'code_scroll', 'log_tail', 'hex_dump', 'data_table',
     'notifications', 'progress_bars', 'matrix_rain', 'wireframe_3d',
-    'graph', 'cipher_decrypt', 'ai_agent',
+    'graph', 'cipher_decrypt', 'ai_agent', 'text',
   ],
   'Science': [
     'oscilloscope', 'seismograph', 'sdr_waterfall', 'qam_constellation',

@@ -110,6 +110,10 @@ export function initSocket() {
         if (urlOverrides.windows === undefined && saved.fgTarget !== undefined) sendFgTarget(saved.fgTarget);
         if (urlOverrides.muted === undefined && saved.muted !== undefined)      sendMute(saved.muted);
         if (saved.headerPinned) store.headerPinned = true;
+        if (saved.volume !== undefined) {
+          store.config.volume = saved.volume;
+          audio.setVolume(saved.volume / 100);
+        }
         if (saved.ambientPreset) {
           store.ambientPreset = saved.ambientPreset;
           audio.startAmbient(saved.ambientPreset, store.config.intensity);
@@ -131,6 +135,12 @@ export function initSocket() {
       if (urlOverrides.intensity) sendIntensity(urlOverrides.intensity);
       if (urlOverrides.windows !== undefined) sendFgTarget(urlOverrides.windows);
       if (urlOverrides.muted !== undefined) sendMute(urlOverrides.muted);
+      if (urlOverrides.vol !== undefined) {
+        const v = Math.max(0, Math.min(100, urlOverrides.vol));
+        store.config.volume = v;
+        audio.setVolume(v / 100);
+        if (v === 0) sendMute(true);
+      }
 
       // ?scene= overrides everything above — apply last
       if (urlOverrides.scene) {
@@ -346,6 +356,10 @@ export function sendConfigureSlots(slots) {
 }
 
 // ── Channel helpers ─────────────────────────────────────────
+
+export function sendTextUpdate(id, text) {
+  if (_socket) _socket.emit('text:update', { id, text });
+}
 
 export function sendChannelCreate() {
   if (_socket) _socket.emit('channel:create');

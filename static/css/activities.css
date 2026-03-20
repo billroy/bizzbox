@@ -916,3 +916,29 @@
 
 /* Smooth progress bar fill width is already transitioned (pbar-fill) */
 /* Smooth notification progress bar already transitioned (notif-progress-bar) */
+
+/* ── Text widget ──────────────────────────────────────────────── */
+.activity-text {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+.activity-text textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: monospace;
+  font-size: 14px;
+  color: var(--color-text);
+  padding: 8px;
+  line-height: 1.4;
+}
+.activity-text textarea::placeholder {
+  color: var(--color-text-dim);
+  opacity: 0.5;
+}
+.activity-text textarea:read-only {
+  cursor: default;
+}

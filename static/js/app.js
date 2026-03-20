@@ -73,6 +73,7 @@ import ActivityMissionControl    from './components/activities/MissionControl.js
 import ActivityPong              from './components/activities/Pong.js';
 import ActivityTicTacToe         from './components/activities/TicTacToe.js';
 import ActivityAiAgent           from './components/activities/AiAgent.js';
+import ActivityText              from './components/activities/Text.js';
 
 const { createApp } = Vue;
 
@@ -280,6 +281,7 @@ app.component('activity-mission-control',        ActivityMissionControl);
 app.component('activity-pong',                   ActivityPong);
 app.component('activity-tic-tac-toe',            ActivityTicTacToe);
 app.component('activity-ai-agent',              ActivityAiAgent);
+app.component('activity-text',                  ActivityText);
 
 app.mount('#app');
 
