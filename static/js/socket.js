@@ -119,10 +119,9 @@ export function initSocket() {
           audio.startAmbient(saved.ambientPreset, store.config.intensity);
         }
         if (saved.activityFilter && Object.keys(saved.activityFilter).length > 0) {
+          // Only restore locally — don't send to server on join, as that would
+          // despawn activities other clients in the channel are currently viewing
           store.activityFilter = saved.activityFilter;
-          const allowed = Object.entries(saved.activityFilter)
-            .filter(([_, v]) => v).map(([k]) => k);
-          sendActivityFilter(allowed);
         }
       }
 

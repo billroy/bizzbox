@@ -39,7 +39,7 @@ class ActivityRecord:
         self.despawning = False
         self.last_update = time.time()
         self.next_update_interval = 0.0   # set on first tick
-        self.last_state: dict = {}         # cache of most-recently-emitted frame
+        self.last_state: dict | None = None  # cache of most-recently-emitted frame
         self.frame_count: int = 0          # counts frames for keyframe interval
 
 
@@ -380,12 +380,14 @@ class ActivityManager:
         """Remove pin from a background slot."""
         self._pinned_slots.pop(slot, None)
 
-    def set_activity_filter(self, allowed_types: set[str] | None):
+    def set_activity_filter(self, allowed_types: set[str] | None, despawn: bool = True):
         """Set the activity type filter. None or empty set means all allowed.
-        Immediately recycles background activities that don't match the new filter."""
+        If despawn=True, immediately recycles background activities that don't
+        match the new filter. Set despawn=False when restoring a client's saved
+        prefs on join so we don't kill activities other clients are viewing."""
         self._allowed_types = allowed_types if allowed_types else None
         # Force-recycle background slots whose type isn't in the new allowed set
-        if self._allowed_types:
+        if self._allowed_types and despawn:
             now = time.time()
             for act_id, rec in list(self._activities.items()):
                 if rec.despawning or rec.is_foreground:
@@ -431,7 +433,7 @@ class ActivityManager:
                 "position": rec.position,
                 "size": rec.size,
                 "strategy": rec.generator.strategy,
-                "state": rec.last_state or rec.generator.initial_payload(),
+                "state": rec.last_state if rec.last_state is not None else rec.generator.initial_payload(),
             })
         return {
             "session": {
