@@ -210,11 +210,21 @@ class ActivityManager:
                 self._activities.pop(old_id, None)
                 if slot is not None:
                     self._bg_slots[slot] = None
+                # Guard: skip foreground replacement if target was lowered
+                # (e.g. scene switch set fg_target to 0 while this was pending)
+                if is_fg and self._live_fg_count() >= self._config.fg_target:
+                    continue
                 # Spawn replacement (with optional explicit type and geometry)
                 self._spawn_activity(slot, is_fg, activity_type=explicit_type,
                                      position=pos, size=sz)
             else:
                 remaining.append(entry)
+        # Drop pending fg replacements that would exceed current target.
+        # This guards against set_fg_target's cancellation being lost if it
+        # ran (via gevent yield) while we were iterating the original list.
+        pending_fg = sum(1 for e in remaining if e[1])
+        if self._live_fg_count() + pending_fg > self._config.fg_target:
+            remaining = [e for e in remaining if not e[1]]
         self._pending_replacements = remaining
 
     def _process_closures(self, now: float):
