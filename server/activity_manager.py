@@ -451,4 +451,5 @@ class ActivityManager:
             },
             "activities": activities,
             "pinned_slots": {str(k): v for k, v in self._pinned_slots.items()},
+            "activity_filter": sorted(self._allowed_types) if self._allowed_types else None,
         }

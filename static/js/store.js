@@ -186,6 +186,14 @@ export function initFromServer(payload) {
     addActivity(act);
   }
 
+  // Sync activity filter from server
+  if (payload.activity_filter) {
+    store.activityFilter = {};
+    for (const t of payload.activity_filter) {
+      store.activityFilter[t] = true;
+    }
+  }
+
   // Sync pinned slots from server
   if (payload.pinned_slots) {
     store.pinnedSlots = {};
