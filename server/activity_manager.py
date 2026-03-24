@@ -386,6 +386,12 @@ class ActivityManager:
         match the new filter. Set despawn=False when restoring a client's saved
         prefs on join so we don't kill activities other clients are viewing."""
         self._allowed_types = allowed_types if allowed_types else None
+        # Clear pinned slots that conflict with the new filter
+        if self._allowed_types:
+            self._pinned_slots = {
+                k: v for k, v in self._pinned_slots.items()
+                if v in self._allowed_types
+            }
         # Force-recycle background slots whose type isn't in the new allowed set
         if self._allowed_types and despawn:
             now = time.time()

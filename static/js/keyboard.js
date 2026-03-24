@@ -57,11 +57,12 @@ export function applyScene(scene) {
     for (const t of scene.filter) filterObj[t] = true;
     store.activityFilter = filterObj;
     sendActivityFilter(scene.filter);
-  } else if (scene.filter === null) {
+  } else {
+    // No restrictive filter — clear any existing filter (filter:null or undefined)
     const filterObj = {};
     for (const t of ACTIVITY_TYPES) filterObj[t] = true;
     store.activityFilter = filterObj;
-    sendActivityFilter(ACTIVITY_TYPES);
+    sendActivityFilter(null);
   }
   // Bulk slot assignment (e.g. Feature Zoo)
   if (scene.slots && Array.isArray(scene.slots)) {
@@ -69,6 +70,9 @@ export function applyScene(scene) {
     setTimeout(() => {
       sendConfigureSlots(scene.slots);
     }, 500);
+  } else {
+    // Clear pinned slots from previous scenes (e.g. Feature Zoo)
+    sendConfigureSlots([]);
   }
   savePrefs();
 }
