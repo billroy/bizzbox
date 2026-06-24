@@ -46,6 +46,12 @@ export default {
       }
     }
 
+    function dismissHeader() {
+      clearTimeout(hideTimer);
+      mouseInHeader = false;
+      visible.value = false;
+    }
+
     function onMouseMove(evt) {
       // Reveal header only when cursor hits the very top edge of the screen
       // (avoids covering top-row activity titlebars at clientY ~10-30px)
@@ -394,7 +400,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, onHeaderMouseEnter, onHeaderMouseLeave };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave };
   },
 
   template: `
@@ -555,6 +561,16 @@ export default {
                   title="Reset all saved preferences to defaults">RESET</button>
         </div>
       </div>
+
+      <button class="header-dismiss-btn"
+              type="button"
+              @click.stop="dismissHeader"
+              title="Hide header"
+              aria-label="Hide header">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 15l6-6 6 6" />
+        </svg>
+      </button>
 
     </header>
   `,

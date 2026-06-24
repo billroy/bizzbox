@@ -1,0 +1,40 @@
+{
+  "slots": [
+    {
+      "profile": "feature-architect",
+      "name": "Fix-n-Commit Codex",
+      "agent": "codex",
+      "model": "gpt-5.5",
+      "activation": "on_drop",
+      "disposition": "review",
+      "watch_column": "",
+      "expertise_prompt": "You are a bug sniper.  Given a bug or list of bugs, make an implementation plan and go fix them.",
+      "max_retries": 1,
+      "use_worktree": false,
+      "auto_commit": true,
+      "auto_pr": false,
+      "trigger_time": null,
+      "trigger_interval_minutes": 60,
+      "trigger_every_day": false,
+      "type": "ai",
+      "trust_mode": "trusted",
+      "color": "",
+      "task_queue": [
+        "control-header-dismissal-needs-to-be-possible-by-a-clickable-txZO"
+      ],
+      "state": "working",
+      "last_trigger_time": 1782325413,
+      "paused": false,
+      "row": 0,
+      "col": 0,
+      "value_trigger_scope": "name",
+      "value_trigger_ref": "",
+      "value_trigger_fire_on_noop": true,
+      "value_trigger_cooldown_seconds": 0,
+      "value_trigger_condition_operator": "any",
+      "value_trigger_condition_value": "",
+      "last_value_trigger_time": null,
+      "started_at": "2026-06-24T18:23:33Z"
+    }
+  ]
+}
