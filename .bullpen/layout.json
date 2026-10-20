@@ -20,14 +20,13 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "shifted-letter-commands-should-cycle-back-instead-of-forward-2p5q",
         "activity-whose-name-starts-with-pattern-says-undefined-too-m-lnCe",
         "make-a-pong-world-scene-with-max-row-x-col-pong-play-klsA",
         "unit-readiness-activity-shows-undefined-too-much-left-pane-e-VdJ1",
         "orbit-monitor-shows-undefined-too-much-wFBs"
       ],
       "state": "working",
-      "last_trigger_time": 1792523247,
+      "last_trigger_time": 1792523360,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -49,7 +48,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:07:27Z"
+      "started_at": "2026-10-20T19:09:20Z"
     },
     {
       "type": "service",
@@ -90,5 +89,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 159
+  "workspace_revision": 161
 }

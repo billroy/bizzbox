@@ -95,7 +95,9 @@ export default {
         ctx.font = 'bold 10px monospace';
         ctx.fillStyle = col;
         ctx.textAlign = 'left';
-        ctx.fillText(face.label, bx + 2, by - 4);
+        const label = typeof face.label === 'string' && face.label.trim()
+          ? face.label : 'UNIDENTIFIED';
+        ctx.fillText(label, bx + 2, by - 4);
 
         const confStr = (conf * 100).toFixed(0) + '%';
         ctx.font = '9px monospace';
