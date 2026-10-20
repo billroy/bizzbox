@@ -20,12 +20,11 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "make-a-pong-world-scene-with-max-row-x-col-pong-play-klsA",
         "unit-readiness-activity-shows-undefined-too-much-left-pane-e-VdJ1",
         "orbit-monitor-shows-undefined-too-much-wFBs"
       ],
       "state": "working",
-      "last_trigger_time": 1792523467,
+      "last_trigger_time": 1792523533,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -47,7 +46,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:11:07Z"
+      "started_at": "2026-10-20T19:12:13Z"
     },
     {
       "type": "service",
@@ -88,5 +87,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 163
+  "workspace_revision": 165
 }

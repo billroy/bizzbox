@@ -38,6 +38,8 @@ const SECTION_POS = {
   leg_ll:   { x: -0.10, y: 0.12, w: 0.10, h: 0.35 },
   leg_rl:   { x: 0.10, y: 0.12, w: 0.10, h: 0.35 },
 };
+const SECTION_IDS = Object.keys(SECTION_POS);
+const percent = value => Number.isFinite(Number(value)) ? Math.max(0, Math.min(100, Number(value))) : 0;
 
 export default {
   name: 'ActivityMechBay',
@@ -71,8 +73,8 @@ export default {
       ctx.fillStyle = c.bg;
       ctx.fillRect(0, 0, W, H);
 
-      const sections = state.sections || [];
-      const weapons = state.weapons || [];
+      const sections = Array.isArray(state.sections) ? state.sections : [];
+      const weapons = Array.isArray(state.weapons) ? state.weapons : [];
       const mechName = state.mech_name || 'MECH';
 
       // Mech name header
@@ -82,14 +84,25 @@ export default {
       ctx.textBaseline = 'top';
       ctx.fillText(mechName, W / 2, 4);
 
-      // Wireframe center
-      const mechCx = W * 0.38;
-      const mechCy = H * 0.48;
-      const scale = Math.min(W * 0.7, H * 0.75);
+      // Keep the frame centered in the left panel, including in small grid cells.
+      const leftW = W * 0.65;
+      const mechCx = leftW * 0.5;
+      const mechCy = H * 0.49;
+      const scale = Math.min(leftW * 1.15, Math.max(0, H - 70));
+      const armorValues = sections.map(sec => percent(sec?.armor_pct));
+      const averageArmor = armorValues.length
+        ? Math.round(armorValues.reduce((sum, armor) => sum + armor, 0) / armorValues.length)
+        : null;
+
+      ctx.font = 'bold 8px monospace';
+      ctx.fillStyle = c.accent1;
+      ctx.textAlign = 'left';
+      ctx.fillText('ARMOR / FRAME', 8, 20);
 
       // Draw sections as rectangles
-      for (const sec of sections) {
-        const pos = SECTION_POS[sec.id];
+      for (const [index, sec] of sections.entries()) {
+        // Compact updates may arrive without the static section metadata.
+        const pos = SECTION_POS[sec?.id] || SECTION_POS[SECTION_IDS[index]];
         if (!pos) continue;
 
         const sx = mechCx + pos.x * scale;
@@ -98,7 +111,7 @@ export default {
         const sh = pos.h * scale;
 
         // Armor fill (color based on percentage)
-        const armor = sec.armor_pct;
+        const armor = percent(sec?.armor_pct);
         let fillColor;
         if (armor > 70) fillColor = c.accent2 + '33';
         else if (armor > 40) fillColor = c.warn + '33';
@@ -118,13 +131,13 @@ export default {
         ctx.fillRect(barX, barY, barW * (armor / 100), barH);
 
         // Section border
-        const servoColor = statusColor(sec.servo_status, c);
+        const servoColor = statusColor(sec?.servo_status, c);
         ctx.strokeStyle = servoColor;
         ctx.lineWidth = 1;
         ctx.strokeRect(sx - sw / 2, sy, sw, sh);
 
         // Servo fault pulse
-        if (sec.servo_status === 'fault' && Math.floor(frameCount / 8) % 2 === 0) {
+        if (sec?.servo_status === 'fault' && Math.floor(frameCount / 8) % 2 === 0) {
           ctx.strokeStyle = c.error;
           ctx.lineWidth = 2;
           ctx.strokeRect(sx - sw / 2 - 1, sy - 1, sw + 2, sh + 2);
@@ -138,8 +151,13 @@ export default {
         ctx.fillText(`${armor}%`, sx, sy + 2);
       }
 
+      ctx.font = '8px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = c.textDim;
+      ctx.fillText(averageArmor === null ? 'AWAITING FRAME DATA' : `ARMOR ${averageArmor}%  /  ${sections.length} SECTIONS`, 8, H - 36);
+
       // Right panel: weapons list
-      const wpnX = W * 0.68;
+      const wpnX = W * 0.67;
       const wpnY = 20;
       ctx.font = 'bold 8px monospace';
       ctx.fillStyle = c.accent1;
@@ -150,26 +168,26 @@ export default {
       weapons.forEach((w, i) => {
         const y = wpnY + 14 + i * 14;
         if (y > H - 40) return;
-        const wColor = statusColor(w.status, c);
+        const wColor = statusColor(w?.status, c);
         ctx.font = '7px monospace';
         ctx.fillStyle = wColor;
         ctx.textAlign = 'left';
-        ctx.fillText(w.name, wpnX, y);
+        ctx.fillText(w?.name || `MOUNT ${i + 1}`, wpnX, y);
         ctx.fillStyle = c.textDim;
-        ctx.fillText(w.status.toUpperCase(), wpnX + 60, y);
-        if (w.ammo_pct !== null && w.ammo_pct !== undefined) {
-          ctx.fillStyle = w.ammo_pct < 20 ? c.error : c.textDim;
-          ctx.fillText(`${w.ammo_pct}%`, wpnX + 105, y);
+        ctx.fillText((w?.status || 'unknown').toUpperCase(), wpnX, y + 7);
+        if (w?.ammo_pct !== null && w?.ammo_pct !== undefined) {
+          ctx.fillStyle = percent(w.ammo_pct) < 20 ? c.error : c.textDim;
+          ctx.fillText(`${Math.round(percent(w.ammo_pct))}%`, W - 30, y + 7);
         }
       });
 
       // Bottom gauges
       const gaugeY = H - 22;
       const gauges = [
-        { label: 'HEAT', val: state.heat_pct, warn: 70, crit: 90 },
-        { label: 'COOL', val: state.coolant_pct, warn: 40, crit: 25, invert: true },
-        { label: 'LINK', val: state.neural_link_pct, warn: 70, crit: 60, invert: true },
-        { label: 'REAC', val: state.reactor_output_pct, warn: 70, crit: 65, invert: true },
+        { label: 'HEAT', val: percent(state.heat_pct), warn: 70, crit: 90 },
+        { label: 'COOL', val: percent(state.coolant_pct), warn: 40, crit: 25, invert: true },
+        { label: 'LINK', val: percent(state.neural_link_pct), warn: 70, crit: 60, invert: true },
+        { label: 'REAC', val: percent(state.reactor_output_pct), warn: 70, crit: 65, invert: true },
       ];
 
       const gaugeW = (W - 16) / gauges.length;
