@@ -36,6 +36,7 @@ export const SCENES = [
   { name: 'Frozen Vault',    style: 'frost',      cols: 5, rows: 4, intensity: 8,  fgTarget: 0,  ambientPreset: 'ice_cave',         filter: ['blockchain', 'cipher_decrypt', 'access_control', 'data_table', 'server_rack', 'hex_dump'] },
   { name: 'Agent Den',      style: 'agent',      cols: 8, rows: 5, intensity: 10, fgTarget: 0,  ambientPreset: 'agent_den',        filter: ['ai_agent'] },
   { name: 'TTT',            style: 'neon',       cols: 8, rows: 5, intensity: 8,  fgTarget: 0,  ambientPreset: 'server_room',      filter: ['tic_tac_toe'] },
+  { name: 'Pong World',     style: 'neon',       cols: 8, rows: 10, intensity: 8, fgTarget: 0,  ambientPreset: 'server_room',      filter: ['pong'] },
   { name: 'Life World',     style: 'phosphor',   cols: 8, rows: 5, intensity: 6,  fgTarget: 0,  ambientPreset: 'genetics_hum',     filter: ['game_of_life'] },
   { name: 'Feature Zoo',    style: 'dark',       cols: zooCols, rows: zooRows, intensity: 5,  fgTarget: 0,  ambientPreset: null, filter: null, slots: [...ACTIVITY_TYPES] },
 ];
