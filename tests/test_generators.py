@@ -1,6 +1,7 @@
 """T1a — Smoke tests for all registered activity generators."""
 import pytest
 from server.activity_registry import REGISTRY
+from server.generators.heart_monitor import HeartMonitorActivity
 
 
 @pytest.mark.parametrize("type_name,cls", sorted(REGISTRY.items()))
@@ -35,3 +36,14 @@ def test_generator_spawn_payload(type_name, cls):
     assert payload["type"] == type_name
     assert "title" in payload
     assert "state" in payload
+
+
+def test_heart_monitor_only_spawns_normal_ekg():
+    assert set(HeartMonitorActivity.strategies) == {"normal_sinus"}
+    assert len(HeartMonitorActivity.abnormal_strategies) == 4
+
+    gen = HeartMonitorActivity()
+    for state in [gen.initial_payload(), *(gen.next_frame() for _ in range(20))]:
+        assert state["strategy"] == "normal_sinus"
+        assert state["ekg_label"] == "NORMAL EKG"
+        assert state["alarm"] is False

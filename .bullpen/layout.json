@@ -20,13 +20,13 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "power-systems-flashes-a-diagram-every-few-seconds-but-does-n-EFMN",
         "disable-the-abnormal-ekg-activty-but-keep-the-code-6iHN",
         "pong-ball-stutters-never-reaches-paddle-uXQT",
-        "elec-systems-window-is-empty-power-grid-window-is-empty-AItd"
+        "elec-systems-window-is-empty-power-grid-window-is-empty-AItd",
+        "bay-monitor-shows-too-much-undefined-content-and-nothing-in--3AgU"
       ],
       "state": "working",
-      "last_trigger_time": 1792522396,
+      "last_trigger_time": 1792522451,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -48,7 +48,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T18:53:16Z"
+      "started_at": "2026-10-20T18:54:11Z"
     },
     {
       "type": "service",
@@ -89,5 +89,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 131
+  "workspace_revision": 134
 }

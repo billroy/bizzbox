@@ -6,11 +6,13 @@ from .base import BaseActivity
 
 class HeartMonitorActivity(BaseActivity):
     activity_type = "heart_monitor"
-    strategies = [
-        "normal_sinus", "normal_sinus", "normal_sinus",  # weighted toward normal
+    ENABLE_ABNORMAL_EKG = False
+    normal_strategies = ["normal_sinus"] * 3
+    abnormal_strategies = [
         "sinus_tachycardia", "atrial_fibrillation",
         "ventricular_tachycardia", "bradycardia",
     ]
+    strategies = normal_strategies + (abnormal_strategies if ENABLE_ABNORMAL_EKG else [])
     titles = [
         "PATIENT MONITOR", "BEDSIDE MONITOR", "VITAL SIGNS",
         "TELEMETRY", "ICU MONITOR", "CARDIAC MONITOR",

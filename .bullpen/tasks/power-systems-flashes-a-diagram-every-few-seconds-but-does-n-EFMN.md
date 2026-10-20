@@ -1,10 +1,10 @@
 ---
 # power-systems-flashes-a-diagram-every-few-seconds-but-does-n-EFMN
 title: power systems flashes a diagram every few seconds but does not show any consistent body content
-status: in_progress
+status: review
 type: task
 priority: normal
-assigned_to: 0
+assigned_to: 
 created_at: 2026-10-20T18:46:50Z
 updated_at: 2026-10-20T18:54:11Z
 tags: []
@@ -16,6 +16,7 @@ usage: [{timestamp: 2026-10-20T18:54:11Z, source: worker, provider: codex, model
 tokens_by_provider_model: [{provider: codex, model: gpt-6-sol, input_tokens: 374194, cached_input_tokens: 342656, output_tokens: 2874, reasoning_output_tokens: 503, tokens: 377068}]
 tokens: 377068
 task_time_ms: 55070
+commit_hash: 1d29856fdc07c0701df5cbb4fbd26eaa861d71a2
 ---
 
 
@@ -26,3 +27,7 @@ task_time_ms: 55070
 Fixed the Power Systems flash. The client was replacing the full diagram data with compact updates, which removed the node positions and connections until the next full server update. It now merges those updates while preserving the schematic.
 
 The regression test passes, along with the related delta tests. I did not verify the result visually in a browser.
+
+### 2026-10-20T18:54:11Z — Fix-n-Commit Codex (codex/gpt-6-sol)
+
+Commit: 1d29856fdc07c0701df5cbb4fbd26eaa861d71a2
