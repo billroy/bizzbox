@@ -79,11 +79,19 @@ export function applyScene(scene) {
 }
 
 function onKeyDown(evt) {
+  // The palette can be open before its search field receives focus, or while
+  // focus is elsewhere. Escape should still dismiss it in either case.
+  if (store.commandPaletteOpen) {
+    if (evt.key === 'Escape') {
+      store.commandPaletteOpen = false;
+      evt.preventDefault();
+    }
+    return;
+  }
+
   // Skip if focused on text inputs or range sliders
   const tag = evt.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
-  if (store.commandPaletteOpen) return;
 
   // If a <select> has focus, blur it so our shortcuts work instead of
   // the native select behaviour (which jumps to matching options and
