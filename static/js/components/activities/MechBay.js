@@ -84,11 +84,14 @@ export default {
       ctx.textBaseline = 'top';
       ctx.fillText(mechName, W / 2, 4);
 
-      // Keep the frame centered in the left panel, including in small grid cells.
+      // Reserve less chrome in short grid cells so the frame stays visible.
       const leftW = W * 0.65;
       const mechCx = leftW * 0.5;
-      const mechCy = H * 0.49;
-      const scale = Math.min(leftW * 1.15, Math.max(0, H - 70));
+      const compact = H < 130;
+      const scale = compact
+        ? Math.min(leftW * 1.15, Math.max(0, (H - 26) / 0.89))
+        : Math.min(leftW * 1.15, Math.max(0, H - 70));
+      const mechCy = compact ? 18 + 0.42 * scale : H * 0.49;
       const armorValues = sections.map(sec => percent(sec?.armor_pct));
       const averageArmor = armorValues.length
         ? Math.round(armorValues.reduce((sum, armor) => sum + armor, 0) / armorValues.length)
@@ -97,7 +100,7 @@ export default {
       ctx.font = 'bold 8px monospace';
       ctx.fillStyle = c.accent1;
       ctx.textAlign = 'left';
-      ctx.fillText('ARMOR / FRAME', 8, 20);
+      if (!compact) ctx.fillText('ARMOR / FRAME', 8, 20);
 
       // Draw sections as rectangles
       for (const [index, sec] of sections.entries()) {
@@ -154,7 +157,7 @@ export default {
       ctx.font = '8px monospace';
       ctx.textAlign = 'left';
       ctx.fillStyle = c.textDim;
-      ctx.fillText(averageArmor === null ? 'AWAITING FRAME DATA' : `ARMOR ${averageArmor}%  /  ${sections.length} SECTIONS`, 8, H - 36);
+      if (!compact) ctx.fillText(averageArmor === null ? 'AWAITING FRAME DATA' : `ARMOR ${averageArmor}%  /  ${sections.length} SECTIONS`, 8, H - 36);
 
       // Right panel: weapons list
       const wpnX = W * 0.67;
@@ -191,7 +194,7 @@ export default {
       ];
 
       const gaugeW = (W - 16) / gauges.length;
-      gauges.forEach((g, i) => {
+      if (!compact) gauges.forEach((g, i) => {
         const gx = 8 + i * gaugeW;
         const barW = gaugeW - 8;
         const barH = 5;

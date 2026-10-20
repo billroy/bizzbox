@@ -46,4 +46,16 @@ test('unit readiness draws its frame and never prints undefined after a compact 
   assert.ok(labels.includes('ARMOR 78%  /  2 SECTIONS'));
   assert.ok(labels.includes('MOUNT 1'));
   assert.ok(labels.every(label => !String(label).includes('undefined')));
+
+  // A dense grid leaves little vertical room. The frame must still be visible.
+  canvas.clientWidth = 190;
+  canvas.clientHeight = 90;
+  sectionOutlines.length = 0;
+  labels.length = 0;
+  draw();
+  assert.ok(sectionOutlines.length >= 2);
+  assert.ok(sectionOutlines.every(({ x, width }) =>
+    x >= 0 && x + width < canvas.clientWidth * 0.65 && width >= 8));
+  assert.ok(labels.includes('MOUNT 1'));
+  assert.ok(labels.every(label => !String(label).includes('undefined')));
 });
