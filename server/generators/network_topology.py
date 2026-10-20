@@ -108,28 +108,12 @@ class NetworkTopologyActivity(BaseActivity):
         return self._get_state()
 
     def compute_delta(self, old_state, new_state):
-        # Strip strategy; node labels and edge from/to are static
-        nodes = []
-        for n in new_state["nodes"]:
-            nodes.append({
-                "id": n["id"],
-                "x": n["x"],
-                "y": n["y"],
-                "active": n["active"],
-                "highlight": n["highlight"],
-            })
-        edges = []
-        for e in new_state["edges"]:
-            edges.append({
-                "id": e["id"],
-                "active": e["active"],
-                "weight": e["weight"],
-                "pulse": e["pulse"],
-            })
+        # The client replaces these arrays, so each item needs its display
+        # fields (node labels and edge endpoints) on every update.
         return {
             "_delta": True,
-            "nodes": nodes,
-            "edges": edges,
+            "nodes": new_state["nodes"],
+            "edges": new_state["edges"],
         }
 
     def next_frame(self) -> dict:

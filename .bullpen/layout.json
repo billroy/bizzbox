@@ -20,14 +20,13 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "never-ever-inherit-activities-from-the-previous-setup-when-s-Fdr1",
         "mesh-analysis-shows-undefined-too-much-0JfA",
         "after-a-keyboard-s-scene-command-hide-the-command-panel-4Ttq",
         "air-routes-shows-undefined-too-much-like-mostly-CbPG",
         "rack-status-is-always-completely-blank-make-it-show-somethin-tpXB"
       ],
       "state": "working",
-      "last_trigger_time": 1792521423,
+      "last_trigger_time": 1792521568,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -49,7 +48,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T18:37:03Z"
+      "started_at": "2026-10-20T18:39:28Z"
     },
     {
       "type": "service",
@@ -90,5 +89,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 111
+  "workspace_revision": 113
 }
