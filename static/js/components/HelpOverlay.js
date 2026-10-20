@@ -13,7 +13,7 @@ const SHORTCUTS = [
   ['[ / ]',   'Prev / next channel'],
   ['Alt+1-9', 'Switch to channel 1-9'],
   ['Alt+0',   'Switch to channel 10'],
-  ['Space',   'Pin / unpin header'],
+  ['Space',   'Open command palette'],
   ['L',       'Enter lock mode'],
   ['S',       'Cycle scene'],
   ['P',       'Toggle slideshow'],

@@ -4,7 +4,7 @@
       "profile": "feature-architect",
       "name": "Fix-n-Commit Codex",
       "agent": "codex",
-      "model": "gpt-5.5",
+      "model": "gpt-6-sol",
       "activation": "on_drop",
       "disposition": "review",
       "watch_column": "",
@@ -20,10 +20,12 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "control-header-dismissal-needs-to-be-possible-by-a-clickable-txZO"
+        "space-should-bring-up-the-command-palette-db5a",
+        "escape-should-dismiss-the-command-palette-DQDL",
+        "using-keyboard-s-to-change-scenes-should-set-the-scene-popup-L4dV"
       ],
       "state": "working",
-      "last_trigger_time": 1782325413,
+      "last_trigger_time": 1792520781,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -34,7 +36,57 @@
       "value_trigger_condition_operator": "any",
       "value_trigger_condition_value": "",
       "last_value_trigger_time": null,
-      "started_at": "2026-06-24T18:23:33Z"
+      "timeout_seconds": 3600,
+      "command_source": "manual",
+      "procfile_process": "web",
+      "port": "",
+      "value": "",
+      "value_type": "auto",
+      "unit": "",
+      "format": {
+        "kind": "general"
+      },
+      "save_history": true,
+      "started_at": "2026-10-20T18:26:21Z"
+    },
+    {
+      "type": "service",
+      "row": 0,
+      "col": 1,
+      "name": "Procfile preview",
+      "activation": "manual",
+      "disposition": "review",
+      "watch_column": "",
+      "max_retries": 1,
+      "trigger_time": null,
+      "trigger_interval_minutes": 60,
+      "trigger_every_day": false,
+      "last_trigger_time": null,
+      "paused": false,
+      "task_queue": [],
+      "state": "idle",
+      "command": "python3 bullpen.py --port=$PORT",
+      "cwd": "",
+      "pre_start": "",
+      "ticket_action": "start-if-stopped-else-restart",
+      "startup_grace_seconds": 2,
+      "startup_timeout_seconds": 60,
+      "health_type": "none",
+      "health_url": "",
+      "health_command": "",
+      "health_interval_seconds": 5,
+      "health_timeout_seconds": 2,
+      "health_failure_threshold": 3,
+      "on_crash": "stay-crashed",
+      "stop_timeout_seconds": 5,
+      "log_max_bytes": 5242880,
+      "env": [],
+      "command_source": "procfile",
+      "procfile_process": "web",
+      "port": 3030,
+      "color": "",
+      "start_when_bullpen_starts": false
     }
-  ]
+  ],
+  "workspace_revision": 91
 }

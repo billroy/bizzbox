@@ -65,7 +65,7 @@ BizzBox has three visual layers:
 
 2. **Foreground Windows** — Draggable, resizable floating panels that hover above the grid. They appear and disappear on their own, or you can control them manually.
 
-3. **Header Bar** — A translucent control strip along the top edge. It auto-hides when you move the mouse away. Press **Space** to pin it in place.
+3. **Header Bar** — A translucent control strip along the top edge. It auto-hides when you move the mouse away. Use its **PIN** button or the command palette to pin it in place.
 
 Every panel displays a different simulated visualization — radar sweeps, scrolling code, network graphs, heartbeat monitors, and 50+ more types. All data is procedurally generated; nothing is real.
 
@@ -90,7 +90,7 @@ All shortcuts work when no input field is focused.
 | **[** | Previous channel |
 | **Alt+1**–**Alt+9** | Jump to channel 1–9 |
 | **Alt+0** | Jump to channel 10 |
-| **Space** | Pin/unpin the header bar |
+| **Space** | Open the command palette; type to search, use arrow keys and Enter to run a command, or Escape to close |
 | **S** | Cycle to next scene |
 | **P** | Toggle slideshow (auto-cycle scenes every 60s) |
 | **L** | Enter lock mode (cinematic, all UI hidden) |
@@ -727,7 +727,7 @@ Press **M** to unmute. If still silent, make sure you've interacted with the pag
 Reduce the intensity (press **-**), remove foreground windows (press **{**), or choose a smaller grid layout. Close other browser tabs to free up resources.
 
 **UI elements disappeared?**
-You may be in lock mode. Press **L** or **Escape** to exit. Or press **Space** to toggle the header if it's auto-hiding.
+You may be in lock mode. Press **L** or **Escape** to exit. If the header is auto-hiding, move the pointer to the top edge or press **Space** and search for "Pin header".
 
 **"RECONNECTING..." overlay?**
 The connection to the server was lost. BizzBox will automatically retry with exponential backoff. Make sure the server is still running. Once reconnected, the display will restore itself and show a "RECONNECTED" toast.

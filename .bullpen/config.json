@@ -51,8 +51,8 @@
       "color": "#EF4444"
     }
   ],
-  "agent_timeout_seconds": 600,
   "max_prompt_chars": 100000,
   "server_host": "127.0.0.1",
-  "server_port": 5050
+  "server_port": 5050,
+  "config_schema_version": 1
 }

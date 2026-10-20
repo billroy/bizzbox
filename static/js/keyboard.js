@@ -15,6 +15,7 @@ function enterLockMode() {
   store.lockMode = true;
   store.headerPinned = false;
   store.helpOverlay = false;
+  store.commandPaletteOpen = false;
   store.filterModalOpen = false;
   document.body.classList.add('lock-mode');
   scheduleCursorHide();
@@ -81,6 +82,8 @@ function onKeyDown(evt) {
   // Skip if focused on text inputs or range sliders
   const tag = evt.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (store.commandPaletteOpen) return;
 
   // If a <select> has focus, blur it so our shortcuts work instead of
   // the native select behaviour (which jumps to matching options and
@@ -204,9 +207,10 @@ function onKeyDown(evt) {
     }
 
     case ' ':
-      store.headerPinned = !store.headerPinned;
-      savePrefs();
-      showToast(store.headerPinned ? 'HEADER PINNED' : 'HEADER AUTO-HIDE');
+      if (!evt.repeat && !store.filterModalOpen && !store.embedModalOpen) {
+        store.helpOverlay = false;
+        store.commandPaletteOpen = true;
+      }
       evt.preventDefault();
       break;
 
@@ -273,6 +277,11 @@ function onKeyDown(evt) {
       break;
     }
   }
+}
+
+// Palette commands share the same action path as their keyboard shortcuts.
+export function runShortcut(key) {
+  onKeyDown({ target: document.body, key, altKey: false, preventDefault() {} });
 }
 
 function onMouseMoveLock() {

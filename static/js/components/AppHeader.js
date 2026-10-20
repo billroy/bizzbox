@@ -556,7 +556,7 @@ export default {
           <button class="header-btn header-btn--pin"
                   :class="{ active: store.headerPinned }"
                   @click="togglePin"
-                  :title="store.headerPinned ? 'Unpin header (Space)' : 'Pin header open (Space)'">PIN</button>
+                  :title="store.headerPinned ? 'Unpin header' : 'Pin header open'">PIN</button>
           <button class="header-btn header-btn--danger" @click="resetPrefs"
                   title="Reset all saved preferences to defaults">RESET</button>
         </div>

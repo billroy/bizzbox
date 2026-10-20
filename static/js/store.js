@@ -102,6 +102,7 @@ export const store = reactive({
   slideshowActive: false,
   slideshowInterval: 60,
   helpOverlay: false,
+  commandPaletteOpen: false,
   headerPinned: false,
   ambientPreset: null,    // null = off, or one of AMBIENT_PRESET_LIST keys
   filterModalOpen: false,

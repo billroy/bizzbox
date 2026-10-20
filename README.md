@@ -101,7 +101,7 @@ python app.py --style lcars --intensity 4
 | `-` | Decrease intensity |
 | `]` | Add a foreground window |
 | `[` | Remove a foreground window |
-| `Space` | Toggle header bar visibility |
+| `Space` | Open the command palette |
 | `A` | Cycle ambient audio presets |
 | `L` | Enter lock mode (press `L` or `Esc` to exit) |
 | `?` / `H` | Toggle help overlay |

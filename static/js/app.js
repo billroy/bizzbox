@@ -11,6 +11,7 @@ import BackgroundGrid  from './components/BackgroundGrid.js';
 import ForegroundLayer from './components/ForegroundLayer.js';
 import ActivityWindow  from './components/ActivityWindow.js';
 import HelpOverlay     from './components/HelpOverlay.js';
+import CommandPalette  from './components/CommandPalette.js';
 import FilterModal     from './components/FilterModal.js';
 import EmbedModal      from './components/EmbedModal.js';
 import Toast           from './components/Toast.js';
@@ -86,6 +87,7 @@ const RootComponent = {
     BackgroundGrid,
     ForegroundLayer,
     HelpOverlay,
+    CommandPalette,
     FilterModal,
     EmbedModal,
     Toast,
@@ -202,6 +204,7 @@ const RootComponent = {
     <BackgroundGrid v-if="store.grid" />
     <ForegroundLayer v-if="store.grid" />
     <HelpOverlay v-if="store.helpOverlay" />
+    <CommandPalette v-if="store.commandPaletteOpen" />
     <FilterModal v-if="store.filterModalOpen" />
     <EmbedModal v-if="store.embedModalOpen" />
     <Toast />
