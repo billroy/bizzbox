@@ -63,7 +63,7 @@ Combine with query parameters:
 http://localhost:5000/war-room?obs=1&vol=30
 ```
 
-All 28 built-in scenes have vanity URLs. The slug is the scene name in lowercase with spaces replaced by hyphens.
+All 30 built-in scenes have vanity URLs. The slug is the scene name in lowercase with spaces replaced by hyphens.
 
 ## Audio
 

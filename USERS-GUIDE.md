@@ -196,14 +196,14 @@ A volume slider in the header (between the MUTED/SOUND button and the AMBIENT dr
 
 The background grid defines how many activity panels fill the screen. Choose a layout from the header dropdown or set it via URL parameter.
 
-Available presets range from **2×1** (2 panels) up to **6×8** (48 panels). Some examples:
+Available presets range from **2×1** (2 panels) up to **10×7** (70 panels). Some examples:
 
 | Layout | Panels | Good For |
 |--------|--------|----------|
 | 3×2 | 6 | Default, casual viewing |
 | 4×3 | 12 | Medium density |
 | 6×4 | 24 | War room, large displays |
-| 6×8 | 48 | Maximum density, video walls |
+| 10×7 | 70 | Maximum preset density, video walls |
 
 Panels are separated by a 2px gap. Each activity auto-scales to fill its cell. The grid is responsive to your viewport size.
 
@@ -337,38 +337,40 @@ Scenes are preset combinations of theme, grid layout, intensity, window count, a
 
 ### Built-In Scenes
 
-BizzBox ships with 28 preset scenes. Each configures theme, grid, intensity, window count, ambient audio, and optionally an activity filter.
+BizzBox ships with 30 preset scenes. Each configures theme, grid, intensity, window count, ambient audio, and optionally an activity filter.
 
 | Scene | Theme | Grid | Intensity | Windows | Ambient | Filter |
 |-------|-------|------|-----------|---------|---------|--------|
-| **War Room** | Red | 6×4 | 15 | 5 | War Room | — |
-| **Ambient** | Dark | 3×2 | 2 | 0 | Deep Space | — |
-| **Hacker Den** | Neon | 4×3 | 10 | 3 | Server Room | — |
-| **Mission Control** | Black | 6×4 | 8 | 0 | Bunker Countdown | — |
-| **Surveillance** | Brutalist | 5×4 | 6 | 2 | Power Plant | — |
-| **Chaos** | Rainbow | 6×8 | 20 | 10 | (none) | — |
-| **Starship Bridge** | LCARS | 5×3 | 8 | 4 | Warp Engine | Sci-fi types |
-| **Mech Hangar** | Military | 4×3 | 12 | 3 | Mech Hangar | Mech & infra |
-| **Planet Forge** | Amber | 3×2 | 3 | 0 | Terraforming Drone | Planetary |
-| **Dungeon Crawl** | Neon | 4×3 | 14 | 5 | Tavern Hearth | Fantasy & RPG |
-| **Launch Day** | Black | 6×4 | 10 | 2 | Rocket Launch | Space launch |
-| **Abyss** | Arctic | 4×3 | 6 | 2 | Submarine Sonar | Undersea |
-| **Firebreak** | Red | 5×4 | 16 | 6 | Wildfire Crackle | Fire response |
-| **Transit Hub** | Synthwave | 5×3 | 9 | 3 | Hyperloop Tube | Transit |
-| **Bio Lab** | Light | 3×2 | 5 | 1 | Genetics Hum | Science |
-| **Cyber Siege** | Brutalist | 6×4 | 18 | 8 | Digital Warfare | Cyber ops |
-| **Coral Reef** | Ocean | 4×3 | 4 | 1 | Coral Reef | Aquatic |
-| **Ironworks** | Copper | 5×4 | 14 | 4 | Steel Mill | Industrial |
-| **Neon Dreams** | Vapor | 4×3 | 7 | 2 | Radio Static | Signals |
-| **Thermal Scan** | Infrared | 5×3 | 11 | 3 | Circuit Board | Surveillance |
-| **Deep Green** | Phosphor | 3×3 | 6 | 0 | Server Room | Terminal/code |
-| **Architect** | Blueprint | 4×2 | 5 | 1 | Cathedral | Diagrams |
-| **Golden Hour** | Sunset | 3×2 | 3 | 0 | Train Station | Travel & finance |
-| **Jungle Outpost** | Forest | 5×3 | 9 | 3 | Jungle Night | Outdoor |
-| **Eruption** | Matrix | 6×4 | 17 | 7 | Volcano | Seismic |
-| **Frozen Vault** | Frost | 4×3 | 8 | 2 | Ice Cave | Crypto & data |
-| **Agent Den** | Agent | 6×4 | 10 | 0 | Agent Den | AI Agent only |
-| **Feature Zoo** | Dark | 10×6 | 5 | 0 | (none) | All 57 types |
+| **War Room** | Red | 8×5 | 15 | 5 | War Room | — |
+| **Ambient** | Dark | 4×3 | 2 | 0 | Deep Space | — |
+| **Hacker Den** | Neon | 5×4 | 10 | 3 | Server Room | — |
+| **Mission Control** | Black | 8×5 | 8 | 0 | Bunker Countdown | — |
+| **Surveillance** | Brutalist | 6×5 | 6 | 2 | Power Plant | — |
+| **Chaos** | Rainbow | 8×10 | 20 | 10 | (none) | — |
+| **Starship Bridge** | LCARS | 6×4 | 8 | 4 | Warp Engine | Sci-fi types |
+| **Mech Hangar** | Military | 5×4 | 12 | 3 | Mech Hangar | Mech & infra |
+| **Planet Forge** | Amber | 4×3 | 3 | 0 | Terraforming Drone | Planetary |
+| **Dungeon Crawl** | Neon | 5×4 | 14 | 5 | Tavern Hearth | Fantasy & RPG |
+| **Launch Day** | Black | 8×5 | 10 | 2 | Rocket Launch | Space launch |
+| **Abyss** | Arctic | 5×4 | 6 | 2 | Submarine Sonar | Undersea |
+| **Firebreak** | Red | 6×5 | 16 | 6 | Wildfire Crackle | Fire response |
+| **Transit Hub** | Synthwave | 6×4 | 9 | 3 | Hyperloop Tube | Transit |
+| **Bio Lab** | Light | 4×3 | 5 | 1 | Genetics Hum | Science |
+| **Cyber Siege** | Brutalist | 8×5 | 18 | 8 | Digital Warfare | Cyber ops |
+| **Coral Reef** | Ocean | 5×4 | 4 | 1 | Coral Reef | Aquatic |
+| **Ironworks** | Copper | 6×5 | 14 | 4 | Steel Mill | Industrial |
+| **Neon Dreams** | Vapor | 5×4 | 7 | 2 | Radio Static | Signals |
+| **Thermal Scan** | Infrared | 6×4 | 11 | 3 | Circuit Board | Surveillance |
+| **Deep Green** | Phosphor | 4×4 | 6 | 0 | Server Room | Terminal/code |
+| **Architect** | Blueprint | 5×3 | 5 | 1 | Cathedral | Diagrams |
+| **Golden Hour** | Sunset | 4×3 | 3 | 0 | Train Station | Travel & finance |
+| **Jungle Outpost** | Forest | 6×4 | 9 | 3 | Jungle Night | Outdoor |
+| **Eruption** | Matrix | 8×5 | 17 | 7 | Volcano | Seismic |
+| **Frozen Vault** | Frost | 5×4 | 8 | 2 | Ice Cave | Crypto & data |
+| **Agent Den** | Agent | 8×5 | 10 | 0 | Agent Den | AI Agent only |
+| **TTT** | Neon | 8×5 | 8 | 0 | Server Room | Tic Tac Toe only |
+| **Life World** | Phosphor | 8×5 | 6 | 0 | Genetics Hum | Game of Life only |
+| **Feature Zoo** | Dark | 10×9 | 5 | 0 | (none) | All 60 types |
 
 ### Custom Scenes
 
@@ -480,7 +482,7 @@ http://localhost:5000/war-room?obs=1&vol=30
 http://localhost:5000/ambient?lock=1
 ```
 
-All 28 built-in scenes have vanity URLs.
+All 30 built-in scenes have vanity URLs.
 
 ---
 
