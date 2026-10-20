@@ -20,10 +20,11 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "terraforming-activity-shows-undefined-too-much-in-zones-colu-mEgN"
+        "drive-core-is-boring-t1If",
+        "there-is-still-no-pong-world-after-restarting-the-app-and-re-TUDA"
       ],
       "state": "working",
-      "last_trigger_time": 1792524678,
+      "last_trigger_time": 1792524819,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -45,7 +46,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:31:18Z"
+      "started_at": "2026-10-20T19:33:39Z"
     },
     {
       "type": "service",
@@ -86,5 +87,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 188
+  "workspace_revision": 192
 }

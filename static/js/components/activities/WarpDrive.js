@@ -34,6 +34,44 @@ function strokeEllipse(ctx, x, y, rx, ry, color, width, alpha) {
   ctx.globalAlpha = 1;
 }
 
+function drawDiagnostic(ctx, x, y, width, height, label, value, maximum, color, dim, border, t) {
+  const level = Math.max(0, Math.min(1, value / maximum));
+  ctx.strokeStyle = border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.font = '8px monospace';
+  ctx.fillStyle = dim;
+  ctx.fillText(label, x + 5, y + 10, width - 10);
+  ctx.font = 'bold 11px monospace';
+  ctx.fillStyle = color;
+  ctx.fillText(value.toFixed(1), x + 5, y + 25, width - 10);
+
+  const barX = x + 5;
+  const barY = y + height - 12;
+  const barW = width - 10;
+  ctx.fillStyle = border;
+  ctx.fillRect(barX, barY, barW, 4);
+  ctx.fillStyle = color;
+  ctx.fillRect(barX, barY, barW * level, 4);
+  // A moving trace makes the rate and current reading visible at a glance.
+  ctx.beginPath();
+  const traceTop = y + 34;
+  const traceH = Math.max(4, barY - traceTop - 5);
+  for (let i = 0; i <= 20; i++) {
+    const px = barX + barW * i / 20;
+    const wave = Math.sin(i * 0.82 - t * (1.4 + level * 3)) * Math.sin(i * 0.23 + t * 0.4);
+    const py = traceTop + traceH * (0.5 - wave * (0.12 + level * 0.3));
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.75;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
 export default {
   name: 'ActivityWarpDrive',
   props: { activity: Object },
@@ -65,7 +103,8 @@ export default {
       const footer = compact ? 19 : 35;
       const cx = W / 2;
       const cy = header + (H - header - footer) / 2;
-      const R = Math.max(10, Math.min(W * 0.31, (H - header - footer) * 0.45));
+      let R = Math.max(10, Math.min(W * 0.31, (H - header - footer) * 0.45));
+      if (W >= 270 && H >= 170) R = Math.min(R, (cx - 64) / 1.36);
       const t = ts * 0.001;
       const phase = (state.phase || 0) + t * 0.35;
 
@@ -143,6 +182,41 @@ export default {
         }
         ctx.globalAlpha = 1;
       });
+
+      // Reaction pulses cross the chamber in time with the live flow reading.
+      const flow = Math.max(0, Math.min(1, (readings.antimatter_flow || 0) / 100));
+      const pulseRate = 0.35 + flow * 1.3;
+      for (const side of [-1, 1]) {
+        const conduitEnd = cx + side * R * 1.36;
+        const conduitStart = cx + side * R * 0.25;
+        strokeLine(ctx, conduitStart, cy, conduitEnd, cy, c.accent2, 2, 0.28);
+        for (let i = 0; i < 3; i++) {
+          const progress = (t * pulseRate + i / 3) % 1;
+          const x = conduitEnd + (conduitStart - conduitEnd) * progress;
+          ctx.beginPath();
+          ctx.arc(x, cy, Math.max(1.5, R * 0.025), 0, TAU);
+          ctx.fillStyle = i === 0 ? c.text : c.accent1;
+          ctx.globalAlpha = 0.35 + progress * 0.6;
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // Large windows have room for instruments that respond to actual telemetry.
+      const sideRoom = cx - R * 1.36;
+      if (W >= 270 && H >= 170 && sideRoom >= 64) {
+        const panelW = Math.min(70, sideRoom - 16);
+        const panelH = Math.min(88, Math.max(55, H - header - footer - 18));
+        const panelY = cy - panelH / 2;
+        const containment = Number(readings.containment_pct) || 0;
+        const containmentColor = containment < 88 ? c.error : containment < 92 ? c.warn : c.accent2;
+        drawDiagnostic(ctx, 8, panelY, panelW, panelH, 'INJECTION', Number(readings.antimatter_flow) || 0,
+          100, c.accent1, c.dim, c.border, t);
+        drawDiagnostic(ctx, W - panelW - 8, panelY, panelW, panelH, 'FIELD %', containment,
+          100, containmentColor, c.dim, c.border, t);
+        strokeLine(ctx, 8 + panelW, cy, cx - R * 1.35, cy, c.accent1, 1, 0.38);
+        strokeLine(ctx, cx + R * 1.35, cy, W - panelW - 8, cy, containmentColor, 1, 0.38);
+      }
 
       // Faceted core and filaments make the center the focus of the schematic.
       for (let i = 0; i < 6; i++) {
