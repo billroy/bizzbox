@@ -94,16 +94,16 @@ export default {
 
     function draw() {
       const canvas = canvasRef.value;
-      if (!canvas) return;
+      if (!canvas) { raf = requestAnimationFrame(draw); return; }
       const ctx = canvas.getContext('2d');
       const w = canvas.width = canvas.offsetWidth;
       const h = canvas.height = canvas.offsetHeight;
-      if (w === 0 || h === 0) return;
+      if (w === 0 || h === 0) { raf = requestAnimationFrame(draw); return; }
 
       ctx.clearRect(0, 0, w, h);
 
       const state = props.activity.state;
-      if (!state || !state.nodes || !state.edges) return;
+      if (!state || !state.nodes || !state.edges) { raf = requestAnimationFrame(draw); return; }
 
       const nodes = state.nodes;
       const edges = state.edges;

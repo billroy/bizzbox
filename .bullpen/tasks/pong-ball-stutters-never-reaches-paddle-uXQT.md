@@ -1,10 +1,10 @@
 ---
 # pong-ball-stutters-never-reaches-paddle-uXQT
 title: Pong ball stutters, never reaches paddle
-status: in_progress
+status: review
 type: task
 priority: normal
-assigned_to: 0
+assigned_to: 
 created_at: 2026-10-20T18:53:06Z
 updated_at: 2026-10-20T18:56:33Z
 tags: []
@@ -16,6 +16,7 @@ usage: [{timestamp: 2026-10-20T18:56:33Z, source: worker, provider: codex, model
 tokens_by_provider_model: [{provider: codex, model: gpt-6-sol, input_tokens: 327326, cached_input_tokens: 286592, output_tokens: 4190, reasoning_output_tokens: 2239, tokens: 331516}]
 tokens: 331516
 task_time_ms: 79189
+commit_hash: ba4707ce42051b4912fc98a7f94b7521d5eaf6c6
 ---
 
 
@@ -26,3 +27,7 @@ task_time_ms: 79189
 Fixed Pong’s ball motion. The server now updates Pong every 0.1 seconds and reports velocity for that same rate, so the client’s prediction no longer runs ahead and snaps back. The faster updates also let the ball reach the paddle at a visible pace.
 
 Added tests for velocity consistency and a paddle bounce. **All 148 tests pass.** Changes are in [pong.py](/Users/bill/aistuff/bizzbox/server/generators/pong.py:13) and [test_pong.py](/Users/bill/aistuff/bizzbox/tests/test_pong.py:1).
+
+### 2026-10-20T18:56:33Z — Fix-n-Commit Codex (codex/gpt-6-sol)
+
+Commit: ba4707ce42051b4912fc98a7f94b7521d5eaf6c6
