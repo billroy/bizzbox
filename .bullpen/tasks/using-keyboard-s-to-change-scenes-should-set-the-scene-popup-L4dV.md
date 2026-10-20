@@ -1,12 +1,12 @@
 ---
 # using-keyboard-s-to-change-scenes-should-set-the-scene-popup-L4dV
 title: Using keyboard S to change scenes should set the scene popup overlay window count to zero
-status: review
+status: done
 type: task
 priority: normal
 assigned_to: 
 created_at: 2026-10-20T18:19:33Z
-updated_at: 2026-10-20T18:30:49Z
+updated_at: 2026-10-20T18:49:58Z
 tags: []
 last_stdout: ""
 worker_requested_status: 

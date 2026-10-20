@@ -1,12 +1,12 @@
 ---
 # after-a-keyboard-s-scene-command-hide-the-command-panel-4Ttq
 title: After a keyboard S (scene) command, hide the command panel
-status: review
+status: done
 type: task
 priority: normal
 assigned_to: 
 created_at: 2026-10-20T18:27:14Z
-updated_at: 2026-10-20T18:41:22Z
+updated_at: 2026-10-20T18:50:40Z
 tags: []
 last_stdout: ""
 worker_requested_status: 
