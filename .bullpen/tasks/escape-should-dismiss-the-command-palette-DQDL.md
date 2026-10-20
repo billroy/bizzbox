@@ -1,10 +1,10 @@
 ---
 # escape-should-dismiss-the-command-palette-DQDL
 title: Escape should dismiss the command palette
-status: in_progress
+status: review
 type: task
 priority: normal
-assigned_to: 0
+assigned_to: 
 created_at: 2026-10-20T18:19:12Z
 updated_at: 2026-10-20T18:29:38Z
 tags: []
@@ -18,6 +18,7 @@ history:
 usage: [{timestamp: 2026-10-20T18:29:38Z, source: worker, provider: codex, model: gpt-6-sol, slot: 0, elapsed_ms: 50783, input_tokens: 253608, cached_input_tokens: 224640, output_tokens: 2934, reasoning_output_tokens: 976}]
 tokens_by_provider_model: [{provider: codex, model: gpt-6-sol, input_tokens: 253608, cached_input_tokens: 224640, output_tokens: 2934, reasoning_output_tokens: 976, tokens: 256542}]
 tokens: 256542
+commit_hash: 58004ad352a56b5d01887da71a269b26567eb979
 ---
 
 
@@ -36,3 +37,7 @@ tokens: 256542
 **Fixed:** Escape now dismisses the command palette even if its search field has not gained focus or focus has moved elsewhere. The change is in [keyboard.js](/Users/bill/aistuff/bizzbox/static/js/keyboard.js:81).
 
 I verified the Escape behavior with page and input focus, and the changed file passes syntax and diff checks.
+
+### 2026-10-20T18:29:38Z — Fix-n-Commit Codex (codex/gpt-6-sol)
+
+Commit: 58004ad352a56b5d01887da71a269b26567eb979

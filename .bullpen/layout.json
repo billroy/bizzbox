@@ -20,11 +20,13 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "escape-should-dismiss-the-command-palette-DQDL",
-        "using-keyboard-s-to-change-scenes-should-set-the-scene-popup-L4dV"
+        "using-keyboard-s-to-change-scenes-should-set-the-scene-popup-L4dV",
+        "increase-the-default-row-x-col-for-every-scene-by-15x-to-2x-IdJP",
+        "add-keyboard-command-m-to-max-out-the-count-of-items-on-the--tYIQ",
+        "wireframe-mostly-does-nothing-make-it-more-interesting-Iko8"
       ],
       "state": "working",
-      "last_trigger_time": 1792520928,
+      "last_trigger_time": 1792520978,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +48,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T18:28:48Z"
+      "started_at": "2026-10-20T18:29:38Z"
     },
     {
       "type": "service",
@@ -87,5 +89,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 93
+  "workspace_revision": 98
 }

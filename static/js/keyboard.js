@@ -279,7 +279,7 @@ function onKeyDown(evt) {
       // Cycle scenes
       _sceneIndex = (_sceneIndex + 1) % SCENES.length;
       const scene = SCENES[_sceneIndex];
-      applyScene(scene);
+      applyScene({ ...scene, fgTarget: 0 });
       showToast('SCENE: ' + scene.name.toUpperCase());
       evt.preventDefault();
       break;

@@ -1,12 +1,12 @@
 ---
 # increase-the-default-row-x-col-for-every-scene-by-15x-to-2x-IdJP
 title: Increase the default row x col for every scene by 1.5x to 2x
-status: inbox
+status: assigned
 type: task
 priority: normal
-assigned_to: 
+assigned_to: 0
 created_at: 2026-10-20T18:20:05Z
-updated_at: 2026-10-20T18:26:14Z
+updated_at: 2026-10-20T18:30:34Z
 tags: []
 last_stdout: ""
 worker_requested_status: 

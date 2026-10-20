@@ -1,12 +1,12 @@
 ---
 # add-keyboard-command-m-to-max-out-the-count-of-items-on-the--tYIQ
 title: Add keyboard command 'm' to max out the count of items on the screen by selecting the maximum option in the layout dropdown
-status: inbox
+status: assigned
 type: task
 priority: normal
-assigned_to: 
+assigned_to: 0
 created_at: 2026-10-20T18:20:46Z
-updated_at: 2026-10-20T18:26:14Z
+updated_at: 2026-10-20T18:30:37Z
 tags: []
 last_stdout: ""
 worker_requested_status: 

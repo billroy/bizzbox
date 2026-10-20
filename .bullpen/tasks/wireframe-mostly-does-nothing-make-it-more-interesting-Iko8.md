@@ -1,12 +1,12 @@
 ---
 # wireframe-mostly-does-nothing-make-it-more-interesting-Iko8
 title: Wireframe mostly does nothing make it more interesting.
-status: inbox
+status: assigned
 type: task
 priority: normal
-assigned_to: 
+assigned_to: 0
 created_at: 2026-10-20T18:21:13Z
-updated_at: 2026-10-20T18:26:14Z
+updated_at: 2026-10-20T18:30:39Z
 tags: []
 last_stdout: ""
 worker_requested_status: 
