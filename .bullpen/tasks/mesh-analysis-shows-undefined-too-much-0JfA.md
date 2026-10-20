@@ -1,12 +1,14 @@
 ---
 # mesh-analysis-shows-undefined-too-much-0JfA
 title: Mesh analysis shows Undefined too much
-status: inbox
+status: assigned
 type: task
 priority: normal
-assigned_to: 
+assigned_to: 0
 created_at: 2026-10-20T18:27:02Z
-updated_at: 2026-10-20T18:27:02Z
+updated_at: 2026-10-20T18:36:18Z
 tags: []
 last_stdout: ""
+worker_requested_status: 
+handoff_depth: 0
 ---

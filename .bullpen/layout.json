@@ -20,11 +20,14 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "add-keyboard-command-m-to-max-out-the-count-of-items-on-the--tYIQ",
-        "wireframe-mostly-does-nothing-make-it-more-interesting-Iko8"
+        "wireframe-mostly-does-nothing-make-it-more-interesting-Iko8",
+        "never-ever-inherit-activities-from-the-previous-setup-when-s-Fdr1",
+        "mesh-analysis-shows-undefined-too-much-0JfA",
+        "after-a-keyboard-s-scene-command-hide-the-command-panel-4Ttq",
+        "air-routes-shows-undefined-too-much-like-mostly-CbPG"
       ],
       "state": "working",
-      "last_trigger_time": 1792521214,
+      "last_trigger_time": 1792521294,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +49,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T18:33:34Z"
+      "started_at": "2026-10-20T18:34:54Z"
     },
     {
       "type": "service",
@@ -87,5 +90,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 102
+  "workspace_revision": 108
 }

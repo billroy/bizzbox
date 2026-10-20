@@ -1,12 +1,12 @@
 ---
 # never-ever-inherit-activities-from-the-previous-setup-when-s-Fdr1
 title: Never ever inherit activities from the previous setup when switching scenes.  I still see many, many cases when switching from tictactoe to anything else ends up with a jillion tictactoe activities.
-status: inbox
+status: assigned
 type: task
 priority: normal
-assigned_to: 
+assigned_to: 0
 created_at: 2026-10-20T18:21:57Z
-updated_at: 2026-10-20T18:26:14Z
+updated_at: 2026-10-20T18:36:16Z
 tags: []
 last_stdout: ""
 worker_requested_status: 
