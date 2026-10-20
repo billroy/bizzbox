@@ -315,6 +315,19 @@ export function mergeActivityDelta(id, delta) {
     if (delta.readings !== undefined) s.readings = delta.readings;
     if (delta.flow_offset !== undefined) s.flow_offset = delta.flow_offset;
 
+  } else if (type === 'mech_bay') {
+    // Compact updates omit section IDs and weapon names/mounts. Preserve the
+    // initial items so the silhouette and loadout remain drawable.
+    for (const [i, changes] of (delta.sections || []).entries()) {
+      if (s.sections?.[i]) Object.assign(s.sections[i], changes);
+    }
+    for (const [i, changes] of (delta.weapons || []).entries()) {
+      if (s.weapons?.[i]) Object.assign(s.weapons[i], changes);
+    }
+    for (const field of ['coolant_pct', 'neural_link_pct', 'heat_pct', 'reactor_output_pct']) {
+      if (delta[field] !== undefined) s[field] = delta[field];
+    }
+
   } else if (type === 'matrix_rain') {
     // Compact delta: head_ys array for positions, patch_columns for char changes
     if (delta.head_ys && s.columns) {
