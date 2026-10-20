@@ -460,6 +460,21 @@ html.obs-mode .boot-screen      { background: transparent; }
   border-color: #ffffff;
 }
 
+.header-btn--slideshow {
+  background: #ffe082;
+  border-color: #ffe082;
+  color: #111111;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.header-btn--slideshow:hover,
+.header-btn--slideshow:focus-visible {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
 .header-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;

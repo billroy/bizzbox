@@ -9,6 +9,7 @@ import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportSce
 import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
 import { copyConfigUrl } from '../configUrl.js';
 import { applyScene as applySceneAction } from '../keyboard.js';
+import { stopSlideshow } from '../slideshow.js';
 
 export default {
   name: 'AppHeader',
@@ -400,7 +401,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave, stopSlideshow };
   },
 
   template: `
@@ -451,6 +452,11 @@ export default {
               </div>
             </div>
           </div>
+          <button v-if="store.slideshowActive" class="header-btn header-btn--slideshow"
+                  type="button" @click="stopSlideshow"
+                  title="Stop slideshow (P)" aria-label="P mode is on. Stop slideshow">
+            P MODE ON · STOP
+          </button>
         </div>
       </div>
 

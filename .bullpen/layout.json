@@ -20,11 +20,10 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "rack-status-is-always-completely-blank-make-it-show-somethin-tpXB",
         "add-feedback-in-the-header-that-p-mode-is-engaged-and-provid-jXYB"
       ],
       "state": "working",
-      "last_trigger_time": 1792521726,
+      "last_trigger_time": 1792521827,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +45,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T18:42:06Z"
+      "started_at": "2026-10-20T18:43:47Z"
     },
     {
       "type": "service",
@@ -87,5 +86,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 120
+  "workspace_revision": 122
 }

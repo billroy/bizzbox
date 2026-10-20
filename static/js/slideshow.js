@@ -8,6 +8,8 @@ import { applyScene } from './keyboard.js';
 import { SCENES, loadCustomScenes } from './scenes.js';
 
 let _timer = null;
+let _transitionTimer = null;
+let _transitionEndTimer = null;
 let _index = 0;
 let _filter = 'all';
 
@@ -27,6 +29,9 @@ function filteredScenes() {
 
 export function startSlideshow(intervalSec = 60, filter = 'all') {
   if (_timer) clearInterval(_timer);
+  clearTimeout(_transitionTimer);
+  clearTimeout(_transitionEndTimer);
+  document.body.classList.remove('slideshow-transition');
   store.slideshowActive = true;
   store.slideshowInterval = intervalSec;
   _filter = filter || 'all';
@@ -48,10 +53,12 @@ export function startSlideshow(intervalSec = 60, filter = 'all') {
 
     // Brief blackout transition
     document.body.classList.add('slideshow-transition');
-    setTimeout(() => {
+    _transitionTimer = setTimeout(() => {
+      _transitionTimer = null;
       applyScene(scenes[_index]);
       _index = (_index + 1) % scenes.length;
-      setTimeout(() => {
+      _transitionEndTimer = setTimeout(() => {
+        _transitionEndTimer = null;
         document.body.classList.remove('slideshow-transition');
       }, 300);
     }, 300);
@@ -70,6 +77,10 @@ export function stopSlideshow() {
     clearInterval(_timer);
     _timer = null;
   }
+  clearTimeout(_transitionTimer);
+  clearTimeout(_transitionEndTimer);
+  _transitionTimer = null;
+  _transitionEndTimer = null;
   store.slideshowActive = false;
   document.body.classList.remove('slideshow-transition');
   showToast('SLIDESHOW OFF');
