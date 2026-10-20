@@ -67,7 +67,10 @@ function onKeyDown(evt) {
       store.commandPaletteOpen = false;
       evt.preventDefault();
     }
-    return;
+    // Keep typing in the search field, but allow the scene shortcut when
+    // focus has not reached the palette (or has moved outside it).
+    if ((evt.key !== 's' && evt.key !== 'S') ||
+        evt.target.tagName === 'INPUT' || evt.target.tagName === 'TEXTAREA') return;
   }
 
   // Skip if focused on text inputs or range sliders
@@ -270,6 +273,7 @@ function onKeyDown(evt) {
       _sceneIndex = (_sceneIndex + 1) % SCENES.length;
       const scene = SCENES[_sceneIndex];
       applyScene({ ...scene, fgTarget: 0 });
+      store.commandPaletteOpen = false;
       showToast('SCENE: ' + scene.name.toUpperCase());
       evt.preventDefault();
       break;
