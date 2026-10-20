@@ -11,7 +11,7 @@ export default {
     let raf = null;
     const voltageHistory = [];
     let lastReadings = null;
-    let lastNodes = null;
+    let lastTopology = null;
 
     // Node type symbols
     const NODE_SYMBOLS = {
@@ -149,10 +149,20 @@ export default {
     function draw() {
       const canvas = canvasRef.value;
       if (!canvas) { raf = requestAnimationFrame(draw); return; }
-      const ctx = canvas.getContext('2d');
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
       if (w === 0 || h === 0) { raf = requestAnimationFrame(draw); return; }
+
+      const state = props.activity.state;
+      if (!state || !Array.isArray(state.nodes) || !Array.isArray(state.edges) ||
+          !state.nodes.every(node => node && node.id != null && node.type &&
+            Number.isFinite(node.x) && Number.isFinite(node.y)) ||
+          !state.edges.every(edge => edge && edge.from_id != null && edge.to_id != null)) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+
+      const ctx = canvas.getContext('2d');
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
@@ -160,17 +170,15 @@ export default {
 
       ctx.clearRect(0, 0, w, h);
 
-      const state = props.activity.state;
-      if (!state || !state.nodes || !state.edges) { raf = requestAnimationFrame(draw); return; }
-
       const nodes = state.nodes;
       const edges = state.edges;
       const flowOffset = state.flow_offset || 0;
       const readings = state.readings || {};
 
-      if (state.nodes !== lastNodes) {
+      const topology = nodes.map(node => node.id).join('|');
+      if (topology !== lastTopology) {
         voltageHistory.length = 0;
-        lastNodes = state.nodes;
+        lastTopology = topology;
         lastReadings = null;
       }
       if (readings !== lastReadings) {

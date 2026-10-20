@@ -2,6 +2,7 @@
 from server.generators.game_of_life import GameOfLifeActivity
 from server.generators.globe_arcs import GlobeArcsActivity
 from server.generators.network_topology import NetworkTopologyActivity
+from server.generators.power_grid import PowerGridActivity
 
 
 def _apply_gol_delta(old_state: dict, delta: dict) -> dict:
@@ -17,6 +18,15 @@ def _apply_gol_delta(old_state: dict, delta: dict) -> dict:
         "generation": delta["generation"],
         "population": delta["population"],
     }
+
+
+def test_power_grid_sends_complete_frames():
+    gen = PowerGridActivity(intensity=5)
+    old_state = gen.initial_payload()
+    new_state = gen.next_frame()
+    assert gen.compute_delta(old_state, new_state) is None
+    assert all("id" in node and "x" in node and "y" in node for node in new_state["nodes"])
+    assert all("from_id" in edge and "to_id" in edge for edge in new_state["edges"])
 
 
 def test_game_of_life_delta_roundtrip():
