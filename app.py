@@ -69,6 +69,15 @@ def create_app(config: AppConfig):
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.jinja_env.auto_reload = True
 
+    @app.after_request
+    def prevent_stale_client(response):
+        # The scene menu lives in an imported JS module. A normal reload must
+        # fetch the current module graph after the app has been updated.
+        if (response.mimetype == "text/html" or
+                request.path.startswith("/static/js/")):
+            response.cache_control.no_store = True
+        return response
+
     socketio = SocketIO(
         app,
         async_mode="gevent",

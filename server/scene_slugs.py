@@ -37,6 +37,7 @@ SCENE_SLUGS = {
     'frozen-vault': 'Frozen Vault',
     'agent-den': 'Agent Den',
     'ttt': 'TTT',
+    'pong-world': 'Pong World',
     'life-world': 'Life World',
     'feature-zoo': 'Feature Zoo',
 }

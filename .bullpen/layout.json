@@ -20,11 +20,11 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "drive-core-is-boring-t1If",
-        "there-is-still-no-pong-world-after-restarting-the-app-and-re-TUDA"
+        "there-is-still-no-pong-world-after-restarting-the-app-and-re-TUDA",
+        "loadout-activity-has-blank-left-pane-and-undefined-items-in--nDZ9"
       ],
       "state": "working",
-      "last_trigger_time": 1792524819,
+      "last_trigger_time": 1792524940,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +46,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:33:39Z"
+      "started_at": "2026-10-20T19:35:40Z"
     },
     {
       "type": "service",
@@ -87,5 +87,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 192
+  "workspace_revision": 195
 }
