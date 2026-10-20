@@ -96,8 +96,8 @@ python app.py --style lcars --intensity 4
 | `Shift+M` | Toggle mute |
 | `F` | Toggle fullscreen |
 | `R` | Randomize all activities |
-| `+` / `=` | Increase intensity |
-| `-` | Decrease intensity |
+| `+` / `-` | Next / previous grid layout |
+| `=` / `_` | Increase / decrease intensity |
 | `Space` | Open the command palette |
 | `S` / `Shift+S` | Next / previous scene |
 | `T` / `Shift+T` | Next / previous theme |

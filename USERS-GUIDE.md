@@ -83,8 +83,9 @@ All shortcuts work when no input field is focused.
 | **Shift+M** | Toggle mute (all audio on/off) |
 | **F** | Toggle fullscreen |
 | **R** | Shuffle — replace all activities with new random ones |
-| **+** or **=** | Increase intensity (max 20) |
-| **-** | Decrease intensity (min 1) |
+| **+** / **-** | Next / previous grid layout |
+| **=** | Increase intensity (max 20) |
+| **_** | Decrease intensity (min 1) |
 | **]** | Next channel |
 | **[** | Previous channel |
 | **Alt+1**–**Alt+9** | Jump to channel 1–9 |
@@ -193,7 +194,7 @@ A volume slider in the header (between the MUTED/SOUND button and the AMBIENT dr
 
 ## Grid Layout
 
-The background grid defines how many activity panels fill the screen. Choose a layout from the header dropdown or set it via URL parameter.
+The background grid defines how many activity panels fill the screen. Choose a layout from the header dropdown, press **+** or **-** to move through its presets, or set it via URL parameter.
 
 Available presets range from **2×1** (2 panels) up to **10×7** (70 panels). Some examples:
 
@@ -715,13 +716,13 @@ Then reload the page.
 ## Troubleshooting
 
 **Activities not updating?**
-Check the intensity setting (press **+** to increase). If the display seems frozen, try pressing **R** to shuffle. If you see a reconnection overlay, the server may have restarted — the client will auto-reconnect.
+Check the intensity setting (press **=** to increase). If the display seems frozen, try pressing **R** to shuffle. If you see a reconnection overlay, the server may have restarted — the client will auto-reconnect.
 
 **No audio?**
 Press **Shift+M** to unmute. If still silent, make sure you've interacted with the page (clicked or pressed a key) — browsers require a user gesture before playing audio. Check that an ambient preset is selected (press **A**).
 
 **Display is lagging?**
-Reduce the intensity (press **-**), reduce **WIN COUNT** with the slider, or choose a smaller grid layout. Close other browser tabs to free up resources.
+Reduce the intensity (press **_**), reduce **WIN COUNT** with the slider, or choose a smaller grid layout with **-**. Close other browser tabs to free up resources.
 
 **UI elements disappeared?**
 You may be in lock mode. Press **L** or **Escape** to exit. If the header is auto-hiding, move the pointer to the top edge or press **Space** and search for "Pin header".

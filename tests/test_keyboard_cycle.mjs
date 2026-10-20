@@ -7,6 +7,7 @@ import { SourceTextModule, SyntheticModule } from 'node:vm';
 const events = [];
 const store = {
   config: { style: 'first', intensity: 5 },
+  grid: { cols: 3, rows: 2 },
   ambientPreset: null,
   commandPaletteOpen: false,
   activityFilter: {},
@@ -28,8 +29,13 @@ const dependencies = {
   './socket.js': {
     sendStyle: style => events.push(['style', style]),
     sendScene: scene => events.push(['scene', scene.name]),
-    sendIntensity: () => {}, sendMute: () => {}, sendRandomize: () => {},
-    sendLayout: () => {}, sendChannelSwitch: () => {}, sendChannelCreate: () => {},
+    sendIntensity: intensity => events.push(['intensity', intensity]),
+    sendMute: () => {}, sendRandomize: () => {},
+    sendLayout: (cols, rows) => {
+      events.push(['layout', cols, rows]);
+      store.grid = { cols, rows }; // Simulate the server echo.
+    },
+    sendChannelSwitch: () => {}, sendChannelCreate: () => {},
   },
   './audio.js': {
     AMBIENT_PRESET_LIST: presets,
@@ -41,7 +47,14 @@ const dependencies = {
   './scenes.js': { SCENES: scenes },
   './activityTypes.js': { ACTIVITY_TYPES: [] },
   './slideshow.js': { toggleSlideshow: () => {} },
-  './layout.js': { MAX_GRID_PRESET: { label: '10×7', cols: 10, rows: 7 } },
+  './layout.js': {
+    GRID_PRESETS: [
+      { label: '2×1', cols: 2, rows: 1 },
+      { label: '3×2', cols: 3, rows: 2 },
+      { label: '4×2', cols: 4, rows: 2 },
+    ],
+    MAX_GRID_PRESET: { label: '4×2', cols: 4, rows: 2 },
+  },
 };
 
 const path = fileURLToPath(new URL('../static/js/keyboard.js', import.meta.url));
@@ -82,5 +95,36 @@ test('Shift+S starts at the last scene and wraps back from the first', () => {
   runShortcut('S');
   assert.deepEqual(events.filter(event => event[0] === 'scene'), [
     ['scene', 'Last'], ['scene', 'First'], ['scene', 'Last'],
+  ]);
+});
+
+test('+ and - step through layout dropdown selections and stop at the ends', () => {
+  runShortcut('+');
+  runShortcut('+');
+  runShortcut('-');
+  runShortcut('-');
+  runShortcut('-');
+  assert.deepEqual(events.filter(event => event[0] === 'layout'), [
+    ['layout', 4, 2], ['layout', 3, 2], ['layout', 2, 1],
+  ]);
+  assert.deepEqual(events.filter(event => event[0] === 'intensity'), []);
+});
+
+test('a custom layout enters the preset list in the requested direction', () => {
+  store.grid = { cols: 1, rows: 1 };
+  const start = events.length;
+  runShortcut('+');
+  store.grid = { cols: 1, rows: 1 };
+  runShortcut('-');
+  assert.deepEqual(events.slice(start).filter(event => event[0] === 'layout'), [
+    ['layout', 2, 1], ['layout', 4, 2],
+  ]);
+});
+
+test('= and _ continue to adjust intensity', () => {
+  runShortcut('=');
+  runShortcut('_');
+  assert.deepEqual(events.filter(event => event[0] === 'intensity'), [
+    ['intensity', 6], ['intensity', 4],
   ]);
 });

@@ -7,7 +7,7 @@ import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 import { SCENES } from './scenes.js';
 import { ACTIVITY_TYPES } from './activityTypes.js';
 import { toggleSlideshow } from './slideshow.js';
-import { MAX_GRID_PRESET } from './layout.js';
+import { GRID_PRESETS, MAX_GRID_PRESET } from './layout.js';
 
 let _cursorHideTimer = null;
 let _sceneIndex = -1;
@@ -15,6 +15,17 @@ let _sceneIndex = -1;
 function cycleIndex(index, direction, length) {
   if (index < 0) return direction === 1 ? 0 : length - 1;
   return (index + direction + length) % length;
+}
+
+function stepLayout(direction) {
+  const index = GRID_PRESETS.findIndex(p => p.cols === store.grid?.cols && p.rows === store.grid?.rows);
+  const nextIndex = index < 0
+    ? (direction === 1 ? 0 : GRID_PRESETS.length - 1)
+    : Math.max(0, Math.min(GRID_PRESETS.length - 1, index + direction));
+  if (nextIndex === index) return;
+  const preset = GRID_PRESETS[nextIndex];
+  sendLayout(preset.cols, preset.rows);
+  showToast('LAYOUT ' + preset.label);
 }
 
 function enterLockMode() {
@@ -151,6 +162,15 @@ function onKeyDown(evt) {
       break;
 
     case '+':
+      stepLayout(1);
+      evt.preventDefault();
+      break;
+
+    case '-':
+      stepLayout(-1);
+      evt.preventDefault();
+      break;
+
     case '=': {
       const newInt = Math.min(20, store.config.intensity + 1);
       sendIntensity(newInt);
@@ -159,7 +179,7 @@ function onKeyDown(evt) {
       break;
     }
 
-    case '-': {
+    case '_': {
       const newInt = Math.max(1, store.config.intensity - 1);
       sendIntensity(newInt);
       showToast('INTENSITY ' + newInt);
