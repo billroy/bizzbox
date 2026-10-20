@@ -313,6 +313,14 @@ export function mergeActivityDelta(id, delta) {
     if (delta.readings !== undefined) s.readings = delta.readings;
     if (delta.flow_offset !== undefined) s.flow_offset = delta.flow_offset;
 
+  } else if (type === 'orbital_view') {
+    // Position deltas omit each satellite's static label and orbit type.
+    // Preserve those fields from the spawn payload between full keyframes.
+    for (const [i, position] of (delta.satellites || []).entries()) {
+      if (s.satellites?.[i]) Object.assign(s.satellites[i], position);
+    }
+    if (delta.rotation !== undefined) s.rotation = delta.rotation;
+
   } else if (type === 'mech_bay') {
     // Compact updates omit section IDs and weapon names/mounts. Preserve the
     // initial items so the silhouette and loadout remain drawable.

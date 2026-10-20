@@ -20,13 +20,12 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "power-grid-shows-no-graph-many-confused-nubers-after-voltage-2xuu",
         "orbital-view-activity-shows-almost-100-undefined-fix-nImY",
         "shifted-letter-commands-should-cycle-back-instead-of-forward-2p5q",
         "activity-whose-name-starts-with-pattern-says-undefined-too-m-lnCe"
       ],
       "state": "working",
-      "last_trigger_time": 1792523052,
+      "last_trigger_time": 1792523194,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -48,7 +47,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:04:12Z"
+      "started_at": "2026-10-20T19:06:34Z"
     },
     {
       "type": "service",
@@ -89,5 +88,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 152
+  "workspace_revision": 154
 }
