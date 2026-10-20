@@ -3,6 +3,7 @@ from server.generators.game_of_life import GameOfLifeActivity
 from server.generators.globe_arcs import GlobeArcsActivity
 from server.generators.network_topology import NetworkTopologyActivity
 from server.generators.power_grid import PowerGridActivity
+from server.generators.mission_control import MissionControlActivity
 
 
 def _apply_gol_delta(old_state: dict, delta: dict) -> dict:
@@ -27,6 +28,15 @@ def test_power_grid_sends_complete_frames():
     assert gen.compute_delta(old_state, new_state) is None
     assert all("id" in node and "x" in node and "y" in node for node in new_state["nodes"])
     assert all("from_id" in edge and "to_id" in edge for edge in new_state["edges"])
+
+
+def test_mission_control_delta_sends_vehicle_on_reset():
+    gen = MissionControlActivity(intensity=5)
+    old_state = gen.initial_payload()
+    new_state = {**old_state, "vehicle": "REPLACEMENT"}
+    delta = gen.compute_delta(old_state, new_state)
+    assert delta["vehicle"] == "REPLACEMENT"
+    assert all(set(station) == {"status"} for station in delta["stations"])
 
 
 def test_game_of_life_delta_roundtrip():

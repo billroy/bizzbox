@@ -341,6 +341,16 @@ export function mergeActivityDelta(id, delta) {
       if (delta[field] !== undefined) s[field] = delta[field];
     }
 
+  } else if (type === 'mission_control') {
+    // Station updates carry statuses only; keep the names from the full state.
+    for (const [i, changes] of (delta.stations || []).entries()) {
+      if (s.stations?.[i]) Object.assign(s.stations[i], changes);
+    }
+    for (const field of ['vehicle', 't_minus', 'counting', 'hold', 'telemetry',
+      'abort_mode', 'events_log']) {
+      if (delta[field] !== undefined) s[field] = delta[field];
+    }
+
   } else if (type === 'terraforming') {
     // Zone names are sent only in the initial payload and full keyframes.
     for (const [i, changes] of (delta.zones || []).entries()) {

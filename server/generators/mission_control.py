@@ -95,9 +95,9 @@ class MissionControlActivity(BaseActivity):
         return self._get_state()
 
     def compute_delta(self, old_state, new_state):
-        # Strip vehicle, max_stages, station names (static)
+        # Strip max_stages and station names (static); a reset can change vehicle.
         stations = [{"status": s["status"]} for s in new_state["stations"]]
-        return {
+        delta = {
             "_delta": True,
             "t_minus": new_state["t_minus"],
             "counting": new_state["counting"],
@@ -107,6 +107,9 @@ class MissionControlActivity(BaseActivity):
             "abort_mode": new_state["abort_mode"],
             "events_log": new_state["events_log"],
         }
+        if old_state["vehicle"] != new_state["vehicle"]:
+            delta["vehicle"] = new_state["vehicle"]
+        return delta
 
     def next_frame(self) -> dict:
         # Station GO/NO-GO drift

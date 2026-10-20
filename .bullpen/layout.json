@@ -20,13 +20,12 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "warp-systems-is-boring-improve-the-graphic-JfAo",
         "launch-status-shows-too-much-undefined-0iTz",
         "all-the-3d-wireframes-rotate-using-the-same-pattern-randomiz-1MPb",
         "some-pong-courts-have-two-balls-fix-JliI"
       ],
       "state": "working",
-      "last_trigger_time": 1792526646,
+      "last_trigger_time": 1792526778,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -48,7 +47,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T20:04:06Z"
+      "started_at": "2026-10-20T20:06:18Z"
     },
     {
       "type": "service",
@@ -89,5 +88,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 234
+  "workspace_revision": 236
 }
