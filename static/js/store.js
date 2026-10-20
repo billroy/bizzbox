@@ -303,6 +303,18 @@ export function mergeActivityDelta(id, delta) {
     }
     if (delta.total_load !== undefined) s.total_load = delta.total_load;
 
+  } else if (type === 'power_grid') {
+    // The server sends only changing fields; retain the node positions and
+    // edge endpoints from the initial payload so the schematic can render.
+    for (const [i, changes] of (delta.nodes || []).entries()) {
+      if (s.nodes?.[i]) Object.assign(s.nodes[i], changes);
+    }
+    for (const [i, changes] of (delta.edges || []).entries()) {
+      if (s.edges?.[i]) Object.assign(s.edges[i], changes);
+    }
+    if (delta.readings !== undefined) s.readings = delta.readings;
+    if (delta.flow_offset !== undefined) s.flow_offset = delta.flow_offset;
+
   } else if (type === 'matrix_rain') {
     // Compact delta: head_ys array for positions, patch_columns for char changes
     if (delta.head_ys && s.columns) {
