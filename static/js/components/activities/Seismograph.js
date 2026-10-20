@@ -1,19 +1,17 @@
-/**
- * Seismograph — canvas-based 3-channel waveform display with magnitude badge,
- * threshold lines, and scroll-left rendering.
- */
-function getThemeColors() {
-  const s = getComputedStyle(document.documentElement);
-  const get = (v) => s.getPropertyValue(v).trim();
+/** Three-axis rolling seismic display. Samples arrive in eight-point deltas. */
+function themeColors() {
+  const style = getComputedStyle(document.documentElement);
+  const color = name => style.getPropertyValue(name).trim();
   return {
-    bg:      get('--color-surface'),
-    accent1: get('--color-accent-1'),
-    accent2: get('--color-accent-2'),
-    textPri: get('--color-text-primary'),
-    textDim: get('--color-text-dim'),
-    error:   get('--color-error'),
-    warn:    get('--color-warn'),
-    border:  get('--color-border'),
+    bg: color('--color-surface'),
+    surface: color('--color-surface-2'),
+    accent: color('--color-accent-1'),
+    secondary: color('--color-accent-2'),
+    text: color('--color-text-primary'),
+    dim: color('--color-text-dim'),
+    border: color('--color-border'),
+    warn: color('--color-warn'),
+    error: color('--color-error'),
   };
 }
 
@@ -29,141 +27,138 @@ export default {
       const canvas = canvasRef.value;
       if (!canvas) return;
       const state = props.activity?.state;
-      if (!state) { rafId = requestAnimationFrame(draw); return; }
-
-      const dpr = window.devicePixelRatio || 1;
       const W = canvas.clientWidth;
       const H = canvas.clientHeight;
-      if (W === 0 || H === 0) { rafId = requestAnimationFrame(draw); return; }
-
-      if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
-        canvas.width = W * dpr;
-        canvas.height = H * dpr;
+      if (!state || !W || !H) {
+        rafId = requestAnimationFrame(draw);
+        return;
       }
 
+      const dpr = window.devicePixelRatio || 1;
+      if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) {
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+      }
       const ctx = canvas.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const c = getThemeColors();
+      const c = themeColors();
+      const channels = state.channels || [];
+      const compact = H < 120 || W < 170;
+      const pad = 7;
+      const headerH = compact ? 17 : 25;
+      const footerH = compact ? 13 : 20;
+      const plotTop = headerH + 2;
+      const plotBottom = H - footerH - 2;
+      const plotH = Math.max(0, plotBottom - plotTop);
+      const labelW = compact ? 17 : 26;
+      const plotX = pad + labelW;
+      const plotW = Math.max(0, W - plotX - pad);
+      const event = state.magnitude != null;
+      const peak = Math.max(0, Number(state.peak) || 0);
+      const active = event || peak > 0.3;
 
       ctx.fillStyle = c.bg;
       ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = c.surface;
+      ctx.fillRect(0, 0, W, headerH);
+      ctx.fillRect(0, H - footerH, W, footerH);
+      ctx.strokeStyle = c.border;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, headerH + 0.5);
+      ctx.lineTo(W, headerH + 0.5);
+      ctx.moveTo(0, H - footerH + 0.5);
+      ctx.lineTo(W, H - footerH + 0.5);
+      ctx.stroke();
 
-      const channels = state.channels || [];
-      const nCh = channels.length || 3;
-      const pad = 6;
-      const labelW = 20;
-      // 3 channels each ~30% height with 3% gaps
-      const totalH = H - pad * 2;
-      const gap = totalH * 0.03;
-      const chH = (totalH - gap * (nCh - 1)) * 0.30;
-      const THRESHOLD = 0.3;
+      // The status lamp and readout remain visible even in small grid cells.
+      ctx.beginPath();
+      ctx.arc(pad + 3, headerH / 2, 3, 0, Math.PI * 2);
+      ctx.fillStyle = active ? c.error : c.accent;
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = active ? 10 : 4;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      ctx.font = 'bold ' + (compact ? 9 : 10) + 'px monospace';
+      ctx.fillStyle = active ? c.error : c.text;
+      ctx.fillText(active ? 'EVENT' : 'MONITORING', pad + 13, headerH / 2);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = event ? c.error : c.secondary;
+      ctx.font = 'bold ' + (compact ? 10 : 14) + 'px monospace';
+      ctx.fillText(event ? 'M ' + Number(state.magnitude).toFixed(1) : 'LIVE', W - pad, headerH / 2);
 
-      channels.forEach((ch, ci) => {
-        const chTop = pad + ci * (chH + gap);
-        const chMid = chTop + chH / 2;
-        const chBot = chTop + chH;
-        const waveX = pad + labelW;
-        const waveW = W - waveX - pad;
+      if (channels.length && plotW > 4 && plotH > 4) {
+        const gap = compact ? 2 : 4;
+        const chH = (plotH - gap * (channels.length - 1)) / channels.length;
+        channels.forEach((ch, ci) => {
+          const top = plotTop + ci * (chH + gap);
+          const mid = top + chH / 2;
+          const samples = ch.samples || [];
+          const amplitude = Math.max(1, chH * 0.43);
+          const maxAbs = samples.reduce((max, sample) => Math.max(max, Math.abs(sample)), 0);
+          const hot = maxAbs > 0.3;
 
-        // Channel background
-        ctx.fillStyle = c.border + '22';
-        ctx.fillRect(waveX, chTop, waveW, chH);
-
-        // Channel label
-        ctx.font = 'bold 10px monospace';
-        ctx.fillStyle = c.accent1;
-        ctx.textAlign = 'center';
-        ctx.fillText(ch.name || '', pad + labelW / 2, chMid + 4);
-
-        // Center line (dashed, dim)
-        ctx.strokeStyle = c.textDim + '66';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 4]);
-        ctx.beginPath();
-        ctx.moveTo(waveX, chMid);
-        ctx.lineTo(waveX + waveW, chMid);
-        ctx.stroke();
-
-        // Threshold lines at ±0.3 (dashed, warn)
-        const threshY = chH / 2 * THRESHOLD;
-        ctx.strokeStyle = c.warn + '88';
-        ctx.setLineDash([2, 4]);
-        [chMid - threshY, chMid + threshY].forEach(ty => {
+          ctx.fillStyle = c.surface;
+          ctx.fillRect(plotX, top, plotW, chH);
+          ctx.strokeStyle = c.border;
+          ctx.lineWidth = 0.5;
           ctx.beginPath();
-          ctx.moveTo(waveX, ty);
-          ctx.lineTo(waveX + waveW, ty);
+          for (let i = 0; i <= 6; i++) {
+            const x = plotX + i * plotW / 6;
+            ctx.moveTo(x, top);
+            ctx.lineTo(x, top + chH);
+          }
+          ctx.moveTo(plotX, mid);
+          ctx.lineTo(plotX + plotW, mid);
           ctx.stroke();
+
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.font = 'bold ' + (compact ? 9 : 11) + 'px monospace';
+          ctx.fillStyle = hot ? c.error : c.accent;
+          ctx.fillText(ch.name || '', pad, mid);
+
+          if (samples.length < 2) return;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(plotX, top, plotW, chH);
+          ctx.clip();
+          ctx.beginPath();
+          samples.forEach((sample, i) => {
+            const x = plotX + i * plotW / (samples.length - 1);
+            const y = mid - Math.max(-1, Math.min(1, sample)) * amplitude;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.strokeStyle = hot ? c.error : (ci === 1 ? c.secondary : c.accent);
+          ctx.lineWidth = hot ? 1.8 : 1.3;
+          ctx.shadowColor = ctx.strokeStyle;
+          ctx.shadowBlur = hot ? 8 : 3;
+          ctx.stroke();
+          ctx.restore();
         });
-        ctx.setLineDash([]);
-
-        // Waveform polyline
-        const samples = ch.samples || [];
-        if (samples.length < 2) return;
-        const n = samples.length;
-        const xStep = waveW / (n - 1);
-        const amplitude = chH / 2 - 2;
-
-        ctx.beginPath();
-        samples.forEach((s, i) => {
-          const px = waveX + i * xStep;
-          const py = chMid - s * amplitude;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        });
-
-        // Check if any sample exceeds threshold for color choice
-        const maxAbs = Math.max(...samples.map(Math.abs));
-        ctx.strokeStyle = maxAbs > THRESHOLD ? c.error : c.accent1;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      });
-
-      // ── Magnitude badge (upper right) ────────────────────────────────
-      const mag = state.magnitude;
-      if (mag != null) {
-        const badgeX = W - pad - 2;
-        const badgeY = pad + 4;
-        const magText = 'M ' + Number(mag).toFixed(1);
-        ctx.font = 'bold 16px monospace';
-        const tw = ctx.measureText(magText).width;
-
-        if (mag > 3) {
-          // Error glow
-          ctx.shadowColor = c.error;
-          ctx.shadowBlur = 12;
-          ctx.fillStyle = c.error;
-        } else {
-          ctx.shadowBlur = 0;
-          ctx.fillStyle = c.accent2;
-        }
-        ctx.textAlign = 'right';
-        ctx.fillText(magText, badgeX, badgeY + 14);
-        ctx.shadowBlur = 0;
-
-        if (mag != null) {
-          ctx.font = '9px monospace';
-          ctx.fillStyle = c.textDim;
-          ctx.fillText(state.depth_km != null ? state.depth_km + ' km depth' : '', badgeX, badgeY + 26);
-        }
       }
 
-      // ── Station name bottom left ─────────────────────────────────────
-      ctx.font = '9px monospace';
-      ctx.fillStyle = c.textDim;
+      ctx.textBaseline = 'middle';
+      ctx.font = (compact ? 8 : 9) + 'px monospace';
+      ctx.fillStyle = c.dim;
       ctx.textAlign = 'left';
-      ctx.fillText(state.station || '', pad, H - pad);
-
-      // ── Strategy bottom right ────────────────────────────────────────
+      ctx.fillText(state.station || 'STATION', pad, H - footerH / 2);
       ctx.textAlign = 'right';
-      ctx.fillText(state.strategy || '', W - pad, H - pad);
+      const detail = event && !compact && state.depth_km != null
+        ? state.depth_km + ' KM DEPTH'
+        : 'PEAK ' + peak.toFixed(2);
+      ctx.fillStyle = active ? c.warn : c.dim;
+      ctx.fillText(detail, W - pad, H - footerH / 2);
 
       rafId = requestAnimationFrame(draw);
     }
 
     onMounted(() => { rafId = requestAnimationFrame(draw); });
-    onUnmounted(() => { if (rafId) cancelAnimationFrame(rafId); });
-
+    onUnmounted(() => { if (rafId !== null) cancelAnimationFrame(rafId); });
     return { canvasRef };
   },
-  template: `<canvas ref="canvasRef" class="activity-canvas"></canvas>`,
+  template: '<canvas ref="canvasRef" class="activity-canvas"></canvas>',
 };

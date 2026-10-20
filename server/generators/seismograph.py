@@ -28,11 +28,11 @@ class SeismographActivity(BaseActivity):
     # Per-strategy: (noise_sigma, event_interval_min, event_interval_max,
     #                mag_min, mag_max, depth_km_min, depth_km_max)
     STRATEGY_CFG = {
-        "tectonic_monitor":    (0.04, 30, 60,  2.0, 6.5, 5.0,  80.0),
-        "building_structural": (0.02, 20, 45,  0.1, 2.0, 0.0,   0.5),
-        "blast_detection":     (0.03, 15, 40,  1.0, 3.5, 0.0,   1.0),
-        "volcanic_observatory":(0.06, 10, 35,  0.5, 4.0, 0.5,  15.0),
-        "submarine_hydrophone":(0.05, 25, 55,  2.5, 5.5, 10.0, 200.0),
+        "tectonic_monitor":    (0.04, 26, 42,  2.0, 6.5, 5.0,  80.0),
+        "building_structural": (0.02, 24, 38,  0.1, 2.0, 0.0,   0.5),
+        "blast_detection":     (0.03, 22, 36,  1.0, 3.5, 0.0,   1.0),
+        "volcanic_observatory":(0.06, 20, 32,  0.5, 4.0, 0.5,  15.0),
+        "submarine_hydrophone":(0.05, 26, 42,  2.5, 5.5, 10.0, 200.0),
     }
 
     STATION_PREFIXES = ["STN", "STA", "GS", "MNT", "HYD"]
@@ -79,16 +79,14 @@ class SeismographActivity(BaseActivity):
         return round(random.gauss(0, sigma), 5)
 
     def _event_waveform(self, channel_idx, sample_idx):
-        """Return the event-driven waveform amplitude for a given sample position."""
-        # Relative time within the event (in samples)
-        elapsed = self._frame - self._event_frame
+        """Return the event waveform at a sample offset from its trigger."""
         # P-wave: sharp onset, small amplitude, arrives at sample 0
         # S-wave: larger, lower frequency, arrives ~20 samples later
         p_onset = 0
         s_onset = 20
         decay_tau = 30.0  # samples
 
-        t = elapsed * 8 + sample_idx  # virtual sample index
+        t = (self._frame - self._event_frame) * self.SAMPLES_PER_TICK + sample_idx
 
         # Scale amplitudes by magnitude
         mag = self._magnitude or 1.0
@@ -113,7 +111,7 @@ class SeismographActivity(BaseActivity):
 
     def _in_event(self):
         elapsed = self._frame - self._event_frame
-        return 0 <= elapsed < 20  # active for 20 frames after trigger
+        return 0 <= elapsed < 16  # waveform lasts about 13 frames
 
     def _get_state(self):
         return {
@@ -176,18 +174,19 @@ class SeismographActivity(BaseActivity):
             )
         elif not self._in_event():
             # Clear magnitude/depth between events (quiet periods)
-            if self._magnitude is not None and self._frame - self._event_frame > 25:
+            if self._magnitude is not None:
                 self._magnitude = None
                 self._depth_km = None
 
         # Drift phase for very-low-frequency baseline wander
         self._drift_phase += 0.07
 
-        # Generate new samples for each channel
+        # Advance the same rolling buffer sent to the client. Generating a full
+        # frame and sending only its tail used to discard the event onset.
         all_vals = []
         for ch_idx, ch in enumerate(self._channels):
             new_samples = []
-            for s in range(self.SAMPLE_COUNT):
+            for s in range(self.SAMPLES_PER_TICK):
                 # Baseline noise
                 v = self._noise()
 
@@ -210,7 +209,7 @@ class SeismographActivity(BaseActivity):
                 new_samples.append(v)
                 all_vals.append(abs(v))
 
-            ch["samples"] = new_samples
+            ch["samples"] = ch["samples"][self.SAMPLES_PER_TICK:] + new_samples
 
         self._peak = max(all_vals) if all_vals else 0.0
 
