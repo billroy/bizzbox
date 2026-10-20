@@ -334,6 +334,16 @@ export function mergeActivityDelta(id, delta) {
       if (delta[field] !== undefined) s[field] = delta[field];
     }
 
+  } else if (type === 'dungeon_master') {
+    // Party updates omit each member's name, class, and maximum HP/MP.
+    // Merge by index so the initial labels and bar denominators survive.
+    for (const [i, changes] of (delta.party || []).entries()) {
+      if (s.party?.[i]) Object.assign(s.party[i], changes);
+    }
+    for (const field of ['boss', 'combat_log', 'boss_phase', 'elapsed_sec']) {
+      if (delta[field] !== undefined) s[field] = delta[field];
+    }
+
   } else if (type === 'matrix_rain') {
     // Compact delta: head_ys array for positions, patch_columns for char changes
     if (delta.head_ys && s.columns) {
