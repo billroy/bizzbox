@@ -6,7 +6,7 @@ type: task
 priority: normal
 assigned_to: 
 created_at: 2026-10-20T19:07:48Z
-updated_at: 2026-10-20T19:12:13Z
+updated_at: 2026-10-20T19:28:09Z
 tags: []
 last_stdout: ""
 worker_requested_status: 
@@ -18,16 +18,14 @@ tokens: 375203
 task_time_ms: 66526
 commit_hash: 610a004ddf69bb1ed53faafb39c6adc421fd5af2
 ---
+## Correction
 
+The first implementation was not actually using the app's maximum selectable layout. It hard-coded `8×10`, which is not one of the layout presets, while the app's maximum preset and the `m` shortcut both resolve to `10×7`.
 
-## Agent Output
+`Pong World` now derives its dimensions from the shared `MAX_GRID_PRESET`, so selecting the scene creates 70 background Pong activities with zero overlay windows. The `m` shortcut uses the same shared value to prevent the two features from drifting apart.
 
-### 2026-10-20T19:12:13Z — Fix-n-Commit Codex (codex/gpt-6-sol)
+## Verification
 
-Added **Pong World** to the scene selector. It uses the largest selectable grid, 8×10, with Pong in all 80 cells and no overlay windows.
-
-Verification passed: 18 scene and socket tests, plus a server check confirming all 80 activities are Pong. I requested the ticket move to review.
-
-### 2026-10-20T19:12:13Z — Fix-n-Commit Codex (codex/gpt-6-sol)
-
-Commit: 610a004ddf69bb1ed53faafb39c6adc421fd5af2
+- 15 JavaScript tests passed, including a new Pong World regression test.
+- 151 Python tests passed.
+- Pong World is present in the built-in scene selector, uses `10×7`, filters to `pong`, and sets `fgTarget` to `0`.

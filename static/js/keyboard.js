@@ -7,7 +7,7 @@ import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 import { SCENES } from './scenes.js';
 import { ACTIVITY_TYPES } from './activityTypes.js';
 import { toggleSlideshow } from './slideshow.js';
-import { GRID_PRESETS } from './layout.js';
+import { MAX_GRID_PRESET } from './layout.js';
 
 let _cursorHideTimer = null;
 let _sceneIndex = -1;
@@ -127,11 +127,8 @@ function onKeyDown(evt) {
       break;
 
     case 'm': {
-      const maxLayout = GRID_PRESETS.reduce((max, preset) =>
-        preset.cols * preset.rows > max.cols * max.rows ? preset : max
-      );
-      sendLayout(maxLayout.cols, maxLayout.rows);
-      showToast('LAYOUT ' + maxLayout.label);
+      sendLayout(MAX_GRID_PRESET.cols, MAX_GRID_PRESET.rows);
+      showToast('LAYOUT ' + MAX_GRID_PRESET.label);
       evt.preventDefault();
       break;
     }

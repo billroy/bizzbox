@@ -42,6 +42,13 @@ export const GRID_PRESETS = [
   { label: '10×7', cols: 10, rows: 7 },
 ];
 
+// Keep every "maximum layout" feature anchored to the same preset.  Choosing
+// by cell count (rather than the last entry) makes the intent survive preset
+// reordering.
+export const MAX_GRID_PRESET = GRID_PRESETS.reduce((max, preset) =>
+  preset.cols * preset.rows > max.cols * max.rows ? preset : max
+);
+
 export function computeGrid(cols, rows) {
   const n = cols * rows;
   const slots = [];

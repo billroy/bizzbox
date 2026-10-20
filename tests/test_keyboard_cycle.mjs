@@ -41,7 +41,7 @@ const dependencies = {
   './scenes.js': { SCENES: scenes },
   './activityTypes.js': { ACTIVITY_TYPES: [] },
   './slideshow.js': { toggleSlideshow: () => {} },
-  './layout.js': { GRID_PRESETS: [] },
+  './layout.js': { MAX_GRID_PRESET: { label: '10×7', cols: 10, rows: 7 } },
 };
 
 const path = fileURLToPath(new URL('../static/js/keyboard.js', import.meta.url));
