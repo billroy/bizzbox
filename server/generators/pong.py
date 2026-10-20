@@ -10,6 +10,7 @@ from .base import BaseActivity
 
 class PongActivity(BaseActivity):
     activity_type = "pong"
+    update_interval_override = 0.1  # 10 updates/s; three simulation steps per update
     strategies = [
         "rally",          # long rallies, both paddles are good
         "mismatch",       # one paddle is much better
@@ -183,7 +184,7 @@ class PongActivity(BaseActivity):
         # extrapolate the ball position smoothly between server frames.
         speed_factor = self._speed_mult if self.strategy == "speedup" else 1.0
         steps_per_frame = 3
-        update_rate = max(1, self.intensity)
+        update_rate = 1 / self.update_interval_override
         vel_scale = speed_factor * steps_per_frame * update_rate
         return {
             "balls": [{"x": b["x"], "y": b["y"],
