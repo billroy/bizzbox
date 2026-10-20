@@ -20,11 +20,12 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "make-overlay-win-count-zero-for-all-cases-the-only-time-a-us-IT4A",
-        "warp-core-visuals-are-boring-make-more-interesting-3mIh"
+        "warp-core-visuals-are-boring-make-more-interesting-3mIh",
+        "power-grid-shows-no-graph-many-confused-nubers-after-voltage-2xuu",
+        "orbital-view-activity-shows-almost-100-undefined-fix-nImY"
       ],
       "state": "working",
-      "last_trigger_time": 1792522718,
+      "last_trigger_time": 1792522848,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +47,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T18:58:38Z"
+      "started_at": "2026-10-20T19:00:48Z"
     },
     {
       "type": "service",
@@ -87,5 +88,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 144
+  "workspace_revision": 148
 }
