@@ -14,7 +14,6 @@ class PongActivity(BaseActivity):
     strategies = [
         "rally",          # long rallies, both paddles are good
         "mismatch",       # one paddle is much better
-        "multiball",      # two balls at once
         "speedup",        # ball accelerates each hit
     ]
     titles = [
@@ -52,8 +51,6 @@ class PongActivity(BaseActivity):
             self._right_skill = random.uniform(0.5, 0.7)
 
         self._reset_ball()
-        if self.strategy == "multiball":
-            self._add_ball()
 
     def _reset_ball(self):
         """Reset primary ball to center with random direction."""
@@ -68,20 +65,6 @@ class PongActivity(BaseActivity):
             "vy": base_speed * math.sin(angle),
         }]
         self.rally_count = 0
-        if self.strategy == "multiball":
-            self._add_ball()
-
-    def _add_ball(self):
-        """Add an extra ball."""
-        angle = random.uniform(-math.pi / 4, math.pi / 4)
-        direction = random.choice([-1, 1])
-        base_speed = 4.0 + self.intensity * 0.5
-        self.balls.append({
-            "x": self.FIELD_W / 2,
-            "y": self.FIELD_H / 2,
-            "vx": direction * base_speed * math.cos(angle),
-            "vy": base_speed * math.sin(angle),
-        })
 
     def _move_paddle(self, paddle_y: float, target_y: float, skill: float) -> float:
         """Move paddle toward target with skill-based speed."""

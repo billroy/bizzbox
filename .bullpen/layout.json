@@ -20,11 +20,10 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "all-the-3d-wireframes-rotate-using-the-same-pattern-randomiz-1MPb",
         "some-pong-courts-have-two-balls-fix-JliI"
       ],
       "state": "working",
-      "last_trigger_time": 1792526850,
+      "last_trigger_time": 1792526935,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +45,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T20:07:30Z"
+      "started_at": "2026-10-20T20:08:55Z"
     },
     {
       "type": "service",
@@ -87,5 +86,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 238
+  "workspace_revision": 240
 }
