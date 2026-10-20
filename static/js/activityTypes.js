@@ -29,7 +29,6 @@ export const ACTIVITY_TYPES = [
   'data_table',
   'system_topology',
   'globe_arcs',
-  'heart_monitor',
   'transit_map',
   'weather_radar',
   'stock_list',
@@ -97,7 +96,7 @@ export const ACTIVITY_CATEGORIES = {
   ],
   'Science': [
     'oscilloscope', 'seismograph', 'sdr_waterfall', 'qam_constellation',
-    'audio_spectrum', 'dna_sequence', 'heart_monitor', 'weather_radar',
+    'audio_spectrum', 'dna_sequence', 'weather_radar',
     'sonar', 'genetics_lab',
   ],
   'Finance': [

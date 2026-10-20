@@ -47,3 +47,8 @@ def test_heart_monitor_only_spawns_normal_ekg():
         assert state["strategy"] == "normal_sinus"
         assert state["ekg_label"] == "NORMAL EKG"
         assert state["alarm"] is False
+
+
+def test_heart_monitor_is_saved_but_not_available_as_an_activity():
+    assert "heart_monitor" not in REGISTRY
+    assert HeartMonitorActivity().activity_type == "heart_monitor"

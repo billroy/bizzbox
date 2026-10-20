@@ -6,7 +6,7 @@ No data is real. No databases required. Everything is procedurally generated in 
 
 ## Features
 
-- **57 activity types** — 42 canvas-rendered visualizations (radar, globe arcs, wireframe 3D, game of life, weather radar, pong, tic tac toe, etc.) and 15 DOM-based panels (terminals, log tails, data tables, stock tickers, AI agent, etc.)
+- **59 activity types** — canvas-rendered visualizations (radar, globe arcs, wireframe 3D, game of life, weather radar, pong, tic tac toe, etc.) and DOM-based panels (terminals, log tails, data tables, stock tickers, AI agent, etc.)
 - **24 color themes** — Dark, Light, Brutalist, Neon, Rainbow, Sunshine, Red, Black, LCARS, Amber, Arctic, Synthwave, Military, Ocean, Forest, Copper, Vapor, Infrared, Phosphor, Blueprint, Sunset, Matrix, Frost, Agent
 - **32 synthesized ambient soundscapes** — server room hum, forest rain, deep space drone, war room tension, warp engine, volcano, cathedral, and more — all generated via Web Audio API with zero audio files
 - **30 preset scenes** — War Room, Ambient, Hacker Den, Starship Bridge, Cyber Siege, Feature Zoo, and 24 more — plus custom scene save/load/export/import/share
@@ -169,7 +169,6 @@ Custom scenes can be saved, loaded, exported, imported, and shared via URL from 
 | Facial Recognition | Simulated face detection with bounding boxes |
 | Resource Gauges | Animated circular/bar resource meters |
 | Camera Feed | Simulated security camera views |
-| Heart Monitor | ECG/vitals display with waveforms |
 | Transit Map | Animated transit/subway map |
 | Power Grid | Electrical grid with load visualization |
 | Satellite Telemetry | Satellite systems telemetry readouts |
@@ -226,7 +225,7 @@ Vue 3 reactive store     <──WS──>   Flask-SocketIO + gevent
   ├── BackgroundGrid                  ├── SyncManager (rooms, state sync)
   ├── ForegroundLayer                 ├── ActivityManager (lifecycle loop)
   ├── AppHeader                       └── Generators (57 BaseActivity subclasses)
-  └── 57 activity components              └── Each produces state dicts at ~30 Hz
+  └── Activity components                 └── Each produces state dicts at ~30 Hz
 ```
 
 - **Server** runs a ~30 Hz loop per room, ticking each activity generator and emitting state updates over WebSocket. Activities have randomized lifespans and are automatically replaced when they expire.

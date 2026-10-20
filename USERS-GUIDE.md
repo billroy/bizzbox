@@ -67,7 +67,7 @@ BizzBox has three visual layers:
 
 3. **Header Bar** — A translucent control strip along the top edge. It auto-hides when you move the mouse away. Use its **PIN** button or the command palette to pin it in place.
 
-Every panel displays a different simulated visualization — radar sweeps, scrolling code, network graphs, heartbeat monitors, and 50+ more types. All data is procedurally generated; nothing is real.
+Every panel displays a different simulated visualization — radar sweeps, scrolling code, network graphs, and 50+ more types. All data is procedurally generated; nothing is real.
 
 ---
 
@@ -228,7 +228,7 @@ Each window's title bar shows the activity type. You can click the dropdown to r
 
 ## Activity Types
 
-BizzBox includes **57 activity types** — 42 canvas-based animated visualizations and 15 DOM/text-based panels. Each type has multiple strategy variants with different titles and data patterns.
+BizzBox includes **59 activity types**, including canvas-based animated visualizations and DOM/text-based panels. Each type has strategy variants with different titles and data patterns.
 
 ### Canvas Visualizations
 
@@ -251,7 +251,6 @@ BizzBox includes **57 activity types** — 42 canvas-based animated visualizatio
 | **Facial Recognition** | Simulated face detection with bounding boxes and confidence scores |
 | **Resource Gauges** | Circular and bar meters for CPU, memory, disk, network |
 | **Camera Feed** | Simulated security camera view with grid overlay |
-| **Heart Monitor** | ECG waveform with vital signs readout |
 | **Transit Map** | Animated subway/rail map with moving trains |
 | **Power Grid** | Electrical grid schematic with generator, transformer, and load nodes |
 | **Satellite Telemetry** | Spacecraft instrument readouts and status panels |
@@ -311,7 +310,7 @@ If you don't want certain activity types to appear, you can filter them out.
 
 Filtered types won't spawn in new slots or windows. Already-running activities of filtered types continue until they naturally expire. The filter is saved automatically.
 
-The filter modal includes a search box to quickly find specific types, and activities are organized by category. The search highlights matching text in type names and shows a match count (e.g., "2 of 57"). A clear button (×) next to the search input resets the search. The search input auto-focuses when the modal opens.
+The filter modal includes a search box to quickly find specific types, and activities are organized by category. The search highlights matching text in type names and shows a match count (e.g., "2 of 59"). A clear button (×) next to the search input resets the search. The search input auto-focuses when the modal opens.
 
 ---
 
@@ -368,7 +367,7 @@ BizzBox ships with 30 preset scenes. Each configures theme, grid, intensity, win
 | **Agent Den** | Agent | 8×5 | 10 | 0 | Agent Den | AI Agent only |
 | **TTT** | Neon | 8×5 | 8 | 0 | Server Room | Tic Tac Toe only |
 | **Life World** | Phosphor | 8×5 | 6 | 0 | Genetics Hum | Game of Life only |
-| **Feature Zoo** | Dark | 10×9 | 5 | 0 | (none) | All 60 types |
+| **Feature Zoo** | Dark | 10×9 | 5 | 0 | (none) | All 59 types |
 
 ### Custom Scenes
 

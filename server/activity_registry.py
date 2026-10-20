@@ -25,7 +25,6 @@ from .generators.cipher_decrypt import CipherDecryptActivity
 from .generators.data_table import DataTableActivity
 from .generators.system_topology import SystemTopologyActivity
 from .generators.globe_arcs import GlobeArcsActivity
-from .generators.heart_monitor import HeartMonitorActivity
 from .generators.transit_map import TransitMapActivity
 from .generators.weather_radar import WeatherRadarActivity
 from .generators.stock_list import StockListActivity
@@ -87,7 +86,6 @@ REGISTRY: dict[str, type] = {
     "data_table":         DataTableActivity,
     "system_topology":    SystemTopologyActivity,
     "globe_arcs":         GlobeArcsActivity,
-    "heart_monitor":      HeartMonitorActivity,
     "transit_map":        TransitMapActivity,
     "weather_radar":      WeatherRadarActivity,
     "stock_list":         StockListActivity,
@@ -151,7 +149,6 @@ WEIGHTS: dict[str, float] = {
     "data_table":         0.5,
     "system_topology":    1.2,
     "globe_arcs":         1.8,
-    "heart_monitor":      1.5,
     "transit_map":        1.0,
     "weather_radar":      1.5,
     "stock_list":         0.8,
