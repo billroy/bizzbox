@@ -12,6 +12,16 @@ function getThemeColors() {
 }
 
 const TAU = Math.PI * 2;
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+// Fixed positions keep the starfield steady when telemetry updates. Only the
+// streak length and travel rate respond to the current warp factor.
+const STARS = Array.from({ length: 42 }, (_, i) => ({
+  x: ((i * 73.79) % 97) / 97,
+  y: ((i * 41.37) % 89) / 89,
+  size: 0.4 + (i % 4) * 0.22,
+  speed: 0.35 + (i % 5) * 0.14,
+}));
 
 function strokeLine(ctx, x1, y1, x2, y2, color, width = 1, alpha = 1) {
   ctx.globalAlpha = alpha;
@@ -32,6 +42,24 @@ function strokeEllipse(ctx, x, y, rx, ry, color, width, alpha) {
   ctx.ellipse(x, y, rx, ry, 0, 0, TAU);
   ctx.stroke();
   ctx.globalAlpha = 1;
+}
+
+function glowStroke(ctx, color, width, drawPath) {
+  ctx.save();
+  const alpha = ctx.globalAlpha;
+  ctx.strokeStyle = color;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = color;
+  ctx.shadowBlur = width * 4;
+  ctx.globalAlpha = alpha * 0.24;
+  ctx.lineWidth = width * 3;
+  drawPath();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = alpha * 0.95;
+  ctx.lineWidth = width;
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawDiagnostic(ctx, x, y, width, height, label, value, maximum, color, dim, border, t) {
@@ -107,6 +135,10 @@ export default {
       if (W >= 270 && H >= 170) R = Math.min(R, (cx - 64) / 1.36);
       const t = ts * 0.001;
       const phase = (state.phase || 0) + t * 0.35;
+      const warp = clamp(Number(readings.warp_factor) || 1, 1, 10);
+      const flow = clamp((Number(readings.antimatter_flow) || 0) / 100, 0, 1);
+      const containment = Number(readings.containment_pct) || 0;
+      const fieldColor = containment < 88 ? c.error : containment < 92 ? c.warn : c.accent2;
 
       ctx.fillStyle = c.bg;
       ctx.fillRect(0, 0, W, H);
@@ -120,6 +152,48 @@ export default {
       ctx.fillStyle = halo;
       ctx.fillRect(0, header, W, H - header - footer);
       ctx.globalAlpha = 1;
+
+      // The moving stars and receding guide lines give the static diagram a
+      // sense of scale. They live behind the machinery and do not obscure data.
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, header, W, H - header - footer);
+      ctx.clip();
+      for (const star of STARS) {
+        const x = ((star.x + t * star.speed * (0.025 + warp * 0.007)) % 1) * W;
+        const y = header + star.y * (H - header - footer);
+        const length = (1 + warp * 0.65) * star.speed;
+        strokeLine(ctx, x - length, y, x, y, c.text, star.size, 0.12 + star.speed * 0.2);
+      }
+      for (const side of [-1, 1]) {
+        for (let i = 0; i < 4; i++) {
+          const reach = (i + 1) / 4;
+          const startX = cx + side * R * (1.2 + reach * 0.3);
+          const endX = side < 0 ? 0 : W;
+          const railY = cy + (i - 1.5) * R * 0.28;
+          strokeLine(ctx, startX, railY, endX, cy + (railY - cy) * 1.8,
+            c.accent2, 0.7, 0.08 + reach * 0.045);
+        }
+      }
+      ctx.restore();
+
+      // A broad, pulsing containment envelope makes the reactor silhouette
+      // legible even in the smallest activity windows.
+      const envelope = ctx.createRadialGradient(cx, cy, R * 0.3, cx, cy, R * 1.55);
+      envelope.addColorStop(0, c.accent1);
+      envelope.addColorStop(0.52, c.accent2);
+      envelope.addColorStop(1, c.bg);
+      ctx.globalAlpha = 0.055 + flow * 0.055;
+      ctx.fillStyle = envelope;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, R * 1.56, R * 1.28, 0, 0, TAU);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      for (let i = 0; i < 3; i++) {
+        const ripple = (t * (0.22 + flow * 0.32) + i / 3) % 1;
+        strokeEllipse(ctx, cx, cy, R * (0.52 + ripple * 0.95),
+          R * (0.38 + ripple * 0.77), fieldColor, 1, (1 - ripple) * 0.16);
+      }
 
       // Two animated plasma feeds converge at the reaction chamber.
       const feedHalf = Math.max(3, R * 0.09);
@@ -144,6 +218,11 @@ export default {
         ctx.fillStyle = beam;
         ctx.fillRect(cx - feedHalf, y1, feedHalf * 2, y2 - y1);
         ctx.globalAlpha = 1;
+        glowStroke(ctx, c.accent1, Math.max(1, feedHalf * 0.45), () => {
+          ctx.beginPath();
+          ctx.moveTo(cx, y1);
+          ctx.lineTo(cx, y2);
+        });
         for (let i = 0; i < 5; i++) {
           const travel = (t * (0.5 + i * 0.07) + i * 0.27) % 1;
           const y = side < 0 ? y1 + (y2 - y1) * travel : y2 - (y2 - y1) * travel;
@@ -151,8 +230,9 @@ export default {
         }
       }
 
-      strokeEllipse(ctx, cx, cy, R * 1.11, R * 0.89, c.border, 1, 0.8);
-      strokeEllipse(ctx, cx, cy, R * 1.03, R * 0.81, c.accent2, 1, 0.4);
+      strokeEllipse(ctx, cx, cy, R * 1.24, R * 0.99, fieldColor, 1, 0.2);
+      strokeEllipse(ctx, cx, cy, R * 1.11, R * 0.89, c.border, 2, 0.8);
+      strokeEllipse(ctx, cx, cy, R * 1.03, R * 0.81, fieldColor, 1, 0.55);
       for (let i = 0; i < 12; i++) {
         const a = i * TAU / 12;
         strokeLine(ctx, cx + Math.cos(a) * R * 1.05, cy + Math.sin(a) * R * 0.83,
@@ -164,16 +244,17 @@ export default {
         const color = ring.status === 'unstable' ? c.error : ring.status === 'flicker' ? c.warn : i % 2 ? c.accent2 : c.accent1;
         const intensity = Math.max(0.2, Math.min(1, ring.intensity ?? 0.7));
         const flicker = ring.status === 'flicker' ? 0.55 + 0.45 * Math.sin(t * 19 + i) ** 2 : 1;
-        strokeEllipse(ctx, cx, cy, rx, ry, color, 1, 0.2 + intensity * 0.2);
+        strokeEllipse(ctx, cx, cy, rx, ry, color, 1, 0.25 + intensity * 0.25);
         const rotation = phase * (ring.pulse_speed || 0.4) * (i % 2 ? -1 : 1);
         for (let segment = 0; segment < 4; segment++) {
           const start = rotation + segment * TAU / 4;
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, rx, ry, 0, start, start + TAU / 9);
-          ctx.strokeStyle = color;
-          ctx.lineWidth = Math.max(1.5, R * 0.022);
+          ctx.save();
           ctx.globalAlpha = (0.45 + intensity * 0.48) * flicker;
-          ctx.stroke();
+          glowStroke(ctx, color, Math.max(1.5, R * 0.024), () => {
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, rx, ry, 0, start, start + TAU / 9);
+          });
+          ctx.restore();
           const a = start + TAU / 9;
           ctx.beginPath();
           ctx.arc(cx + Math.cos(a) * rx, cy + Math.sin(a) * ry, Math.max(1, R * 0.025), 0, TAU);
@@ -184,12 +265,17 @@ export default {
       });
 
       // Reaction pulses cross the chamber in time with the live flow reading.
-      const flow = Math.max(0, Math.min(1, (readings.antimatter_flow || 0) / 100));
       const pulseRate = 0.35 + flow * 1.3;
       for (const side of [-1, 1]) {
         const conduitEnd = cx + side * R * 1.36;
         const conduitStart = cx + side * R * 0.25;
-        strokeLine(ctx, conduitStart, cy, conduitEnd, cy, c.accent2, 2, 0.28);
+        strokeLine(ctx, conduitStart, cy - 4, conduitEnd, cy - 4, c.accent2, 1, 0.35);
+        strokeLine(ctx, conduitStart, cy + 4, conduitEnd, cy + 4, c.accent2, 1, 0.35);
+        glowStroke(ctx, c.accent1, Math.max(1, R * 0.018), () => {
+          ctx.beginPath();
+          ctx.moveTo(conduitStart, cy);
+          ctx.lineTo(conduitEnd, cy);
+        });
         for (let i = 0; i < 3; i++) {
           const progress = (t * pulseRate + i / 3) % 1;
           const x = conduitEnd + (conduitStart - conduitEnd) * progress;
@@ -208,14 +294,12 @@ export default {
         const panelW = Math.min(70, sideRoom - 16);
         const panelH = Math.min(88, Math.max(55, H - header - footer - 18));
         const panelY = cy - panelH / 2;
-        const containment = Number(readings.containment_pct) || 0;
-        const containmentColor = containment < 88 ? c.error : containment < 92 ? c.warn : c.accent2;
         drawDiagnostic(ctx, 8, panelY, panelW, panelH, 'INJECTION', Number(readings.antimatter_flow) || 0,
           100, c.accent1, c.dim, c.border, t);
         drawDiagnostic(ctx, W - panelW - 8, panelY, panelW, panelH, 'FIELD %', containment,
-          100, containmentColor, c.dim, c.border, t);
+          100, fieldColor, c.dim, c.border, t);
         strokeLine(ctx, 8 + panelW, cy, cx - R * 1.35, cy, c.accent1, 1, 0.38);
-        strokeLine(ctx, cx + R * 1.35, cy, W - panelW - 8, cy, containmentColor, 1, 0.38);
+        strokeLine(ctx, cx + R * 1.35, cy, W - panelW - 8, cy, fieldColor, 1, 0.38);
       }
 
       // Faceted core and filaments make the center the focus of the schematic.
@@ -229,10 +313,21 @@ export default {
       glow.addColorStop(0, c.text);
       glow.addColorStop(0.28, c.accent1);
       glow.addColorStop(1, c.bg);
-      ctx.globalAlpha = 0.55;
+      ctx.globalAlpha = 0.72;
       ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(cx, cy, crystalR * 2.4, 0, TAU);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      // Nested facets turn the bright point into a dimensional crystal.
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - crystalR * 1.7);
+      ctx.lineTo(cx + crystalR * 1.12, cy);
+      ctx.lineTo(cx, cy + crystalR * 1.7);
+      ctx.lineTo(cx - crystalR * 1.12, cy);
+      ctx.closePath();
+      ctx.fillStyle = c.accent1;
+      ctx.globalAlpha = 0.16;
       ctx.fill();
       ctx.globalAlpha = 1;
       ctx.beginPath();
@@ -243,6 +338,21 @@ export default {
       ctx.closePath();
       ctx.fillStyle = c.accent2;
       ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - crystalR * 1.35);
+      ctx.lineTo(cx + crystalR * 0.85, cy);
+      ctx.lineTo(cx, cy + crystalR * 0.35);
+      ctx.closePath();
+      ctx.fillStyle = c.accent1;
+      ctx.globalAlpha = 0.65;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - crystalR * 1.35);
+      ctx.lineTo(cx + crystalR * 0.85, cy);
+      ctx.lineTo(cx, cy + crystalR * 1.35);
+      ctx.lineTo(cx - crystalR * 0.85, cy);
+      ctx.closePath();
       ctx.strokeStyle = c.text;
       ctx.lineWidth = 1.3;
       ctx.stroke();
