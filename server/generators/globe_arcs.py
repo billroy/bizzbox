@@ -116,11 +116,10 @@ class GlobeArcsActivity(BaseActivity):
         return self._get_state()
 
     def compute_delta(self, old_state, new_state):
-        # Strip strategy (static), strip node names (static)
-        nodes = [{"x": n["x"], "y": n["y"], "z": n["z"]} for n in new_state["nodes"]]
+        # The client replaces the node array, so names must accompany positions.
         return {
             "_delta": True,
-            "nodes": nodes,
+            "nodes": new_state["nodes"],
             "arcs": new_state["arcs"],
             "rotation": new_state["rotation"],
         }

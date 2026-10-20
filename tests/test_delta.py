@@ -1,5 +1,6 @@
 """T1d — Delta round-trip correctness for generators with compute_delta."""
 from server.generators.game_of_life import GameOfLifeActivity
+from server.generators.globe_arcs import GlobeArcsActivity
 from server.generators.network_topology import NetworkTopologyActivity
 
 
@@ -74,3 +75,17 @@ def test_network_topology_delta_keeps_labels_and_edge_endpoints():
         assert state == frame
         assert all(node["label"] for node in state["nodes"])
         assert all("from" in edge and "to" in edge for edge in state["edges"])
+
+
+def test_globe_arcs_delta_keeps_node_names():
+    """Generic client merge replaces the nodes array on each delta."""
+    gen = GlobeArcsActivity(intensity=5)
+    state = gen.initial_payload()
+
+    for _ in range(10):
+        frame = gen.next_frame()
+        delta = gen.compute_delta(state, frame)
+        state = {**state, **{k: v for k, v in delta.items() if k != "_delta"}}
+
+        assert state == frame
+        assert all(node["name"] for node in state["nodes"])
