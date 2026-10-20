@@ -20,11 +20,10 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "video-wall-shows-too-much-undefined-6AMS",
         "cam-monitor-shows-too-much-undefined-ooQj"
       ],
       "state": "working",
-      "last_trigger_time": 1792524156,
+      "last_trigger_time": 1792524220,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +45,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:22:36Z"
+      "started_at": "2026-10-20T19:23:40Z"
     },
     {
       "type": "service",
@@ -87,5 +86,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 180
+  "workspace_revision": 182
 }
