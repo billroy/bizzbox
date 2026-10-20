@@ -79,7 +79,8 @@ All shortcuts work when no input field is focused.
 |-----|--------|
 | **T** | Cycle through all 24 themes |
 | **A** | Cycle through ambient audio presets (or turn off) |
-| **M** | Toggle mute (all audio on/off) |
+| **m** | Select the layout with the most panels |
+| **Shift+M** | Toggle mute (all audio on/off) |
 | **F** | Toggle fullscreen |
 | **R** | Shuffle — replace all activities with new random ones |
 | **+** or **=** | Increase intensity (max 20) |
@@ -177,7 +178,7 @@ BizzBox synthesizes immersive background soundscapes using the Web Audio API —
 | **Haunted Mansion** | Creaky wood, wind through gaps, organ drone. Eerie and abandoned. |
 | **Agent Den** | Neural network hum, data stream pulse, processing rhythm. AI workspace. |
 
-Volume scales with the intensity setting — higher intensity means louder ambient audio. Press **M** to mute all audio.
+Volume scales with the intensity setting — higher intensity means louder ambient audio. Press **Shift+M** to mute all audio.
 
 ### Volume Control
 
@@ -723,7 +724,7 @@ Then reload the page.
 Check the intensity setting (press **+** to increase). If the display seems frozen, try pressing **R** to shuffle. If you see a reconnection overlay, the server may have restarted — the client will auto-reconnect.
 
 **No audio?**
-Press **M** to unmute. If still silent, make sure you've interacted with the page (clicked or pressed a key) — browsers require a user gesture before playing audio. Check that an ambient preset is selected (press **A**).
+Press **Shift+M** to unmute. If still silent, make sure you've interacted with the page (clicked or pressed a key) — browsers require a user gesture before playing audio. Check that an ambient preset is selected (press **A**).
 
 **Display is lagging?**
 Reduce the intensity (press **-**), remove foreground windows (press **{**), or choose a smaller grid layout. Close other browser tabs to free up resources.

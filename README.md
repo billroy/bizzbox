@@ -94,7 +94,8 @@ python app.py --style lcars --intensity 4
 
 | Key | Action |
 |-----|--------|
-| `M` | Toggle mute |
+| `m` | Select maximum grid layout |
+| `Shift+M` | Toggle mute |
 | `F` | Toggle fullscreen |
 | `R` | Randomize all activities |
 | `+` / `=` | Increase intensity |

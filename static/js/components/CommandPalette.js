@@ -5,7 +5,8 @@ import { sendChannelSwitch } from '../socket.js';
 import { SCENES } from '../scenes.js';
 
 const SHORTCUT_COMMANDS = [
-  ['Toggle sound', 'M', 'm'],
+  ['Maximize grid layout', 'm', 'm'],
+  ['Toggle sound', 'Shift+M', 'M'],
   ['Toggle fullscreen', 'F', 'f'],
   ['Shuffle activities', 'R', 'r'],
   ['Increase intensity', '+', '+'],

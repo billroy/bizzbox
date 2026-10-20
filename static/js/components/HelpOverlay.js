@@ -4,7 +4,8 @@
 import { store } from '../store.js';
 
 const SHORTCUTS = [
-  ['M',       'Toggle mute'],
+  ['m',       'Select maximum grid layout'],
+  ['Shift+M', 'Toggle mute'],
   ['F',       'Toggle fullscreen'],
   ['R',       'Shuffle / randomize all'],
   ['+ / =',   'Increase intensity'],
