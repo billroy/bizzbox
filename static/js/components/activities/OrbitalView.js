@@ -133,7 +133,7 @@ export default {
         }
 
         // Label (only for visible, nearby satellites)
-        if (!isBehind && alpha > 0.5) {
+        if (!isBehind && alpha > 0.5 && typeof sat.label === 'string' && sat.label) {
           ctx.font = '8px monospace';
           ctx.fillStyle = color;
           ctx.textAlign = 'left';

@@ -20,11 +20,11 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "unit-readiness-activity-shows-undefined-too-much-left-pane-e-VdJ1",
-        "orbit-monitor-shows-undefined-too-much-wFBs"
+        "orbit-monitor-shows-undefined-too-much-wFBs",
+        "plague-lord-has-too-many-rows-of-undefined-in-the-leftpane-Krin"
       ],
       "state": "working",
-      "last_trigger_time": 1792523533,
+      "last_trigger_time": 1792523650,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +46,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:12:13Z"
+      "started_at": "2026-10-20T19:14:10Z"
     },
     {
       "type": "service",
@@ -87,5 +87,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 165
+  "workspace_revision": 168
 }
