@@ -3,6 +3,7 @@
  * Uses the globally-loaded Vue 3 (window.Vue) — no separate ESM import.
  */
 import { computeGrid } from './layout.js';
+import { ACTIVITY_TYPES } from './activityTypes.js';
 
 // Use the global Vue loaded via <script src="vue.global.prod.js">
 const { reactive } = Vue;
@@ -187,12 +188,11 @@ export function initFromServer(payload) {
     addActivity(act);
   }
 
-  // Sync activity filter from server
-  if (payload.activity_filter) {
-    store.activityFilter = {};
-    for (const t of payload.activity_filter) {
-      store.activityFilter[t] = true;
-    }
+  // A null server filter means every type is enabled. Keep the existing map
+  // so the filter modal's reference stays current across scene switches.
+  const allowed = payload.activity_filter ? new Set(payload.activity_filter) : null;
+  for (const t of ACTIVITY_TYPES) {
+    store.activityFilter[t] = !allowed || allowed.has(t);
   }
 
   // Sync pinned slots from server

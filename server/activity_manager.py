@@ -99,7 +99,8 @@ class ActivityManager:
         return {"x": x, "y": y}, {"w": w, "h": h}
 
     def _spawn_activity(self, slot: int | None, is_foreground: bool,
-                        activity_type: str = None, position: dict = None, size: dict = None):
+                        activity_type: str = None, position: dict = None, size: dict = None,
+                        emit: bool = True):
         """Create and register a new activity, emitting activity:spawn."""
         # Hard dedup for background slots: exclude types already visible.
         # Falls back to allowing duplicates if more slots than unique types.
@@ -121,7 +122,8 @@ class ActivityManager:
         self._activities[gen.id] = rec
         if slot is not None:
             self._bg_slots[slot] = gen.id
-        self._emitter.emit_spawn(self._room, payload)
+        if emit:
+            self._emitter.emit_spawn(self._room, payload)
         return rec
 
     def start(self):
@@ -433,6 +435,38 @@ class ActivityManager:
                 rec = self._activities[act_id]
                 if not rec.despawning and rec.generator.activity_type != self._pinned_slots[slot_idx]:
                     self.replace_window(act_id, self._pinned_slots[slot_idx])
+
+    def apply_scene(self, cols: int, rows: int, fg_target: int,
+                    allowed_types: set[str] | None, slots: list[str]):
+        """Replace the entire activity set for a scene in one operation.
+
+        Old delayed replacements and closures must not populate the new scene.
+        The caller sends a full sync after this method returns, so individual
+        spawn and despawn events are unnecessary during the rebuild.
+        """
+        from server.activity_registry import REGISTRY
+
+        self._activities.clear()
+        self._pending_replacements.clear()
+        self._pending_closures.clear()
+        self._grid_cols = cols
+        self._grid_rows = rows
+        self._bg_count = cols * rows
+        self._bg_slots = [None] * self._bg_count
+        self._fg_count = fg_target
+        self._config.fg_target = fg_target
+        self._allowed_types = allowed_types if allowed_types else None
+        self._pinned_slots = {
+            i: type_name for i, type_name in enumerate(slots[:self._bg_count])
+            if type_name in REGISTRY and
+            (self._allowed_types is None or type_name in self._allowed_types)
+        }
+
+        for slot in range(self._bg_count):
+            self._spawn_activity(slot, is_foreground=False,
+                                 activity_type=self._pinned_slots.get(slot), emit=False)
+        for _ in range(fg_target):
+            self._spawn_activity(None, is_foreground=True, emit=False)
 
     def get_full_state(self) -> dict:
         """Return complete state for sync:init payload."""

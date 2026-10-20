@@ -2,7 +2,7 @@
  * Keyboard shortcut handler + lock mode.
  */
 import { store, savePrefs, showToast, THEME_LIST } from './store.js';
-import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendActivityFilter, sendChannelSwitch, sendChannelCreate, sendConfigureSlots } from './socket.js';
+import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendScene, sendChannelSwitch, sendChannelCreate } from './socket.js';
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 import { SCENES } from './scenes.js';
 import { ACTIVITY_TYPES } from './activityTypes.js';
@@ -40,10 +40,7 @@ function scheduleCursorHide() {
 }
 
 export function applyScene(scene) {
-  sendStyle(scene.style);
-  sendLayout(scene.cols, scene.rows);
-  sendIntensity(scene.intensity);
-  sendFgTarget(scene.fgTarget);
+  sendScene(scene);
   if (scene.ambientPreset !== undefined) {
     const key = scene.ambientPreset || null;
     store.ambientPreset = key;
@@ -54,29 +51,12 @@ export function applyScene(scene) {
     }
   }
   if (scene.filter && Array.isArray(scene.filter)) {
-    const filterObj = {};
-    for (const t of ACTIVITY_TYPES) filterObj[t] = false;
-    for (const t of scene.filter) filterObj[t] = true;
-    store.activityFilter = filterObj;
-    sendActivityFilter(scene.filter);
+    const allowed = new Set(scene.filter);
+    for (const t of ACTIVITY_TYPES) store.activityFilter[t] = allowed.has(t);
   } else {
     // No restrictive filter — clear any existing filter (filter:null or undefined)
-    const filterObj = {};
-    for (const t of ACTIVITY_TYPES) filterObj[t] = true;
-    store.activityFilter = filterObj;
-    sendActivityFilter(null);
+    for (const t of ACTIVITY_TYPES) store.activityFilter[t] = true;
   }
-  // Bulk slot assignment (e.g. Feature Zoo)
-  if (scene.slots && Array.isArray(scene.slots)) {
-    // Delay to let layout resize settle before assigning slots
-    setTimeout(() => {
-      sendConfigureSlots(scene.slots);
-    }, 500);
-  } else {
-    // Clear pinned slots from previous scenes (e.g. Feature Zoo)
-    sendConfigureSlots([]);
-  }
-  savePrefs();
 }
 
 function onKeyDown(evt) {

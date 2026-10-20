@@ -88,6 +88,7 @@ export function initSocket() {
     // Clear any orphaned sound timers from a previous session before reinitialising
     Object.keys(_soundTimers).forEach(id => clearActivitySound(id));
     initFromServer(payload);
+    if (payload.scene_applied) savePrefs();
     // Schedule ambient sounds for existing activities
     for (const act of payload.activities) {
       scheduleActivitySound(act.id, act.type);
@@ -339,6 +340,18 @@ export function sendLayout(cols, rows) {
 
 export function sendActivityFilter(allowedTypes) {
   if (_socket) _socket.emit('configure:activity_filter', { allowed: allowedTypes });
+}
+
+export function sendScene(scene) {
+  if (_socket) _socket.emit('configure:scene', {
+    style: scene.style,
+    cols: scene.cols,
+    rows: scene.rows,
+    intensity: scene.intensity,
+    fgTarget: scene.fgTarget,
+    filter: scene.filter,
+    slots: scene.slots,
+  });
 }
 
 export function sendWindowFocus(id) {

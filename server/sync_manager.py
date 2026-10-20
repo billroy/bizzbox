@@ -358,6 +358,23 @@ class SyncManager:
         if manager:
             manager.set_activity_filter(allowed)
 
+    def apply_scene(self, sid: str, style: str, intensity: int, cols: int,
+                    rows: int, fg_target: int, allowed_types: set[str] | None,
+                    slots: list[str]):
+        """Apply scene configuration and replace its activities as one update."""
+        manager = self._get_manager_for_sid(sid)
+        if not manager:
+            return
+        scene_config = manager._config
+        scene_config.style = style
+        scene_config.intensity = intensity
+        scene_config.grid_cols = cols
+        scene_config.grid_rows = rows
+        manager.apply_scene(cols, rows, fg_target, allowed_types, slots)
+        state = manager.get_full_state()
+        state["scene_applied"] = True
+        self._sio.emit("sync:init", state, room=manager._room)
+
     def configure_slots(self, sid: str, slots: list[str]):
         manager = self._get_manager_for_sid(sid)
         if manager:

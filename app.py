@@ -33,6 +33,7 @@ _rate_buckets: dict[str, dict] = {}  # sid → {tokens, last_refill}
 RATE_LIMIT = {
     "default":           (20, 20),   # (bucket_size, refill_per_sec)
     "configure:slots":   (2,  1),
+    "configure:scene":   (3,  1),
     "window:randomize":  (3,  1),
     "channel:create":    (2,  0.5),
     "text:update":       (10, 10),
@@ -179,6 +180,28 @@ def create_app(config: AppConfig):
         from flask import request
         allowed = data.get("allowed")  # list of type names or None
         sync_manager.set_activity_filter(request.sid, allowed)
+
+    @socketio.on("configure:scene")
+    def on_scene(data):
+        from flask import request
+        from server.activity_registry import REGISTRY
+        if not _check_rate(request.sid, "configure:scene") or not isinstance(data, dict):
+            return
+        cols = max(1, min(10, _safe_int(data.get("cols"), 6)))
+        rows = max(1, min(10, _safe_int(data.get("rows"), 4)))
+        intensity = max(1, min(20, _safe_int(data.get("intensity"), 5)))
+        fg_target = max(0, min(20, _safe_int(data.get("fgTarget"), 0)))
+        filter_types = data.get("filter")
+        allowed = ({t for t in filter_types if isinstance(t, str) and t in REGISTRY}
+                   if isinstance(filter_types, list) else None)
+        slots = data.get("slots")
+        if not isinstance(slots, list):
+            slots = []
+        style = data.get("style", "dark")
+        if not isinstance(style, str):
+            style = "dark"
+        sync_manager.apply_scene(request.sid, style, intensity, cols, rows,
+                                 fg_target, allowed, slots[:100])
 
     @socketio.on("configure:slots")
     def on_configure_slots(data):
