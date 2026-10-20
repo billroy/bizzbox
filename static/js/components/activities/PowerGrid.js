@@ -9,6 +9,9 @@ export default {
     const { ref, onMounted, onUnmounted } = Vue;
     const canvasRef = ref(null);
     let raf = null;
+    const voltageHistory = [];
+    let lastReadings = null;
+    let lastNodes = null;
 
     // Node type symbols
     const NODE_SYMBOLS = {
@@ -92,13 +95,68 @@ export default {
       ctx.fillRect(x - w, y - h, w * 2, h * 2);
     }
 
+    function drawVoltageChart(ctx, readings, w, top, bottom) {
+      const voltageKey = Object.hasOwn(readings, 'voltage_kv') ? 'voltage_kv' : 'voltage_v';
+      const voltage = readings[voltageKey];
+      const unit = voltageKey === 'voltage_kv' ? 'kV' : 'V';
+      if (!Number.isFinite(voltage)) return;
+
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillStyle = '#aaaaaa';
+      ctx.fillText('VOLTAGE TREND', 10, top + 2);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#00cc44';
+      ctx.fillText(`${voltage.toFixed(1)} ${unit}`, w - 10, top + 2);
+
+      const left = 10;
+      const right = w - 10;
+      const chartTop = top + 17;
+      const chartBottom = bottom - 3;
+      if (right <= left || chartBottom <= chartTop) return;
+
+      ctx.strokeStyle = '#303a30';
+      ctx.lineWidth = 1;
+      for (let row = 0; row <= 2; row++) {
+        const y = chartTop + (chartBottom - chartTop) * row / 2;
+        ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke();
+      }
+
+      const low = Math.min(...voltageHistory);
+      const high = Math.max(...voltageHistory);
+      const padding = Math.max(unit === 'kV' ? 0.15 : 0.5, (high - low) * 0.25);
+      const min = low - padding;
+      const range = high - low + padding * 2;
+      const pointY = value => chartBottom - (value - min) / range * (chartBottom - chartTop);
+      // A fresh window starts with a level line, then fills with live samples.
+      ctx.beginPath();
+      if (voltageHistory.length === 1) {
+        ctx.moveTo(left, pointY(voltage));
+        ctx.lineTo(right, pointY(voltage));
+      } else {
+        voltageHistory.forEach((value, i) => {
+          const x = left + i / (voltageHistory.length - 1) * (right - left);
+          if (i === 0) ctx.moveTo(x, pointY(value));
+          else ctx.lineTo(x, pointY(value));
+        });
+      }
+      ctx.strokeStyle = '#00cc44';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
     function draw() {
       const canvas = canvasRef.value;
       if (!canvas) { raf = requestAnimationFrame(draw); return; }
       const ctx = canvas.getContext('2d');
-      const w = canvas.width = canvas.offsetWidth;
-      const h = canvas.height = canvas.offsetHeight;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
       if (w === 0 || h === 0) { raf = requestAnimationFrame(draw); return; }
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
 
       ctx.clearRect(0, 0, w, h);
 
@@ -110,11 +168,27 @@ export default {
       const flowOffset = state.flow_offset || 0;
       const readings = state.readings || {};
 
-      // Margin for labels
-      const mx = 30;
-      const my = 30;
+      if (state.nodes !== lastNodes) {
+        voltageHistory.length = 0;
+        lastNodes = state.nodes;
+        lastReadings = null;
+      }
+      if (readings !== lastReadings) {
+        const voltage = readings.voltage_kv ?? readings.voltage_v;
+        if (Number.isFinite(voltage)) {
+          voltageHistory.push(voltage);
+          if (voltageHistory.length > 64) voltageHistory.shift();
+        }
+        lastReadings = readings;
+      }
+
+      // Keep the network above the trend chart and leave a separate footer.
+      const mx = 20;
+      const my = 12;
       const gw = Math.max(1, w - mx * 2);
-      const gh = Math.max(1, h - my * 2 - 30); // leave room for readings
+      const chartTop = Math.max(72, Math.round(h * 0.58));
+      const chartBottom = h - 27;
+      const gh = Math.max(1, chartTop - my - 14);
 
       // Build node position map
       const nodeMap = {};
@@ -150,7 +224,7 @@ export default {
       ctx.globalAlpha = 1;
 
       // Draw nodes
-      const nodeRadius = Math.max(1, Math.min(12, Math.min(gw, gh) / (nodes.length + 2)));
+      const nodeRadius = Math.max(5, Math.min(10, gw / 18, gh / 7));
       const now = Date.now();
 
       for (const node of nodes) {
@@ -172,7 +246,7 @@ export default {
         // Label below
         ctx.globalAlpha = 0.7;
         ctx.fillStyle = color;
-        ctx.font = `${Math.max(7, nodeRadius * 0.6)}px monospace`;
+        ctx.font = `${Math.max(8, nodeRadius * 0.8)}px monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(node.label, x, y + nodeRadius + 2);
@@ -180,22 +254,21 @@ export default {
 
       ctx.globalAlpha = 1;
 
-      // Draw readings at bottom
-      const readingEntries = Object.entries(readings);
-      if (readingEntries.length > 0) {
-        ctx.font = '9px monospace';
+      drawVoltageChart(ctx, readings, w, chartTop, chartBottom);
+
+      // The two supporting readings have names and units that fit in a small window.
+      if (h > 100) {
+        ctx.font = '10px monospace';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
-        const readingY = h - 4;
-        const colW = Math.min(140, w / readingEntries.length);
-        readingEntries.forEach(([key, val], i) => {
-          const label = key.replace(/_/g, ' ').toUpperCase();
-          const display = typeof val === 'number' ? val.toFixed(1) : val;
-          ctx.fillStyle = '#888888';
-          ctx.fillText(`${label}: `, mx + i * colW, readingY);
-          ctx.fillStyle = '#00cc44';
-          ctx.fillText(`${display}`, mx + i * colW + ctx.measureText(`${label}: `).width, readingY);
-        });
+        ctx.fillStyle = '#aaaaaa';
+        if (Number.isFinite(readings.frequency_hz)) {
+          ctx.fillText(`FREQUENCY ${readings.frequency_hz.toFixed(1)} Hz`, 10, h - 5);
+        }
+        if (Number.isFinite(readings.load_pct) && w >= 230) {
+          ctx.textAlign = 'right';
+          ctx.fillText(`LOAD ${Math.round(readings.load_pct)}%`, w - 10, h - 5);
+        }
       }
 
       raf = requestAnimationFrame(draw);

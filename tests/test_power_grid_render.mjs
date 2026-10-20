@@ -15,6 +15,7 @@ test('power grid starts drawing when its canvas and state become ready after mou
   const frames = new Map();
   let nextFrame = 0;
   const draws = [];
+  const chartPaths = [];
   globalThis.Vue = {
     ref: value => ({ value }),
     onMounted: callback => { mounted = callback; },
@@ -32,9 +33,16 @@ test('power grid starts drawing when its canvas and state become ready after mou
     get(target, key) {
       if (key === 'measureText') return text => ({ width: text.length * 5 });
       if (key === 'fillText') return text => draws.push(text);
+      if (key === 'beginPath') return () => { target.path = []; };
+      if (key === 'moveTo' || key === 'lineTo') return (x, y) => { target.path.push([x, y]); };
+      if (key === 'stroke') return () => {
+        if (target.strokeStyle === '#00cc44' && target.lineWidth === 2) {
+          chartPaths.push([...target.path]);
+        }
+      };
       return () => {};
     },
-    set: () => true,
+    set: (target, key, value) => Reflect.set(target, key, value),
   });
   const canvas = { offsetWidth: 0, offsetHeight: 0, getContext: () => ctx };
   canvasRef.value = canvas;
@@ -58,6 +66,19 @@ test('power grid starts drawing when its canvas and state become ready after mou
   };
   runFrame();
   assert.ok(draws.includes('GEN-1'));
+  activity.state.readings = { voltage_v: 220, frequency_hz: 60.02, load_pct: 52, battery_temp_c: 31 };
+  runFrame();
+  assert.ok(draws.includes('VOLTAGE TREND'));
+  assert.ok(draws.includes('220.0 V'));
+  assert.ok(draws.includes('FREQUENCY 60.0 Hz'));
+  assert.ok(draws.includes('LOAD 52%'));
+  assert.ok(!draws.some(text => String(text).includes('BATTERY TEMP')));
+  assert.equal(chartPaths.at(-1).length, 2);
+  assert.equal(chartPaths.at(-1)[0][1], chartPaths.at(-1)[1][1]);
+  activity.state.readings = { voltage_v: 218, frequency_hz: 59.98, load_pct: 53 };
+  runFrame();
+  assert.ok(draws.includes('218.0 V'));
+  assert.notEqual(chartPaths.at(-1)[0][1], chartPaths.at(-1)[1][1]);
   unmounted();
   assert.equal(frames.size, 0);
 });
