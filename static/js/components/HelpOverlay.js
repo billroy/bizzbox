@@ -15,10 +15,10 @@ const SHORTCUTS = [
   ['Alt+0',   'Switch to channel 10'],
   ['Space',   'Open command palette'],
   ['L',       'Enter lock mode'],
-  ['S',       'Cycle scene'],
+  ['S / Shift+S', 'Next / previous scene'],
   ['P',       'Toggle slideshow'],
-  ['T',       'Cycle theme'],
-  ['A',       'Cycle ambient preset'],
+  ['T / Shift+T', 'Next / previous theme'],
+  ['A / Shift+A', 'Next / previous ambient preset'],
   ['? / H',   'Toggle this help'],
   ['Esc',     'Exit lock mode'],
 ];

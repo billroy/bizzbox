@@ -99,7 +99,9 @@ python app.py --style lcars --intensity 4
 | `+` / `=` | Increase intensity |
 | `-` | Decrease intensity |
 | `Space` | Open the command palette |
-| `A` | Cycle ambient audio presets |
+| `S` / `Shift+S` | Next / previous scene |
+| `T` / `Shift+T` | Next / previous theme |
+| `A` / `Shift+A` | Next / previous ambient audio preset |
 | `L` | Enter lock mode (press `L` or `Esc` to exit) |
 | `?` / `H` | Toggle help overlay |
 

@@ -77,8 +77,8 @@ All shortcuts work when no input field is focused.
 
 | Key | Action |
 |-----|--------|
-| **T** | Cycle through all 24 themes |
-| **A** | Cycle through ambient audio presets (or turn off) |
+| **T** / **Shift+T** | Cycle forward / backward through all 24 themes |
+| **A** / **Shift+A** | Cycle forward / backward through ambient audio presets (including off) |
 | **m** | Select the layout with the most panels |
 | **Shift+M** | Toggle mute (all audio on/off) |
 | **F** | Toggle fullscreen |
@@ -90,7 +90,7 @@ All shortcuts work when no input field is focused.
 | **Alt+1**–**Alt+9** | Jump to channel 1–9 |
 | **Alt+0** | Jump to channel 10 |
 | **Space** | Open the command palette; type to search, use arrow keys and Enter to run a command, or Escape to close |
-| **S** | Cycle to next scene |
+| **S** / **Shift+S** | Cycle to next / previous scene |
 | **P** | Toggle slideshow (auto-cycle scenes every 60s) |
 | **L** | Enter lock mode (cinematic, all UI hidden) |
 | **Escape** | Exit lock mode |

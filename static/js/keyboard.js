@@ -12,6 +12,11 @@ import { GRID_PRESETS } from './layout.js';
 let _cursorHideTimer = null;
 let _sceneIndex = -1;
 
+function cycleIndex(index, direction, length) {
+  if (index < 0) return direction === 1 ? 0 : length - 1;
+  return (index + direction + length) % length;
+}
+
 function enterLockMode() {
   store.lockMode = true;
   store.headerPinned = false;
@@ -220,7 +225,8 @@ function onKeyDown(evt) {
     case 't':
     case 'T': {
       const idx = THEME_LIST.indexOf(store.config.style);
-      const next = THEME_LIST[(idx + 1) % THEME_LIST.length];
+      const direction = key === 'T' ? -1 : 1;
+      const next = THEME_LIST[cycleIndex(idx, direction, THEME_LIST.length)];
       sendStyle(next);
       showToast('THEME: ' + next.toUpperCase());
       evt.preventDefault();
@@ -229,16 +235,16 @@ function onKeyDown(evt) {
 
     case 'a':
     case 'A': {
-      // Cycle ambient presets: null → first → second → ... → last → null
-      const keys = AMBIENT_PRESET_LIST.map(p => p.key);
-      const labels = AMBIENT_PRESET_LIST.map(p => p.label);
-      const idx = store.ambientPreset ? keys.indexOf(store.ambientPreset) : -1;
-      const next = idx + 1 >= keys.length ? null : keys[idx + 1];
+      // Cycle ambient presets in either direction, including the off state.
+      const presets = [null, ...AMBIENT_PRESET_LIST];
+      const idx = presets.findIndex(p => p?.key === store.ambientPreset || (p === null && !store.ambientPreset));
+      const direction = key === 'A' ? -1 : 1;
+      const nextPreset = presets[cycleIndex(idx, direction, presets.length)];
+      const next = nextPreset?.key || null;
       if (next) {
         store.ambientPreset = next;
         audio.startAmbient(next, store.config.intensity);
-        const label = labels[keys.indexOf(next)] || next;
-        showToast('AMBIENT: ' + label.toUpperCase());
+        showToast('AMBIENT: ' + nextPreset.label.toUpperCase());
       } else {
         store.ambientPreset = null;
         audio.stopAmbient();
@@ -252,7 +258,8 @@ function onKeyDown(evt) {
     case 's':
     case 'S': {
       // Cycle scenes
-      _sceneIndex = (_sceneIndex + 1) % SCENES.length;
+      const direction = key === 'S' ? -1 : 1;
+      _sceneIndex = cycleIndex(_sceneIndex, direction, SCENES.length);
       const scene = SCENES[_sceneIndex];
       applyScene({ ...scene, fgTarget: 0 });
       store.commandPaletteOpen = false;

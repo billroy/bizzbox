@@ -20,12 +20,14 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "orbital-view-activity-shows-almost-100-undefined-fix-nImY",
         "shifted-letter-commands-should-cycle-back-instead-of-forward-2p5q",
-        "activity-whose-name-starts-with-pattern-says-undefined-too-m-lnCe"
+        "activity-whose-name-starts-with-pattern-says-undefined-too-m-lnCe",
+        "make-a-pong-world-scene-with-max-row-x-col-pong-play-klsA",
+        "unit-readiness-activity-shows-undefined-too-much-left-pane-e-VdJ1",
+        "orbit-monitor-shows-undefined-too-much-wFBs"
       ],
       "state": "working",
-      "last_trigger_time": 1792523194,
+      "last_trigger_time": 1792523247,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -47,7 +49,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:06:34Z"
+      "started_at": "2026-10-20T19:07:27Z"
     },
     {
       "type": "service",
@@ -88,5 +90,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 154
+  "workspace_revision": 159
 }
