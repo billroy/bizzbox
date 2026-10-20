@@ -2,7 +2,7 @@
  * Auto-hiding page header with all controls.
  */
 import { store, savePrefs, clearPrefs, showToast } from '../store.js';
-import { sendStyle, sendIntensity, sendMute, sendLayout, sendWindowSpawn, sendFgTarget, sendRandomize, sendActivityFilter, sendChannelCreate, sendChannelSwitch } from '../socket.js';
+import { sendStyle, sendIntensity, sendMute, sendLayout, sendFgTarget, sendRandomize, sendActivityFilter, sendChannelCreate, sendChannelSwitch } from '../socket.js';
 import { GRID_PRESETS } from '../layout.js';
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '../activityTypes.js';
 import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportScenes, importScenes, encodeSceneToBase64 } from '../scenes.js';
@@ -148,13 +148,6 @@ export default {
       set: (v) => sendFgTarget(Number(v)),
     });
 
-    const spawnType = ref(null);  // null = RANDOM
-    const activityTypes = ACTIVITY_TYPES;
-
-    function spawnWindow() {
-      sendWindowSpawn(spawnType.value);
-    }
-
     function randomize() {
       sendRandomize();
     }
@@ -198,7 +191,7 @@ export default {
         cols: store.grid ? store.grid.cols : 3,
         rows: store.grid ? store.grid.rows : 2,
         intensity: store.config.intensity,
-        fgTarget: store.config.fgTarget,
+        fgTarget: 0,
         ambientPreset: store.ambientPreset || null,
         filter,
         categories: categories.length > 0 ? categories : undefined,
@@ -290,7 +283,7 @@ export default {
         cols: store.grid ? store.grid.cols : 3,
         rows: store.grid ? store.grid.rows : 2,
         intensity: store.config.intensity,
-        fgTarget: store.config.fgTarget,
+        fgTarget: 0,
         ambientPreset: store.ambientPreset || null,
         filter: null,
       };
@@ -401,7 +394,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, spawnType, activityTypes, spawnWindow, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave, stopSlideshow };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave, stopSlideshow };
   },
 
   template: `
@@ -509,16 +502,6 @@ export default {
         </div>
 
         <div class="header-group">
-          <div class="group-section">
-            <span class="group-label">SPAWN</span>
-            <select class="header-select" v-model="spawnType">
-              <option :value="null">RANDOM</option>
-              <option v-for="t in activityTypes" :key="t" :value="t">
-                {{ t.toUpperCase().replace(/_/g, ' ') }}
-              </option>
-            </select>
-            <button class="header-btn" @click="spawnWindow" title="Spawn new window">+</button>
-          </div>
           <button class="header-btn" @click="randomize" title="Randomize all activities">SHUFFLE</button>
           <button class="header-btn" @click="openFilter" title="Filter activity types">FILTER</button>
           <div class="group-section">

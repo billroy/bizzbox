@@ -1,6 +1,7 @@
 """T1c — Input validation tests for socket handlers via _safe_int."""
 import pytest
-from app import _safe_int, _check_rate, _rate_buckets
+from app import _safe_int, _check_rate, _rate_buckets, create_app
+from server.config import AppConfig
 
 
 class TestSafeInt:
@@ -45,3 +46,25 @@ class TestRateLimiter:
         assert _check_rate("sid3", "channel:create") is True
         assert _check_rate("sid3", "channel:create") is True
         assert _check_rate("sid3", "channel:create") is False
+
+
+def test_scene_resets_slider_windows_and_ignores_saved_scene_count():
+    app, socketio = create_app(AppConfig())
+    client = socketio.test_client(app)
+    try:
+        initial = next(event for event in client.get_received() if event["name"] == "sync:init")
+        assert initial["args"][0]["layout"]["fg_target"] == 0
+
+        client.emit("configure:fg_count", {"value": 3})
+        slider_events = client.get_received()
+        assert sum(event["name"] == "activity:spawn" and
+                   event["args"][0]["is_foreground"] for event in slider_events) == 3
+        client.emit("configure:scene", {
+            "style": "dark", "cols": 2, "rows": 2, "intensity": 5, "fgTarget": 12,
+        })
+        scene = next(event for event in client.get_received() if event["name"] == "sync:init")
+        state = scene["args"][0]
+        assert state["layout"]["fg_target"] == 0
+        assert all(not activity["is_foreground"] for activity in state["activities"])
+    finally:
+        client.disconnect()

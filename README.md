@@ -68,8 +68,6 @@ python app.py [OPTIONS]
   --intensity N        Mean updates per second, 1-20 (default: 5)
                        1 = serene, 5 = moderate, 10+ = frenetic
 
-  --fg-target N        Foreground floating windows, 0-20 (default: 5)
-
   --sync-mode MODE     synced = all clients share one show (default)
                        unsynced = each client gets its own
 
@@ -81,10 +79,10 @@ python app.py [OPTIONS]
 
 ```bash
 # Calm ambient display, no floating windows
-python app.py --style dark --intensity 2 --fg-target 0
+python app.py --style dark --intensity 2
 
 # Frenetic war room with red theme
-python app.py --style red --intensity 15 --fg-target 8
+python app.py --style red --intensity 15
 
 # LCARS theme for a Star Trek bridge set piece
 python app.py --style lcars --intensity 4
@@ -100,8 +98,6 @@ python app.py --style lcars --intensity 4
 | `R` | Randomize all activities |
 | `+` / `=` | Increase intensity |
 | `-` | Decrease intensity |
-| `]` | Add a foreground window |
-| `[` | Remove a foreground window |
 | `Space` | Open the command palette |
 | `A` | Cycle ambient audio presets |
 | `L` | Enter lock mode (press `L` or `Esc` to exit) |
@@ -112,7 +108,7 @@ python app.py --style lcars --intensity 4
 Override any setting via query string:
 
 ```
-http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=0&lock=1
+http://localhost:5000?style=red&intensity=15&layout=6x4&muted=0&lock=1
 ```
 
 | Parameter | Values | Description |
@@ -120,7 +116,6 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=0&lock=1
 | `style` | Any theme name | Override color theme |
 | `intensity` | 1-20 | Override update speed |
 | `layout` | `COLSxROWS` (e.g. `6x4`) | Override background grid size |
-| `windows` | 0-20 | Override foreground window count |
 | `muted` | `0` or `1` | Start unmuted or muted |
 | `vol` | 0-100 | Volume level (percentage) |
 | `obs` | `1` | Transparent background mode for OBS |

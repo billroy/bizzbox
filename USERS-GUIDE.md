@@ -53,7 +53,7 @@ Dependencies: Flask, Flask-SocketIO, gevent, gevent-websocket, python-dotenv.
 python app.py
 ```
 
-Open **http://localhost:5000** in your browser. That's it — BizzBox starts immediately with a default 3×2 grid, 5 floating windows, the dark theme, and intensity 5.
+Open **http://localhost:5000** in your browser. That's it — BizzBox starts immediately with a default 3×2 grid, no floating windows, the dark theme, and intensity 5.
 
 ---
 
@@ -63,7 +63,7 @@ BizzBox has three visual layers:
 
 1. **Background Grid** — A fixed grid of activity panels that fills the entire viewport. Each cell contains one activity that auto-rotates on a timer.
 
-2. **Foreground Windows** — Draggable, resizable floating panels that hover above the grid. They appear and disappear on their own, or you can control them manually.
+2. **Foreground Windows** — Draggable, resizable floating panels that hover above the grid after you raise the **WIN COUNT** slider.
 
 3. **Header Bar** — A translucent control strip along the top edge. It auto-hides when you move the mouse away. Use its **PIN** button or the command palette to pin it in place.
 
@@ -85,8 +85,6 @@ All shortcuts work when no input field is focused.
 | **R** | Shuffle — replace all activities with new random ones |
 | **+** or **=** | Increase intensity (max 20) |
 | **-** | Decrease intensity (min 1) |
-| **}** | Add a foreground window (max 20) |
-| **{** | Remove a foreground window (min 0) |
 | **]** | Next channel |
 | **[** | Previous channel |
 | **Alt+1**–**Alt+9** | Jump to channel 1–9 |
@@ -220,10 +218,9 @@ Floating windows appear above the grid, each showing its own activity. They add 
 - **Drag** any edge or corner to resize
 - **Click** the **×** button to close
 - **Click** anywhere on a window to bring it to front
-- Press **}** to add a window, **{** to remove one
-- The header has a window count control as well
+- Drag the **WIN COUNT** slider in the header to add or remove windows
 
-Windows have random positions and sizes, and auto-replace themselves on a timer (roughly every 5–150 seconds). The target count (default 5) can be set from 0 to 20.
+Windows have random positions and sizes, and auto-replace themselves on a timer (roughly every 5–150 seconds). The target count starts at 0 and the slider can set it from 0 to 20. Selecting a scene resets it to 0.
 
 Each window's title bar shows the activity type. You can click the dropdown to replace it with a specific type or a random one.
 
@@ -534,7 +531,7 @@ See **[README-OBS.md](README-OBS.md)** for the full OBS setup guide, including r
 Override any setting by adding query parameters to the URL:
 
 ```
-http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=1&lock=1
+http://localhost:5000?style=red&intensity=15&layout=6x4&muted=1&lock=1
 ```
 
 | Parameter | Values | Default | Description |
@@ -542,7 +539,6 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=1&lock=1
 | `style` | Any theme name | `dark` | Color theme |
 | `intensity` | 1–20 | 5 | Update speed |
 | `layout` | `COLSxROWS` | `3x2` | Grid dimensions |
-| `windows` | 0–20 | 5 | Foreground window count |
 | `muted` | `0` or `1` | `0` | Start muted |
 | `vol` | 0–100 | 100 | Volume level (percentage). `vol=0` is equivalent to `muted=1` |
 | `obs` | `1` | off | OBS mode: transparent background, hides header, removes scanlines |
@@ -555,22 +551,22 @@ http://localhost:5000?style=red&intensity=15&layout=6x4&windows=0&muted=1&lock=1
 | `scene_data` | base64 | — | Load an inline scene encoded as base64 JSON (use the SHARE button to generate) |
 | `viewer` | `1` | off | Simplified mobile viewer: hides chrome, allows swipe gestures, tap to show info bar |
 
-URL parameters override saved preferences, which override server defaults. The `scene` parameter applies last and overrides all other parameters (style, layout, intensity, windows, etc.). The `scene_data` parameter takes precedence over `scene` if both are provided.
+URL parameters override saved preferences, which override server defaults. The `scene` parameter applies last and overrides all other parameters (style, layout, intensity, etc.). The `scene_data` parameter takes precedence over `scene` if both are provided.
 
 ### Example URLs
 
 ```bash
 # Calm ambient display
-http://localhost:5000?style=dark&intensity=2&layout=3x2&windows=0
+http://localhost:5000?style=dark&intensity=2&layout=3x2
 
 # Intense war room
-http://localhost:5000?style=red&intensity=15&layout=6x4&windows=5
+http://localhost:5000?style=red&intensity=15&layout=6x4
 
 # LCARS in lock mode (Star Trek bridge)
 http://localhost:5000?style=lcars&lock=1
 
 # Minimal, muted
-http://localhost:5000?intensity=3&windows=0&muted=1
+http://localhost:5000?intensity=3&muted=1
 
 # Join Channel 3 directly
 http://localhost:5000?channel=Channel+3
@@ -631,7 +627,6 @@ python app.py [OPTIONS]
 |--------|---------|-------------|
 | `--style` | `dark` | Initial theme (any of the 24 theme names) |
 | `--intensity` | `5` | Mean updates per second (1 = serene, 20 = frenetic) |
-| `--fg-target` | `5` | Starting foreground window count (0–20) |
 | `--sync-mode` | `synced` | `synced` (all clients share one show) or `unsynced` (independent) |
 | `--max-channels` | `10` | Maximum number of channels (1–50) |
 | `--host` | `0.0.0.0` | Bind address |
@@ -641,10 +636,10 @@ python app.py [OPTIONS]
 
 ```bash
 # Calm ambient with no floating windows
-python app.py --style dark --intensity 2 --fg-target 0
+python app.py --style dark --intensity 2
 
 # High-energy red war room
-python app.py --style red --intensity 15 --fg-target 8
+python app.py --style red --intensity 15
 
 # Each browser gets its own independent show
 python app.py --sync-mode unsynced
@@ -727,7 +722,7 @@ Check the intensity setting (press **+** to increase). If the display seems froz
 Press **Shift+M** to unmute. If still silent, make sure you've interacted with the page (clicked or pressed a key) — browsers require a user gesture before playing audio. Check that an ambient preset is selected (press **A**).
 
 **Display is lagging?**
-Reduce the intensity (press **-**), remove foreground windows (press **{**), or choose a smaller grid layout. Close other browser tabs to free up resources.
+Reduce the intensity (press **-**), reduce **WIN COUNT** with the slider, or choose a smaller grid layout. Close other browser tabs to free up resources.
 
 **UI elements disappeared?**
 You may be in lock mode. Press **L** or **Escape** to exit. If the header is auto-hiding, move the pointer to the top edge or press **Space** and search for "Pin header".

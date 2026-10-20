@@ -26,7 +26,7 @@ export function buildConfigUrl() {
       cols: store.grid.cols,
       rows: store.grid.rows,
       intensity: store.config.intensity,
-      fgTarget: store.config.fgTarget,
+      fgTarget: 0,
       ambientPreset: store.ambientPreset || null,
       filter: allFilterEnabled ? null : ACTIVITY_TYPES.filter(t => store.activityFilter[t]),
     };
@@ -42,7 +42,6 @@ export function buildConfigUrl() {
   params.set('style', store.config.style);
   params.set('layout', `${store.grid.cols}x${store.grid.rows}`);
   params.set('intensity', store.config.intensity);
-  params.set('windows', store.config.fgTarget);
   if (store.config.muted) params.set('muted', '1');
   if (store.config.volume !== 100) params.set('vol', store.config.volume);
 

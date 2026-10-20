@@ -15,7 +15,6 @@ function parseUrlOverrides() {
   if (params.has('style'))     o.style = params.get('style');
   if (params.has('layout'))    o.layout = params.get('layout');
   if (params.has('intensity')) o.intensity = parseInt(params.get('intensity'), 10);
-  if (params.has('windows'))   o.windows = parseInt(params.get('windows'), 10);
   if (params.has('muted'))     o.muted = params.get('muted') === '1';
   if (params.has('lock'))      o.lock = params.get('lock') === '1';
   if (params.has('channel'))   o.channel = params.get('channel');
@@ -44,7 +43,6 @@ export function savePrefs() {
       muted: store.config.muted,
       ambientPreset: store.ambientPreset,
       activityFilter: store.activityFilter,
-      fgTarget: store.config.fgTarget,
       headerPinned: store.headerPinned,
       volume: store.config.volume,
     };
@@ -85,7 +83,7 @@ export const store = reactive({
     intensity: 5,
     muted: false,
     syncMode: 'synced',
-    fgTarget: 5,
+    fgTarget: 0,
     volume: 100,       // 0-100 integer for display; internal gain = (volume/100) * 0.4
   },
 
@@ -172,7 +170,7 @@ export function initFromServer(payload) {
   store.config.muted    = session.muted;
   store.config.syncMode = session.sync_mode;
 
-  store.config.fgTarget = layout.fg_target ?? 5;
+  store.config.fgTarget = layout.fg_target ?? 0;
   store.backgroundCount = layout.background_count;
   store.grid = computeGrid(layout.grid_cols || 3, layout.grid_rows || 2);
 

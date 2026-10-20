@@ -2,7 +2,7 @@
  * Keyboard shortcut handler + lock mode.
  */
 import { store, savePrefs, showToast, THEME_LIST } from './store.js';
-import { sendStyle, sendIntensity, sendMute, sendRandomize, sendFgTarget, sendLayout, sendScene, sendChannelSwitch, sendChannelCreate } from './socket.js';
+import { sendStyle, sendIntensity, sendMute, sendRandomize, sendLayout, sendScene, sendChannelSwitch, sendChannelCreate } from './socket.js';
 import { audio, AMBIENT_PRESET_LIST } from './audio.js';
 import { SCENES } from './scenes.js';
 import { ACTIVITY_TYPES } from './activityTypes.js';
@@ -185,24 +185,6 @@ function onKeyDown(evt) {
         sendChannelSwitch(sorted[curIdx + 1]);
         showToast('CHANNEL ' + sorted[curIdx + 1]);
       }
-      evt.preventDefault();
-      break;
-    }
-
-    case '{': {
-      // Decrease window count (moved from '[')
-      const newFg = Math.max(0, store.config.fgTarget - 1);
-      sendFgTarget(newFg);
-      showToast('WINDOWS ' + newFg);
-      evt.preventDefault();
-      break;
-    }
-
-    case '}': {
-      // Increase window count (moved from ']')
-      const newFg = Math.min(20, store.config.fgTarget + 1);
-      sendFgTarget(newFg);
-      showToast('WINDOWS ' + newFg);
       evt.preventDefault();
       break;
     }

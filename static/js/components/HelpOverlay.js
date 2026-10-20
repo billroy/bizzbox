@@ -10,7 +10,6 @@ const SHORTCUTS = [
   ['R',       'Shuffle / randomize all'],
   ['+ / =',   'Increase intensity'],
   ['-',       'Decrease intensity'],
-  ['{ / }',   'Decrease / increase window count'],
   ['[ / ]',   'Prev / next channel'],
   ['Alt+1-9', 'Switch to channel 1-9'],
   ['Alt+0',   'Switch to channel 10'],

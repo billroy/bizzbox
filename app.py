@@ -190,7 +190,7 @@ def create_app(config: AppConfig):
         cols = max(1, min(10, _safe_int(data.get("cols"), 6)))
         rows = max(1, min(10, _safe_int(data.get("rows"), 4)))
         intensity = max(1, min(20, _safe_int(data.get("intensity"), 5)))
-        fg_target = max(0, min(20, _safe_int(data.get("fgTarget"), 0)))
+        fg_target = 0
         filter_types = data.get("filter")
         allowed = ({t for t in filter_types if isinstance(t, str) and t in REGISTRY}
                    if isinstance(filter_types, list) else None)
@@ -245,12 +245,6 @@ def create_app(config: AppConfig):
         if not _check_rate(request.sid, "window:randomize"):
             return
         sync_manager.randomize_all(request.sid)
-
-    @socketio.on("window:spawn")
-    def on_window_spawn(data):
-        from flask import request
-        new_type = data.get("type")  # None means random
-        sync_manager.spawn_window(request.sid, new_type)
 
     @socketio.on("window:resize")
     def on_window_resize(data):
@@ -316,8 +310,6 @@ def main():
     parser.add_argument("--port",       type=int,
                         default=int(os.environ.get("PORT", 5000)),
                         help="Bind port (defaults to $PORT env or 5000)")
-    parser.add_argument("--fg-target",  type=int, default=5,
-                        help="Target foreground window count (0-20)")
     parser.add_argument("--style",      default="dark",
                         choices=["dark", "light", "brutalist", "neon", "rainbow",
                                  "sunshine", "red", "black", "lcars", "amber",
@@ -335,7 +327,6 @@ def main():
         host=args.host,
         port=args.port,
         style=args.style,
-        fg_target=args.fg_target,
         max_channels=max(1, min(50, args.max_channels)),
     )
 

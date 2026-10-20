@@ -108,7 +108,6 @@ export function initSocket() {
           if (sp.length === 2) sendLayout(sp[0], sp[1]);
         }
         if (!urlOverrides.intensity && saved.intensity)  sendIntensity(saved.intensity);
-        if (urlOverrides.windows === undefined && saved.fgTarget !== undefined) sendFgTarget(saved.fgTarget);
         if (urlOverrides.muted === undefined && saved.muted !== undefined)      sendMute(saved.muted);
         if (saved.headerPinned) store.headerPinned = true;
         if (saved.volume !== undefined) {
@@ -136,7 +135,6 @@ export function initSocket() {
         if (parts.length === 2) sendLayout(parts[0], parts[1]);
       }
       if (urlOverrides.intensity) sendIntensity(urlOverrides.intensity);
-      if (urlOverrides.windows !== undefined) sendFgTarget(urlOverrides.windows);
       if (urlOverrides.muted !== undefined) sendMute(urlOverrides.muted);
       if (urlOverrides.vol !== undefined) {
         const v = Math.max(0, Math.min(100, urlOverrides.vol));
@@ -322,10 +320,6 @@ export function sendWindowClose(id) {
   if (_socket) _socket.emit('window:close', { id });
 }
 
-export function sendWindowSpawn(type) {
-  if (_socket) _socket.emit('window:spawn', { type });
-}
-
 export function sendRandomize() {
   if (_socket) _socket.emit('window:randomize');
 }
@@ -348,7 +342,7 @@ export function sendScene(scene) {
     cols: scene.cols,
     rows: scene.rows,
     intensity: scene.intensity,
-    fgTarget: scene.fgTarget,
+    fgTarget: 0,
     filter: scene.filter,
     slots: scene.slots,
   });

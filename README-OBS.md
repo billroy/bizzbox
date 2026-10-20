@@ -39,7 +39,7 @@ http://localhost:5000?obs=1&scene=Hacker+Den
 |----------|-----|
 | Full-screen background | `?scene=Ambient&lock=1` |
 | Themed overlay (transparent) | `?obs=1&scene=War+Room` |
-| Minimal overlay | `?obs=1&layout=1x1&windows=0` |
+| Minimal overlay | `?obs=1&layout=1x1` |
 | Muted (using own audio) | `?obs=1&muted=1` |
 | Low volume background audio | `?obs=1&vol=20` |
 | Kiosk mode (auto-fullscreen) | `?kiosk=1&scene=War+Room` |
@@ -81,14 +81,13 @@ BizzBox is GPU-accelerated but can use significant CPU for complex scenes. To re
 | Setting | Parameter | Effect |
 |---------|-----------|--------|
 | Lower intensity | `intensity=3` | Fewer animation updates per second |
-| Fewer windows | `windows=0` | No floating foreground panels |
 | Smaller grid | `layout=3x2` | 6 panels instead of 24+ |
 | Shutdown when hidden | OBS checkbox | Frees resources when scene is inactive |
 
 Example low-resource URL:
 
 ```
-http://localhost:5000?obs=1&scene=Ambient&intensity=2&windows=0
+http://localhost:5000?obs=1&scene=Ambient&intensity=2
 ```
 
 ## Embed Code Generator
@@ -123,7 +122,7 @@ Use the **SNAP** button in the header to capture a PNG screenshot of the current
 
 **Laggy or stuttering:**
 - Lower the intensity: `?intensity=3`
-- Reduce window count: `?windows=0`
+- Keep **WIN COUNT** at 0 (the default)
 - Use a smaller grid layout: `?layout=3x2`
 - Check "Hardware acceleration" in OBS advanced settings
 
