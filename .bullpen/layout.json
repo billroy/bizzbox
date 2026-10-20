@@ -20,10 +20,10 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "devastator-unit-r-pane-shows-flashing-icon-with-undefined-un-hFah"
+        "terraforming-activity-shows-undefined-too-much-in-zones-colu-mEgN"
       ],
       "state": "working",
-      "last_trigger_time": 1792524581,
+      "last_trigger_time": 1792524678,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -45,7 +45,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:29:41Z"
+      "started_at": "2026-10-20T19:31:18Z"
     },
     {
       "type": "service",
@@ -86,5 +86,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 185
+  "workspace_revision": 188
 }

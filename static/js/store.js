@@ -341,6 +341,16 @@ export function mergeActivityDelta(id, delta) {
       if (delta[field] !== undefined) s[field] = delta[field];
     }
 
+  } else if (type === 'terraforming') {
+    // Zone names are sent only in the initial payload and full keyframes.
+    for (const [i, changes] of (delta.zones || []).entries()) {
+      if (s.zones?.[i]) Object.assign(s.zones[i], changes);
+    }
+    for (const field of ['gases', 'surface_temp', 'ice_cap_pct', 'seismic_level',
+      'mirror_alignment', 'progress_pct']) {
+      if (delta[field] !== undefined) s[field] = delta[field];
+    }
+
   } else if (type === 'dungeon_master') {
     // Party updates omit each member's name, class, and maximum HP/MP.
     // Merge by index so the initial labels and bar denominators survive.
