@@ -20,11 +20,11 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "bad-bug-power-shows-a-flash-of-a-graphic-then-it-disappears--dgrf",
-        "video-wall-shows-too-much-undefined-6AMS"
+        "video-wall-shows-too-much-undefined-6AMS",
+        "cam-monitor-shows-too-much-undefined-ooQj"
       ],
       "state": "working",
-      "last_trigger_time": 1792523983,
+      "last_trigger_time": 1792524156,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +46,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T19:19:43Z"
+      "started_at": "2026-10-20T19:22:36Z"
     },
     {
       "type": "service",
@@ -87,5 +87,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 177
+  "workspace_revision": 180
 }

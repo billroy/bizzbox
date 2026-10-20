@@ -321,6 +321,13 @@ export function mergeActivityDelta(id, delta) {
     }
     if (delta.rotation !== undefined) s.rotation = delta.rotation;
 
+  } else if (type === 'camera_feed' || type === 'cctv_mosaic') {
+    // Camera deltas omit labels (and mosaic scene types). Keep the static
+    // fields from the initial payload while applying live status changes.
+    for (const [i, changes] of (delta.cameras || []).entries()) {
+      if (s.cameras?.[i]) Object.assign(s.cameras[i], changes);
+    }
+
   } else if (type === 'mech_bay') {
     // Compact updates omit section IDs and weapon names/mounts. Preserve the
     // initial items so the silhouette and loadout remain drawable.
