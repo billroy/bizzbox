@@ -20,11 +20,11 @@
       "trust_mode": "trusted",
       "color": "",
       "task_queue": [
-        "air-routes-shows-undefined-too-much-like-mostly-CbPG",
-        "rack-status-is-always-completely-blank-make-it-show-somethin-tpXB"
+        "rack-status-is-always-completely-blank-make-it-show-somethin-tpXB",
+        "add-feedback-in-the-header-that-p-mode-is-engaged-and-provid-jXYB"
       ],
       "state": "working",
-      "last_trigger_time": 1792521682,
+      "last_trigger_time": 1792521726,
       "paused": false,
       "row": 0,
       "col": 0,
@@ -46,7 +46,7 @@
         "kind": "general"
       },
       "save_history": true,
-      "started_at": "2026-10-20T18:41:22Z"
+      "started_at": "2026-10-20T18:42:06Z"
     },
     {
       "type": "service",
@@ -87,5 +87,5 @@
       "start_when_bullpen_starts": false
     }
   ],
-  "workspace_revision": 117
+  "workspace_revision": 120
 }

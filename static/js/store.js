@@ -293,6 +293,16 @@ export function mergeActivityDelta(id, delta) {
       if (s.rows && s.rows[ri]) s.rows[ri][ci] = val;
     }
 
+  } else if (type === 'server_rack' || type === 'system_topology') {
+    // These deltas contain only changing fields. Keep each unit's static
+    // name/role/size or component name/category from the initial payload.
+    const field = type === 'server_rack' ? 'units' : 'components';
+    const current = s[field] || [];
+    for (const [i, changes] of (delta[field] || []).entries()) {
+      if (current[i]) Object.assign(current[i], changes);
+    }
+    if (delta.total_load !== undefined) s.total_load = delta.total_load;
+
   } else if (type === 'matrix_rain') {
     // Compact delta: head_ys array for positions, patch_columns for char changes
     if (delta.head_ys && s.columns) {
