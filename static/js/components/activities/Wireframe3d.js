@@ -10,8 +10,10 @@ export default {
     const canvasRef = ref(null);
     let raf = null;
     let lastTime = null;
-    let rotX = props.activity.state?.rot_x || 0;
-    let rotY = props.activity.state?.rot_y || 0;
+    const initialRotX = props.activity.state?.rot_x ?? 0;
+    const initialRotY = props.activity.state?.rot_y ?? 0;
+    let rotX = initialRotX;
+    let rotY = initialRotY;
     const zoom = ref(1);
     const paused = ref(false);
     const labels = ref(false);
@@ -20,8 +22,8 @@ export default {
     let projected = [];
 
     function reset() {
-      rotX = 0;
-      rotY = 0;
+      rotX = initialRotX;
+      rotY = initialRotY;
       zoom.value = 1;
       selected.value = null;
       paused.value = false;
@@ -95,8 +97,8 @@ export default {
       const dt = lastTime === null ? 0 : Math.min((time - lastTime) / 1000, 0.05);
       lastTime = time;
       if (!paused.value && !drag) {
-        rotX += dt * 0.18;
-        rotY += dt * 0.32;
+        rotX += dt * (state.spin_x ?? 0.18);
+        rotY += dt * (state.spin_y ?? 0.32);
       }
 
       // Rotation matrices

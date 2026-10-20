@@ -156,12 +156,12 @@ class Wireframe3DActivity(BaseActivity):
         verts, edges = builder()
         self._vertices = _normalize_vertices(verts)
         self._edges = edges
-        self._rot_x = 0.0
-        self._rot_y = 0.0
+        self._rot_x = random.uniform(0, _TWO_PI)
+        self._rot_y = random.uniform(0, _TWO_PI)
         # Rotation speeds influenced by intensity (1-10 scale)
         speed_scale = 0.003 + 0.002 * (self.intensity / 10.0)
-        self._speed_x = random.uniform(speed_scale * 0.5, speed_scale * 1.5)
-        self._speed_y = random.uniform(speed_scale * 0.5, speed_scale * 1.5)
+        self._speed_x = random.choice((-1, 1)) * random.uniform(speed_scale * 0.5, speed_scale * 1.5)
+        self._speed_y = random.choice((-1, 1)) * random.uniform(speed_scale * 0.5, speed_scale * 1.5)
 
     def _round_verts(self):
         return [[round(c, 4) for c in v] for v in self._vertices]
@@ -172,6 +172,10 @@ class Wireframe3DActivity(BaseActivity):
             "edges": self._edges,
             "rot_x": round(self._rot_x, 4),
             "rot_y": round(self._rot_y, 4),
+            # Canvas animation uses radians per second; the generator advances
+            # these same per-instance speeds on each server update.
+            "spin_x": round(self._speed_x * 50, 4),
+            "spin_y": round(self._speed_y * 50, 4),
             "strategy": self.strategy,
         }
 
