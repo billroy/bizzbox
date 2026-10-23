@@ -69,10 +69,12 @@ export default {
       }
 
       // Glow effect — draw thicker dimmer line first
-      ctx.shadowBlur = 8;
+      // Scale the glow to the tile height. A fixed 8px blur merges dense
+      // waveforms into a nearly solid bar in the smallest grid cells.
+      ctx.shadowBlur = Math.max(1, Math.min(5, H * 0.035));
       ctx.shadowColor = c.accent2;
       ctx.strokeStyle = c.accent2 + '66';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = Math.max(1.5, Math.min(2.5, H * 0.02));
       ctx.stroke();
 
       // Main line

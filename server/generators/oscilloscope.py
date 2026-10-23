@@ -15,9 +15,24 @@ class OscilloscopeActivity(BaseActivity):
     ]
 
     SAMPLE_COUNT = 256
+    WINDOW_SECONDS = {
+        "ecg_heartbeat": 2.5,
+        "seismic": 2.0,
+        "radio_carrier": 0.4,
+        "brain_wave": 0.35,
+        "power_grid_ac": 0.1,
+    }
+    STRATEGY_TITLES = {
+        "ecg_heartbeat": ["BIOSIGNAL TRACE", "WAVEFORM ANALYSIS"],
+        "seismic": ["SEISMIC FEED", "WAVEFORM ANALYSIS"],
+        "radio_carrier": ["CARRIER WAVE", "SPECTRUM DISPLAY"],
+        "brain_wave": ["BIOSIGNAL TRACE", "SIGNAL MONITOR"],
+        "power_grid_ac": ["OSCILLOSCOPE", "SIGNAL MONITOR"],
+    }
 
     def __init__(self, activity_id=None, intensity=5):
         super().__init__(activity_id, intensity)
+        self.title = random.choice(self.STRATEGY_TITLES[self.strategy])
         self._t = 0.0
         self._noise_level = random.uniform(0.02, 0.08)
         self._params = self._init_params()
@@ -42,7 +57,9 @@ class OscilloscopeActivity(BaseActivity):
     def _generate_samples(self):
         samples = []
         p = self._params
-        dt = 1.0 / self.SAMPLE_COUNT
+        window_seconds = self.WINDOW_SECONDS.get(self.strategy, 1.0)
+        dt = window_seconds / (self.SAMPLE_COUNT - 1)
+        noise = 0.0
 
         for i in range(self.SAMPLE_COUNT):
             t = self._t + i * dt
@@ -95,8 +112,10 @@ class OscilloscopeActivity(BaseActivity):
             else:
                 v = math.sin(2 * math.pi * t)
 
-            # Add noise
-            v += random.gauss(0, self._noise_level)
+            # Low-pass the noise so small canvases retain a readable trace
+            # instead of turning dense sample-to-sample jitter into a solid band.
+            noise = noise * 0.6 + random.gauss(0, self._noise_level) * 0.4
+            v += noise
             samples.append(round(max(-1.2, min(1.2, v)), 2))
 
         return samples
