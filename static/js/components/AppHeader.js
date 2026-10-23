@@ -9,7 +9,7 @@ import { SCENES, loadCustomScenes, saveCustomScene, deleteCustomScene, exportSce
 import { audio, AMBIENT_PRESET_LIST } from '../audio.js';
 import { copyConfigUrl } from '../configUrl.js';
 import { applyScene as applySceneAction } from '../keyboard.js';
-import { stopSlideshow } from '../slideshow.js';
+import { stopSlideshow, setNextTransition } from '../slideshow.js';
 
 export default {
   name: 'AppHeader',
@@ -17,6 +17,8 @@ export default {
     const { ref, computed, onMounted, onUnmounted } = Vue;
 
     const visible = ref(false);
+    const slideshowNow = ref(Date.now());
+    let slideshowClock = null;
     let hideTimer = null;
     let mouseInHeader = false;
 
@@ -91,6 +93,7 @@ export default {
       document.addEventListener('click', onDocClick);
       // Load custom scenes from localStorage
       store.customScenes = loadCustomScenes();
+      slideshowClock = setInterval(() => { slideshowNow.value = Date.now(); }, 250);
     });
 
     onUnmounted(() => {
@@ -98,6 +101,7 @@ export default {
       document.removeEventListener('touchstart', onMouseMove);
       document.removeEventListener('click', onDocClick);
       clearTimeout(hideTimer);
+      clearInterval(slideshowClock);
     });
 
     const style = computed({
@@ -382,6 +386,19 @@ export default {
     const maxChannels = computed(() => store.maxChannels);
     const channelViewers = computed(() => store.channelViewers);
     const totalClients = computed(() => store.totalClients);
+    const slideshowCountdown = computed(() => {
+      if (!store.slideshowActive || !store.slideshowNextTransitionAt) return '0:00';
+      const remaining = Math.max(0, Math.ceil((store.slideshowNextTransitionAt - slideshowNow.value) / 1000));
+      const minutes = Math.floor(remaining / 60);
+      return `${minutes}:${String(remaining % 60).padStart(2, '0')}`;
+    });
+    const slideshowIntervals = [
+      { label: '15s', seconds: 15 },
+      { label: '30s', seconds: 30 },
+      { label: '1m', seconds: 60 },
+      { label: '2m', seconds: 120 },
+      { label: '5m', seconds: 300 },
+    ];
 
     function switchChannel(evt) {
       const channelId = parseInt(evt.target.value);
@@ -394,7 +411,7 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave, stopSlideshow };
+    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave, stopSlideshow, setNextTransition, slideshowCountdown, slideshowIntervals };
   },
 
   template: `
@@ -445,11 +462,6 @@ export default {
               </div>
             </div>
           </div>
-          <button v-if="store.slideshowActive" class="header-btn header-btn--slideshow"
-                  type="button" @click="stopSlideshow"
-                  title="Stop slideshow (P)" aria-label="P mode is on. Stop slideshow">
-            P MODE ON · STOP
-          </button>
         </div>
       </div>
 
@@ -562,5 +574,26 @@ export default {
       </button>
 
     </header>
+
+    <div v-if="store.slideshowActive" class="slideshow-controls slideshow-controls--floating"
+         aria-label="Presentation timing controls">
+      <span class="slideshow-countdown" role="timer" aria-live="off">
+        NEXT {{ slideshowCountdown }}
+      </span>
+      <div class="slideshow-timing-pills" aria-label="Set next transition">
+        <button v-for="option in slideshowIntervals" :key="option.seconds"
+                class="slideshow-timing-pill"
+                :class="{ active: store.slideshowInterval === option.seconds }"
+                type="button" @click="setNextTransition(option.seconds)"
+                :aria-label="'Set next transition to ' + option.label">
+          {{ option.label }}
+        </button>
+      </div>
+      <button class="header-btn header-btn--slideshow"
+              type="button" @click="stopSlideshow"
+              title="Stop presentation mode (P)" aria-label="Presentation mode is on. Stop it">
+        STOP
+      </button>
+    </div>
   `,
 };

@@ -100,6 +100,7 @@ export const store = reactive({
   viewerMode: false,
   slideshowActive: false,
   slideshowInterval: 60,
+  slideshowNextTransitionAt: null,
   helpOverlay: false,
   commandPaletteOpen: false,
   headerPinned: false,

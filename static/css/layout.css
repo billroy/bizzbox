@@ -468,6 +468,86 @@ html.obs-mode .boot-screen      { background: transparent; }
   white-space: nowrap;
 }
 
+.slideshow-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.slideshow-controls--floating {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 9100;
+  padding: 7px 8px 7px 12px;
+  border: 1px solid #666666;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.88);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.slideshow-countdown {
+  min-width: 74px;
+  color: #ffe082;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-align: right;
+}
+
+.slideshow-timing-pills {
+  display: flex;
+  gap: 3px;
+}
+
+.slideshow-timing-pill {
+  min-width: 30px;
+  padding: 3px 7px;
+  border: 1px solid #777777;
+  border-radius: 999px;
+  background: #222222;
+  color: #dddddd;
+  font: 700 10px/1.2 'Courier New', monospace;
+  cursor: pointer;
+}
+
+.slideshow-timing-pill:hover,
+.slideshow-timing-pill:focus-visible {
+  border-color: #ffe082;
+  color: #ffe082;
+}
+
+.slideshow-timing-pill.active {
+  border-color: #ffe082;
+  background: #ffe082;
+  color: #111111;
+}
+
+@media (max-width: 480px) {
+  .slideshow-controls--floating {
+    right: 6px;
+    bottom: 6px;
+    left: 6px;
+    justify-content: center;
+    padding: 6px;
+  }
+
+  .slideshow-countdown {
+    min-width: 68px;
+    font-size: 11px;
+  }
+
+  .slideshow-timing-pill {
+    min-width: 27px;
+    padding: 3px 5px;
+  }
+}
+
 .header-btn--slideshow:hover,
 .header-btn--slideshow:focus-visible {
   background: #ffffff;

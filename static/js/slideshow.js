@@ -13,6 +13,44 @@ let _transitionEndTimer = null;
 let _index = 0;
 let _filter = 'all';
 
+function normalizeInterval(intervalSec) {
+  const seconds = Number(intervalSec);
+  return Number.isFinite(seconds) && seconds > 0 ? seconds : 60;
+}
+
+function scheduleNextTransition(intervalSec = store.slideshowInterval) {
+  if (_timer) clearTimeout(_timer);
+
+  const seconds = normalizeInterval(intervalSec);
+  store.slideshowInterval = seconds;
+  store.slideshowNextTransitionAt = Date.now() + seconds * 1000;
+  _timer = setTimeout(advanceSlideshow, seconds * 1000);
+}
+
+function advanceSlideshow() {
+  _timer = null;
+  if (!store.slideshowActive) return;
+
+  const scenes = filteredScenes();
+  if (scenes.length > 0) {
+    _index = _index % scenes.length;
+
+    // Brief blackout transition
+    document.body.classList.add('slideshow-transition');
+    _transitionTimer = setTimeout(() => {
+      _transitionTimer = null;
+      applyScene(scenes[_index]);
+      _index = (_index + 1) % scenes.length;
+      _transitionEndTimer = setTimeout(() => {
+        _transitionEndTimer = null;
+        document.body.classList.remove('slideshow-transition');
+      }, 300);
+    }, 300);
+  }
+
+  scheduleNextTransition();
+}
+
 function filteredScenes() {
   const builtin = SCENES;
   const custom = loadCustomScenes();
@@ -28,53 +66,44 @@ function filteredScenes() {
 }
 
 export function startSlideshow(intervalSec = 60, filter = 'all') {
-  if (_timer) clearInterval(_timer);
+  if (_timer) clearTimeout(_timer);
   clearTimeout(_transitionTimer);
   clearTimeout(_transitionEndTimer);
   document.body.classList.remove('slideshow-transition');
   store.slideshowActive = true;
-  store.slideshowInterval = intervalSec;
+  store.slideshowInterval = normalizeInterval(intervalSec);
   _filter = filter || 'all';
 
   const scenes = filteredScenes();
   if (scenes.length === 0) {
     showToast('SLIDESHOW: NO SCENES MATCH FILTER');
     store.slideshowActive = false;
+    store.slideshowNextTransitionAt = null;
     return;
   }
 
   // Find current scene index (start from next)
   _index = (_index + 1) % scenes.length;
 
-  _timer = setInterval(() => {
-    const scenes = filteredScenes();
-    if (scenes.length === 0) return;
-    _index = _index % scenes.length;
-
-    // Brief blackout transition
-    document.body.classList.add('slideshow-transition');
-    _transitionTimer = setTimeout(() => {
-      _transitionTimer = null;
-      applyScene(scenes[_index]);
-      _index = (_index + 1) % scenes.length;
-      _transitionEndTimer = setTimeout(() => {
-        _transitionEndTimer = null;
-        document.body.classList.remove('slideshow-transition');
-      }, 300);
-    }, 300);
-  }, intervalSec * 1000);
+  scheduleNextTransition(store.slideshowInterval);
 
   // Apply first scene immediately
   applyScene(scenes[_index]);
   _index = (_index + 1) % scenes.length;
 
   const label = _filter === 'all' ? '' : ` [${_filter.toUpperCase()}]`;
-  showToast(`SLIDESHOW ON (${intervalSec}s)${label}`);
+  showToast(`SLIDESHOW ON (${store.slideshowInterval}s)${label}`);
+}
+
+/** Reset the upcoming transition and use the selected duration for the cadence. */
+export function setNextTransition(intervalSec) {
+  if (!store.slideshowActive) return;
+  scheduleNextTransition(intervalSec);
 }
 
 export function stopSlideshow() {
   if (_timer) {
-    clearInterval(_timer);
+    clearTimeout(_timer);
     _timer = null;
   }
   clearTimeout(_transitionTimer);
@@ -82,6 +111,7 @@ export function stopSlideshow() {
   _transitionTimer = null;
   _transitionEndTimer = null;
   store.slideshowActive = false;
+  store.slideshowNextTransitionAt = null;
   document.body.classList.remove('slideshow-transition');
   showToast('SLIDESHOW OFF');
 }
