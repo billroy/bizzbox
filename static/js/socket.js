@@ -6,11 +6,24 @@ import { store, urlOverrides, initFromServer, addActivity, updateActivity, merge
 import { audio } from './audio.js';
 import { applyScene } from './keyboard.js';
 import { SCENES, loadCustomScenes, decodeSceneFromBase64 } from './scenes.js';
-import { startSlideshow } from './slideshow.js';
+import { startSlideshow, applyPresentationState, setSlideshowTransport } from './slideshow.js';
 
 let _socket = null;
 let _urlOverridesApplied = false;
 let _channelOverrideResolved = false;
+let _slideshowOverrideApplied = false;
+
+function tryStartSlideshowOverride() {
+  if (_slideshowOverrideApplied || !(urlOverrides.slideshow > 0)) return;
+  if (urlOverrides.channel) {
+    const target = store.channels.find(
+      channel => channel.name.toLowerCase() === urlOverrides.channel.toLowerCase(),
+    );
+    if (!target || target.id !== store.currentChannel) return;
+  }
+  _slideshowOverrideApplied = true;
+  startSlideshow(urlOverrides.slideshow, urlOverrides.slideshow_filter || 'all', true);
+}
 
 /**
  * If a ?channel= URL override is set and hasn't been resolved yet,
@@ -57,6 +70,13 @@ function clearActivitySound(id) {
 
 export function initSocket() {
   _socket = io();
+  setSlideshowTransport({
+    start(payload) { _socket.emit('presentation:start', payload); },
+    schedule(intervalSeconds) {
+      _socket.emit('presentation:schedule', { intervalSeconds });
+    },
+    stop() { _socket.emit('presentation:stop'); },
+  });
 
   _socket.on('connect', () => {
     store.connected = true;
@@ -88,6 +108,7 @@ export function initSocket() {
     // Clear any orphaned sound timers from a previous session before reinitialising
     Object.keys(_soundTimers).forEach(id => clearActivitySound(id));
     initFromServer(payload);
+    if (payload.presentation) applyPresentationState(payload.presentation, true);
     if (payload.scene_applied) savePrefs();
     // Schedule ambient sounds for existing activities
     for (const act of payload.activities) {
@@ -163,10 +184,6 @@ export function initSocket() {
         }
       }
 
-      // ?slideshow= starts auto-cycling scenes, ?slideshow_filter= limits to subset
-      if (urlOverrides.slideshow > 0) {
-        startSlideshow(urlOverrides.slideshow, urlOverrides.slideshow_filter || 'all');
-      }
     }
 
     // Reconnection: if we were on a different channel, rejoin it
@@ -177,12 +194,17 @@ export function initSocket() {
 
     // Try to resolve ?channel= URL override (channel:list may already be available)
     tryResolveChannelOverride();
+    tryStartSlideshowOverride();
   });
 
   _socket.on('activity:spawn', (payload) => {
     addActivity(payload);
     audio.playSpawn();
     scheduleActivitySound(payload.id, payload.type);
+  });
+
+  _socket.on('presentation:state', (payload) => {
+    applyPresentationState(payload);
   });
 
   _socket.on('activity:update', (data) => {
@@ -239,6 +261,7 @@ export function initSocket() {
 
     // Try to resolve ?channel= URL override now that we have the list
     tryResolveChannelOverride();
+    tryStartSlideshowOverride();
   });
 
   _socket.on('channel:switched', (data) => {

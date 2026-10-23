@@ -10,6 +10,8 @@ import time
 from flask_socketio import join_room, leave_room
 from .activity_manager import ActivityManager
 from .event_emitter import EventEmitter
+from .presentation import PresentationState, normalize_playlist, normalize_interval
+from .presentation_store import PresentationStore
 
 
 class ChannelState:
@@ -34,6 +36,7 @@ class ChannelState:
 
         # Connected clients currently viewing this channel
         self.viewers: set[str] = set()
+        self.presentation = PresentationState()
 
 
 class SyncManager:
@@ -41,6 +44,10 @@ class SyncManager:
         self._sio = socketio
         self._emitter = emitter
         self._config = config
+        self._presentation_store = (
+            PresentationStore(config.presentation_state_path)
+            if config.presentation_state_path else None
+        )
 
         # ── Channel state (synced mode) ──────────────────────
         self._channels: dict[int, ChannelState] = {}
@@ -56,6 +63,8 @@ class SyncManager:
 
         if config.sync_mode == "synced":
             self._create_channel()  # Channel 1
+            self._restore_presentations()
+            self._sio.start_background_task(self._presentation_loop)
 
     # ── Channel lifecycle ─────────────────────────────────────
 
@@ -120,9 +129,7 @@ class SyncManager:
         self._emitter.emit_channel_switched(sid, new_ch.channel_id, new_ch.name)
 
         # Send full state for the new channel
-        state = new_ch.manager.get_full_state()
-        state["channel"] = {"id": new_ch.channel_id, "name": new_ch.name}
-        self._emitter.emit_sync_init(sid, state)
+        self._emitter.emit_sync_init(sid, self._full_channel_state(new_ch))
 
         # Broadcast updated viewer count to new channel
         self._emitter.emit_viewer_count(
@@ -189,9 +196,7 @@ class SyncManager:
             self._sid_to_channel[sid] = first_channel_id
 
             # Send full state for this channel
-            state = ch.manager.get_full_state()
-            state["channel"] = {"id": ch.channel_id, "name": ch.name}
-            self._emitter.emit_sync_init(sid, state)
+            self._emitter.emit_sync_init(sid, self._full_channel_state(ch))
 
             # Broadcast viewer counts to the channel
             self._emitter.emit_viewer_count(
@@ -247,9 +252,7 @@ class SyncManager:
             self._sid_to_channel[sid] = first_channel_id
 
             # Send full state for this channel
-            state = ch.manager.get_full_state()
-            state["channel"] = {"id": ch.channel_id, "name": ch.name}
-            self._emitter.emit_sync_init(sid, state)
+            self._emitter.emit_sync_init(sid, self._full_channel_state(ch))
 
             # Send channel list to monitor only
             self._sio.emit("channel:list", {
@@ -282,9 +285,7 @@ class SyncManager:
 
         # Send channel switch confirmation + full state
         self._emitter.emit_channel_switched(sid, new_ch.channel_id, new_ch.name)
-        state = new_ch.manager.get_full_state()
-        state["channel"] = {"id": new_ch.channel_id, "name": new_ch.name}
-        self._emitter.emit_sync_init(sid, state)
+        self._emitter.emit_sync_init(sid, self._full_channel_state(new_ch))
 
     # ── Room / manager helpers ────────────────────────────────
 
@@ -309,6 +310,102 @@ class SyncManager:
             ch = self._get_channel_for_sid(sid)
             return ch.room if ch else "channel:1"
         return sid
+
+    def _full_channel_state(self, channel: ChannelState, scene_applied: bool = False) -> dict:
+        state = channel.manager.get_full_state()
+        state["channel"] = {"id": channel.channel_id, "name": channel.name}
+        state["presentation"] = channel.presentation.public_state(channel.channel_id)
+        if scene_applied:
+            state["scene_applied"] = True
+        return state
+
+    def _broadcast_presentation(self, channel: ChannelState):
+        self._emitter.emit_presentation_state(
+            channel.room, channel.presentation.public_state(channel.channel_id)
+        )
+
+    def _persist_presentation(self, channel: ChannelState):
+        if not self._presentation_store:
+            return
+        if channel.presentation.active:
+            self._presentation_store.save(
+                channel.channel_id, channel.presentation.storage_state()
+            )
+        else:
+            self._presentation_store.delete(channel.channel_id)
+
+    def _restore_presentations(self):
+        if not self._presentation_store:
+            return
+        now_monotonic = time.monotonic()
+        now_epoch = time.time()
+        for channel_id, stored in self._presentation_store.load_all().items():
+            if channel_id < 1 or channel_id > self._config.max_channels:
+                continue
+            while self._next_channel_id < channel_id:
+                self._create_channel()
+            channel = self._channels[channel_id]
+            if not channel.presentation.restore(stored, now_monotonic, now_epoch):
+                self._presentation_store.delete(channel_id)
+                continue
+            scene = channel.presentation.playlist[channel.presentation.current_index]
+            self._apply_scene_to_channel(channel, scene, emit=False)
+            self._persist_presentation(channel)
+
+    def _presentation_loop(self):
+        while True:
+            self.process_presentations()
+            self._sio.sleep(0.05)
+
+    def process_presentations(self, now_monotonic: float | None = None,
+                              now_epoch: float | None = None):
+        """Advance all channel presentations; explicit times make this deterministic in tests."""
+        now_monotonic = time.monotonic() if now_monotonic is None else now_monotonic
+        now_epoch = time.time() if now_epoch is None else now_epoch
+        for channel in self._channels.values():
+            action = channel.presentation.tick(now_monotonic, now_epoch)
+            if action is None:
+                continue
+            action_type, scene = action
+            if action_type == "scene" and scene is not None:
+                self._apply_scene_to_channel(channel, scene)
+            else:
+                self._broadcast_presentation(channel)
+            self._persist_presentation(channel)
+
+    def start_presentation(self, sid: str, raw_scenes: object, interval_seconds,
+                           filter_label: str = "all", if_inactive: bool = False) -> bool:
+        channel = self._get_channel_for_sid(sid)
+        if not channel or (if_inactive and channel.presentation.active):
+            return False
+        scenes = normalize_playlist(raw_scenes)
+        if not scenes:
+            return False
+        scene = channel.presentation.start(
+            scenes, normalize_interval(interval_seconds), filter_label,
+            time.monotonic(), time.time(),
+        )
+        self._apply_scene_to_channel(channel, scene)
+        self._persist_presentation(channel)
+        return True
+
+    def schedule_presentation(self, sid: str, interval_seconds) -> bool:
+        channel = self._get_channel_for_sid(sid)
+        if not channel or not channel.presentation.active:
+            return False
+        channel.presentation.schedule(interval_seconds, time.monotonic(), time.time())
+        self._persist_presentation(channel)
+        self._broadcast_presentation(channel)
+        return True
+
+    def stop_presentation(self, sid: str) -> bool:
+        channel = self._get_channel_for_sid(sid)
+        if not channel or not channel.presentation.active:
+            return False
+        channel.presentation.stop()
+        self._persist_presentation(channel)
+        self._broadcast_presentation(channel)
+        return True
 
     # ── Operations (delegate to the correct ActivityManager) ──
 
@@ -360,20 +457,46 @@ class SyncManager:
 
     def apply_scene(self, sid: str, style: str, intensity: int, cols: int,
                     rows: int, fg_target: int, allowed_types: set[str] | None,
-                    slots: list[str]):
+                    slots: list[str], scene_meta: dict | None = None):
         """Apply scene configuration and replace its activities as one update."""
         manager = self._get_manager_for_sid(sid)
         if not manager:
             return
+        channel = self._get_channel_for_sid(sid)
         scene_config = manager._config
         scene_config.style = style
         scene_config.intensity = intensity
         scene_config.grid_cols = cols
         scene_config.grid_rows = rows
         manager.apply_scene(cols, rows, fg_target, allowed_types, slots)
-        state = manager.get_full_state()
-        state["scene_applied"] = True
-        self._sio.emit("sync:init", state, room=manager._room)
+        if channel:
+            if scene_meta and channel.presentation.active:
+                for index, scene in enumerate(channel.presentation.playlist):
+                    if scene.get("name") == scene_meta.get("name"):
+                        channel.presentation.current_index = index
+                        channel.presentation.next_index = (index + 1) % len(channel.presentation.playlist)
+                        self._persist_presentation(channel)
+                        break
+            self._sio.emit("sync:init", self._full_channel_state(channel, True), room=manager._room)
+        else:
+            state = manager.get_full_state()
+            state["scene_applied"] = True
+            self._sio.emit("sync:init", state, room=manager._room)
+
+    def _apply_scene_to_channel(self, channel: ChannelState, scene: dict, emit: bool = True):
+        allowed = set(scene["filter"]) if scene.get("filter") else None
+        manager = channel.manager
+        channel.style = scene["style"]
+        channel.intensity = scene["intensity"]
+        channel.grid_cols = scene["cols"]
+        channel.grid_rows = scene["rows"]
+        manager.apply_scene(
+            scene["cols"], scene["rows"], 0, allowed, scene.get("slots", [])
+        )
+        if emit:
+            self._sio.emit(
+                "sync:init", self._full_channel_state(channel, True), room=channel.room
+            )
 
     def configure_slots(self, sid: str, slots: list[str]):
         manager = self._get_manager_for_sid(sid)

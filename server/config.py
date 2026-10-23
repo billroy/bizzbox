@@ -17,6 +17,7 @@ class AppConfig:
     grid_rows: int = 4          # background grid rows
     fg_target: int = 0          # target foreground window count (0-20)
     max_channels: int = 10      # maximum number of channels (1-50)
+    presentation_state_path: str | None = None
 
 
 # Module-level singleton, replaced at app startup

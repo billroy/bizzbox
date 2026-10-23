@@ -68,3 +68,7 @@ class EventEmitter:
             "channelViewers": channel_viewers,
             "totalClients": total_clients,
         }, room=room)
+
+    def emit_presentation_state(self, room: str, payload: dict):
+        """Broadcast authoritative presentation state within one channel."""
+        self._sio.emit("presentation:state", payload, room=room)

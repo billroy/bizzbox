@@ -92,7 +92,7 @@ All shortcuts work when no input field is focused.
 | **Alt+0** | Jump to channel 10 |
 | **Space** | Open the command palette; type to search, use arrow keys and Enter to run a command, or Escape to close |
 | **S** / **Shift+S** | Cycle to next / previous scene |
-| **P** | Toggle slideshow (auto-cycle scenes every 60s) |
+| **P** | Toggle presentation mode (server-controlled scene cycling every 60s) |
 | **L** | Enter lock mode (cinematic, all UI hidden) |
 | **Escape** | Exit lock mode |
 | **?** or **H** | Toggle the help overlay |

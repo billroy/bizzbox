@@ -101,6 +101,9 @@ export const store = reactive({
   slideshowActive: false,
   slideshowInterval: 60,
   slideshowNextTransitionAt: null,
+  slideshowRevision: -1,
+  slideshowPhase: 'idle',
+  slideshowFilter: 'all',
   helpOverlay: false,
   commandPaletteOpen: false,
   headerPinned: false,
@@ -177,6 +180,9 @@ export function initFromServer(payload) {
 
   // Channel metadata (present in synced mode)
   if (payload.channel) {
+    if (store.currentChannel !== payload.channel.id) {
+      store.slideshowRevision = -1;
+    }
     store.currentChannel = payload.channel.id;
     store.currentChannelName = payload.channel.name;
   }

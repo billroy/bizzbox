@@ -28,7 +28,7 @@ def _safe_int(val, default: int) -> int:
 
 
 # ── Per-SID token-bucket rate limiter ──────────────────────
-_rate_buckets: dict[str, dict] = {}  # sid → {tokens, last_refill}
+_rate_buckets: dict[tuple[str, str], dict] = {}  # (sid, event) → bucket
 
 RATE_LIMIT = {
     "default":           (20, 20),   # (bucket_size, refill_per_sec)
@@ -36,6 +36,9 @@ RATE_LIMIT = {
     "configure:scene":   (3,  1),
     "window:randomize":  (3,  1),
     "channel:create":    (2,  0.5),
+    "presentation:start": (2, 0.5),
+    "presentation:schedule": (5, 2),
+    "presentation:stop": (5, 2),
     "text:update":       (10, 10),
 }
 
@@ -44,7 +47,8 @@ def _check_rate(sid: str, event: str) -> bool:
     """Return True if the event is allowed, False if rate-limited."""
     size, rate = RATE_LIMIT.get(event, RATE_LIMIT["default"])
     now = time.monotonic()
-    b = _rate_buckets.setdefault(sid, {"tokens": size, "last": now})
+    key = (sid, event)
+    b = _rate_buckets.setdefault(key, {"tokens": size, "last": now})
     elapsed = now - b["last"]
     b["tokens"] = min(size, b["tokens"] + elapsed * rate)
     b["last"] = now
@@ -56,7 +60,8 @@ def _check_rate(sid: str, event: str) -> bool:
 
 def _cleanup_rate_bucket(sid: str):
     """Remove rate-limit state for a disconnected client."""
-    _rate_buckets.pop(sid, None)
+    for key in [key for key in _rate_buckets if key[0] == sid]:
+        _rate_buckets.pop(key, None)
 
 
 def create_app(config: AppConfig):
@@ -134,6 +139,35 @@ def create_app(config: AppConfig):
         channel_id = _safe_int(data.get("channelId"), 1)
         sync_manager.switch_channel(request.sid, channel_id)
 
+    # ── Presentation events ───────────────────────────────────
+
+    @socketio.on("presentation:start")
+    def on_presentation_start(data):
+        from flask import request
+        if not _check_rate(request.sid, "presentation:start") or not isinstance(data, dict):
+            return
+        sync_manager.start_presentation(
+            request.sid,
+            data.get("scenes"),
+            data.get("intervalSeconds", 60),
+            data.get("filter", "all"),
+            bool(data.get("ifInactive", False)),
+        )
+
+    @socketio.on("presentation:schedule")
+    def on_presentation_schedule(data):
+        from flask import request
+        if not _check_rate(request.sid, "presentation:schedule") or not isinstance(data, dict):
+            return
+        sync_manager.schedule_presentation(request.sid, data.get("intervalSeconds", 60))
+
+    @socketio.on("presentation:stop")
+    def on_presentation_stop(data=None):
+        from flask import request
+        if not _check_rate(request.sid, "presentation:stop"):
+            return
+        sync_manager.stop_presentation(request.sid)
+
     # ── Configure events ──────────────────────────────────────
 
     @socketio.on("configure:style")
@@ -210,7 +244,7 @@ def create_app(config: AppConfig):
         if not isinstance(style, str):
             style = "dark"
         sync_manager.apply_scene(request.sid, style, intensity, cols, rows,
-                                 fg_target, allowed, slots[:100])
+                                 fg_target, allowed, slots[:100], data)
 
     @socketio.on("configure:slots")
     def on_configure_slots(data):
@@ -337,6 +371,10 @@ def main():
         port=args.port,
         style=args.style,
         max_channels=max(1, min(50, args.max_channels)),
+        presentation_state_path=os.environ.get(
+            "BIZZBOX_STATE_PATH",
+            os.path.expanduser("~/.local/state/bizzbox/presentation.sqlite3"),
+        ),
     )
 
     print(f"🎬 BizzBox starting — intensity={config.intensity}, "

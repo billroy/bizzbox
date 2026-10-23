@@ -5,15 +5,19 @@ import { fileURLToPath } from 'node:url';
 import { SourceTextModule, SyntheticModule } from 'node:vm';
 
 const store = {
+  currentChannel: 2,
   slideshowActive: false,
   slideshowInterval: 60,
   slideshowNextTransitionAt: null,
+  slideshowRevision: -1,
+  slideshowPhase: 'idle',
+  slideshowFilter: 'all',
+  ambientPreset: null,
 };
-const appliedScenes = [];
 const bodyClasses = new Set();
-const timers = new Map();
+const commands = [];
+const audioCalls = [];
 let now = 1_000_000;
-let nextTimerId = 1;
 
 globalThis.document = {
   body: {
@@ -23,12 +27,6 @@ globalThis.document = {
     },
   },
 };
-globalThis.setTimeout = (callback, delay) => {
-  const id = nextTimerId++;
-  timers.set(id, { callback, delay });
-  return id;
-};
-globalThis.clearTimeout = id => timers.delete(id);
 Date.now = () => now;
 
 function syntheticModule(exports) {
@@ -39,10 +37,18 @@ function syntheticModule(exports) {
 
 const dependencies = {
   './store.js': { store, showToast: () => {} },
-  './keyboard.js': { applyScene: scene => appliedScenes.push(scene.name) },
   './scenes.js': {
-    SCENES: [{ name: 'One' }, { name: 'Two' }],
+    SCENES: [
+      { name: 'One', style: 'dark', cols: 2, rows: 2, intensity: 5 },
+      { name: 'Two', style: 'neon', cols: 3, rows: 2, intensity: 8, ambientPreset: 'hum' },
+    ],
     loadCustomScenes: () => [],
+  },
+  './audio.js': {
+    audio: {
+      startAmbient: (...args) => audioCalls.push(['start', ...args]),
+      stopAmbient: () => audioCalls.push(['stop']),
+    },
   },
 };
 
@@ -51,38 +57,68 @@ const slideshow = new SourceTextModule(await readFile(path, 'utf8'), { identifie
 await slideshow.link(specifier => syntheticModule(dependencies[specifier]));
 await slideshow.evaluate();
 
-test('presentation timer exposes and resets the next transition deadline', () => {
-  slideshow.namespace.startSlideshow(60);
+slideshow.namespace.setSlideshowTransport({
+  start: payload => commands.push(['start', payload]),
+  schedule: seconds => commands.push(['schedule', seconds]),
+  stop: () => commands.push(['stop']),
+});
+
+test('starting presentation sends the complete playlist without starting a local timer', () => {
+  assert.equal(slideshow.namespace.startSlideshow(60), true);
+  assert.equal(commands[0][0], 'start');
+  assert.equal(commands[0][1].intervalSeconds, 60);
+  assert.deepEqual(commands[0][1].scenes.map(scene => scene.name), ['One', 'Two']);
+  assert.equal(store.slideshowActive, false);
+});
+
+test('authoritative state drives countdown, transition class, and interval controls', () => {
+  const applied = slideshow.namespace.applyPresentationState({
+    channelId: 2,
+    active: true,
+    intervalSeconds: 60,
+    nextTransitionAt: 1_060_250,
+    currentIndex: 1,
+    currentScene: { name: 'Two', ambientPreset: 'hum', intensity: 8 },
+    revision: 4,
+    phase: 'blackout',
+    filter: 'all',
+    serverTime: 1_000_250,
+  });
+
+  assert.equal(applied, true);
   assert.equal(store.slideshowActive, true);
-  assert.equal(store.slideshowNextTransitionAt, now + 60_000);
-  assert.equal(appliedScenes.length, 1);
-
-  slideshow.namespace.setNextTransition(15);
-  assert.equal(store.slideshowInterval, 15);
-  assert.equal(store.slideshowNextTransitionAt, now + 15_000);
-  assert.equal(timers.size, 1);
-  assert.equal([...timers.values()][0].delay, 15_000);
-});
-
-test('the scheduled transition advances the scene and schedules the next deadline', () => {
-  now += 15_000;
-  const transition = [...timers.values()][0];
-  timers.delete([...timers.keys()][0]);
-  transition.callback();
-
+  assert.equal(store.slideshowNextTransitionAt, 1_060_000);
   assert.equal(bodyClasses.has('slideshow-transition'), true);
-  assert.equal(store.slideshowNextTransitionAt, now + 15_000);
+  assert.deepEqual(audioCalls.at(-1), ['start', 'hum', 8]);
 
-  const blackoutTimer = [...timers.entries()].find(([, timer]) => timer.delay === 300);
-  timers.delete(blackoutTimer[0]);
-  blackoutTimer[1].callback();
-  assert.equal(appliedScenes.length, 2);
+  assert.equal(slideshow.namespace.setNextTransition(15), true);
+  assert.deepEqual(commands.at(-1), ['schedule', 15]);
 });
 
-test('stopping clears the countdown and all pending timers', () => {
-  slideshow.namespace.stopSlideshow();
+test('older or other-channel state cannot overwrite the active channel', () => {
+  assert.equal(slideshow.namespace.applyPresentationState({
+    channelId: 2, active: false, revision: 3, serverTime: now,
+  }), false);
+  assert.equal(slideshow.namespace.applyPresentationState({
+    channelId: 1, active: false, revision: 99, serverTime: now,
+  }), false);
+  assert.equal(store.slideshowActive, true);
+});
+
+test('server stop clears countdown and transition state before a client emits stop', () => {
+  assert.equal(slideshow.namespace.stopSlideshow(), true);
+  assert.deepEqual(commands.at(-1), ['stop']);
+
+  slideshow.namespace.applyPresentationState({
+    channelId: 2,
+    active: false,
+    intervalSeconds: 15,
+    nextTransitionAt: null,
+    revision: 5,
+    phase: 'idle',
+    serverTime: now,
+  });
   assert.equal(store.slideshowActive, false);
   assert.equal(store.slideshowNextTransitionAt, null);
-  assert.equal(timers.size, 0);
   assert.equal(bodyClasses.has('slideshow-transition'), false);
 });

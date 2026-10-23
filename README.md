@@ -23,7 +23,7 @@ No data is real. No databases required. Everything is procedurally generated in 
 - **Multi-channel support** — up to 50 independent channels on one server
 - **Lock mode** — hides all UI for clean ambient display; cursor auto-hides after 2 seconds
 - **Kiosk mode** — full-screen, chrome-free display with auto-fullscreen on first click
-- **Slideshow mode** — auto-cycle through scenes at a configurable interval
+- **Persistent presentation mode** — server-controlled, per-channel scene cycling that survives browser reconnects and process restarts
 - **Mobile / touch support** — swipe gestures, viewer mode, responsive layout
 - **Multi-client sync** — all connected browsers see the same show (synced mode) or run independently (unsynced mode)
 - **Delta state compression** — bandwidth-optimized updates for data-heavy activities
@@ -261,6 +261,7 @@ CMD ["python", "app.py"]
 |----------|---------|-------------|
 | `PORT` | `5000` | Server port |
 | `SECRET_KEY` | `bizzbox-dev-secret` | Flask secret key (change in production) |
+| `BIZZBOX_STATE_PATH` | `~/.local/state/bizzbox/presentation.sqlite3` | Durable presentation state database |
 
 Copy `.env.example` to `.env` to configure locally.
 

@@ -47,6 +47,11 @@ class TestRateLimiter:
         assert _check_rate("sid3", "channel:create") is True
         assert _check_rate("sid3", "channel:create") is False
 
+    def test_different_events_have_independent_buckets(self):
+        assert _check_rate("sid4", "channel:create") is True
+        assert _check_rate("sid4", "presentation:start") is True
+        assert _check_rate("sid4", "presentation:schedule") is True
+
 
 def test_scene_resets_slider_windows_and_ignores_saved_scene_count():
     app, socketio = create_app(AppConfig())
