@@ -286,6 +286,10 @@ html.obs-mode .boot-screen      { background: transparent; }
   transform: translateY(0);
 }
 
+.page-header.is-dismissing {
+  transition-duration: 0.1s;
+}
+
 /* Header rows */
 .header-row {
   display: flex;

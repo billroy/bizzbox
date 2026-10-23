@@ -17,13 +17,17 @@ export default {
     const { ref, computed, onMounted, onUnmounted } = Vue;
 
     const visible = ref(false);
+    const dismissing = ref(false);
     const slideshowNow = ref(Date.now());
     let slideshowClock = null;
     let hideTimer = null;
+    let dismissTimer = null;
     let mouseInHeader = false;
 
     function showHeader() {
       if (store.lockMode) return;
+      clearTimeout(dismissTimer);
+      dismissing.value = false;
       visible.value = true;
       clearTimeout(hideTimer);
       if (!store.headerPinned) {
@@ -51,8 +55,15 @@ export default {
 
     function dismissHeader() {
       clearTimeout(hideTimer);
+      clearTimeout(dismissTimer);
       mouseInHeader = false;
+      dismissing.value = true;
       visible.value = false;
+      dismissTimer = setTimeout(() => { dismissing.value = false; }, 100);
+    }
+
+    function onHeaderKeyDown(evt) {
+      if (evt.key === 'Escape' && visible.value) dismissHeader();
     }
 
     function onMouseMove(evt) {
@@ -91,6 +102,7 @@ export default {
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('touchstart', onMouseMove);
       document.addEventListener('click', onDocClick);
+      document.addEventListener('keydown', onHeaderKeyDown, true);
       // Load custom scenes from localStorage
       store.customScenes = loadCustomScenes();
       slideshowClock = setInterval(() => { slideshowNow.value = Date.now(); }, 250);
@@ -100,7 +112,9 @@ export default {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('touchstart', onMouseMove);
       document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onHeaderKeyDown, true);
       clearTimeout(hideTimer);
+      clearTimeout(dismissTimer);
       clearInterval(slideshowClock);
     });
 
@@ -411,11 +425,11 @@ export default {
       sendChannelCreate();
     }
 
-    return { store, visible, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave, stopSlideshow, setNextTransition, slideshowCountdown, slideshowIntervals };
+    return { store, visible, dismissing, style, intensity, muted, connected, clientCount, toggleFullscreen, isFullscreen, layout, gridPresets, fgTarget, randomize, scenes, customScenes, applyScene, saveScene, removeCustomScene, doExportScenes, doImportScenes, shareScene, copyConfigLink, takeScreenshot, openFilter, openEmbed, resetPrefs, ambientPresets, ambientPreset, volume, currentChannel, channels, maxChannels, channelViewers, totalClients, switchChannel, createChannel, sceneActionsOpen, toggleSceneActions, togglePin, dismissHeader, onHeaderMouseEnter, onHeaderMouseLeave, stopSlideshow, setNextTransition, slideshowCountdown, slideshowIntervals };
   },
 
   template: `
-    <header class="page-header" :class="{ 'is-visible': visible }" v-show="!store.lockMode"
+    <header class="page-header" :class="{ 'is-visible': visible, 'is-dismissing': dismissing }" v-show="!store.lockMode"
             @mouseenter="onHeaderMouseEnter" @mouseleave="onHeaderMouseLeave">
 
       <!-- ROW 1: Identity + Channel/Scene -->
