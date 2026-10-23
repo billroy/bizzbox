@@ -83,6 +83,15 @@ const component = module.namespace.default;
 const state = component.setup();
 for (const callback of mounted) callback();
 
+test('presentation timing controls stay inside the control header', () => {
+  const controlsIndex = component.template.indexOf('class="slideshow-controls"');
+  const headerEndIndex = component.template.indexOf('</header>');
+
+  assert.ok(controlsIndex > 0);
+  assert.ok(controlsIndex < headerEndIndex);
+  assert.equal(component.template.includes('slideshow-controls--floating'), false);
+});
+
 test('Escape dismisses the visible header through a capture listener', () => {
   const mousemove = listeners.get('mousemove')[0].listener;
   mousemove({ clientY: 0 });

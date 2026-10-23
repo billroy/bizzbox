@@ -476,6 +476,26 @@ export default {
               </div>
             </div>
           </div>
+          <div v-if="store.slideshowActive" class="slideshow-controls"
+               aria-label="Presentation timing controls">
+            <span class="slideshow-countdown" role="timer" aria-live="off">
+              NEXT {{ slideshowCountdown }}
+            </span>
+            <div class="slideshow-timing-pills" aria-label="Set next transition">
+              <button v-for="option in slideshowIntervals" :key="option.seconds"
+                      class="slideshow-timing-pill"
+                      :class="{ active: store.slideshowInterval === option.seconds }"
+                      type="button" @click="setNextTransition(option.seconds)"
+                      :aria-label="'Set next transition to ' + option.label">
+                {{ option.label }}
+              </button>
+            </div>
+            <button class="header-btn header-btn--slideshow"
+                    type="button" @click="stopSlideshow"
+                    title="Stop presentation mode (P)" aria-label="Presentation mode is on. Stop it">
+              STOP
+            </button>
+          </div>
         </div>
       </div>
 
@@ -589,25 +609,5 @@ export default {
 
     </header>
 
-    <div v-if="store.slideshowActive" class="slideshow-controls slideshow-controls--floating"
-         aria-label="Presentation timing controls">
-      <span class="slideshow-countdown" role="timer" aria-live="off">
-        NEXT {{ slideshowCountdown }}
-      </span>
-      <div class="slideshow-timing-pills" aria-label="Set next transition">
-        <button v-for="option in slideshowIntervals" :key="option.seconds"
-                class="slideshow-timing-pill"
-                :class="{ active: store.slideshowInterval === option.seconds }"
-                type="button" @click="setNextTransition(option.seconds)"
-                :aria-label="'Set next transition to ' + option.label">
-          {{ option.label }}
-        </button>
-      </div>
-      <button class="header-btn header-btn--slideshow"
-              type="button" @click="stopSlideshow"
-              title="Stop presentation mode (P)" aria-label="Presentation mode is on. Stop it">
-        STOP
-      </button>
-    </div>
   `,
 };

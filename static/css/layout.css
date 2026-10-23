@@ -476,21 +476,9 @@ html.obs-mode .boot-screen      { background: transparent; }
   display: flex;
   align-items: center;
   gap: 6px;
+  padding-left: 8px;
+  border-left: 1px solid #555555;
   white-space: nowrap;
-}
-
-.slideshow-controls--floating {
-  position: fixed;
-  right: 14px;
-  bottom: 14px;
-  z-index: 9100;
-  padding: 7px 8px 7px 12px;
-  border: 1px solid #666666;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.88);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .slideshow-countdown {
@@ -533,12 +521,11 @@ html.obs-mode .boot-screen      { background: transparent; }
 }
 
 @media (max-width: 480px) {
-  .slideshow-controls--floating {
-    right: 6px;
-    bottom: 6px;
-    left: 6px;
+  .slideshow-controls {
+    flex-wrap: wrap;
     justify-content: center;
-    padding: 6px;
+    padding-left: 0;
+    border-left: 0;
   }
 
   .slideshow-countdown {
