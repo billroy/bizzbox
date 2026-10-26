@@ -347,7 +347,7 @@ BizzBox ships with 30 preset scenes. Each configures theme, grid, intensity, win
 | **Chaos** | Rainbow | 8×10 | 20 | 10 | (none) | — |
 | **Starship Bridge** | LCARS | 6×4 | 8 | 4 | Warp Engine | Sci-fi types |
 | **Mech Hangar** | Military | 5×4 | 12 | 3 | Mech Hangar | Mech & infra |
-| **Planet Forge** | Amber | 4×3 | 3 | 0 | Terraforming Drone | Planetary |
+| **Planet Forge** | Amber | 6×4 | 3 | 0 | Terraforming Drone | Planetary |
 | **Dungeon Crawl** | Neon | 5×4 | 14 | 5 | Tavern Hearth | Fantasy & RPG |
 | **Launch Day** | Black | 8×5 | 10 | 2 | Rocket Launch | Space launch |
 | **Abyss** | Arctic | 5×4 | 6 | 2 | Submarine Sonar | Undersea |

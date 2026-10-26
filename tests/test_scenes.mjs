@@ -41,3 +41,11 @@ test('Bio Lab uses an 8x4 grid', () => {
   assert.equal(scene.cols, 8);
   assert.equal(scene.rows, 4);
 });
+
+test('Planet Forge uses a 6x4 grid', () => {
+  const scene = scenesModule.namespace.SCENES.find(candidate => candidate.name === 'Planet Forge');
+
+  assert.ok(scene);
+  assert.equal(scene.cols, 6);
+  assert.equal(scene.rows, 4);
+});
