@@ -33,3 +33,11 @@ test('Pong World uses the maximum selectable grid and only Pong activities', () 
   assert.deepEqual([...scene.filter], ['pong']);
   assert.equal(scene.fgTarget, 0);
 });
+
+test('Bio Lab uses an 8x4 grid', () => {
+  const scene = scenesModule.namespace.SCENES.find(candidate => candidate.name === 'Bio Lab');
+
+  assert.ok(scene);
+  assert.equal(scene.cols, 8);
+  assert.equal(scene.rows, 4);
+});

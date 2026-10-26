@@ -353,7 +353,7 @@ BizzBox ships with 30 preset scenes. Each configures theme, grid, intensity, win
 | **Abyss** | Arctic | 5×4 | 6 | 2 | Submarine Sonar | Undersea |
 | **Firebreak** | Red | 6×5 | 16 | 6 | Wildfire Crackle | Fire response |
 | **Transit Hub** | Synthwave | 6×4 | 9 | 3 | Hyperloop Tube | Transit |
-| **Bio Lab** | Light | 4×3 | 5 | 1 | Genetics Hum | Science |
+| **Bio Lab** | Light | 8×4 | 5 | 1 | Genetics Hum | Science |
 | **Cyber Siege** | Brutalist | 8×5 | 18 | 8 | Digital Warfare | Cyber ops |
 | **Coral Reef** | Ocean | 5×4 | 4 | 1 | Coral Reef | Aquatic |
 | **Ironworks** | Copper | 6×5 | 14 | 4 | Steel Mill | Industrial |
