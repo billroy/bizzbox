@@ -59,6 +59,8 @@ from .generators.ai_agent import AiAgentActivity
 from .generators.text import TextActivity
 from .generators.aquarium import AquariumActivity
 from .generators.ant_farm import AntFarmActivity
+from .generators.wireframe_flyover import WireframeFlyoverActivity
+from .generators.industrial_blueprint import IndustrialBlueprintActivity
 
 REGISTRY: dict[str, type] = {
     "network_topology":   NetworkTopologyActivity,
@@ -120,6 +122,8 @@ REGISTRY: dict[str, type] = {
     "text":                                       TextActivity,
     "aquarium":                                       AquariumActivity,
     "ant_farm":                                        AntFarmActivity,
+    "wireframe_flyover":                               WireframeFlyoverActivity,
+    "industrial_blueprint":                            IndustrialBlueprintActivity,
 }
 
 # Visual interest weights — higher = more likely to be chosen
@@ -183,6 +187,8 @@ WEIGHTS: dict[str, float] = {
     "text":                                       0.3,
     "aquarium":                                       1.5,
     "ant_farm":                                        1.4,
+    "wireframe_flyover":                               1.7,
+    "industrial_blueprint":                            1.6,
 }
 
 _types = list(REGISTRY.keys())

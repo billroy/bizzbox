@@ -39,6 +39,8 @@ export const SCENES = [
   { name: 'TTT',            style: 'neon',       cols: 8, rows: 5, intensity: 8,  fgTarget: 0,  ambientPreset: 'server_room',      filter: ['tic_tac_toe'] },
   { name: 'Pong World',     style: 'neon',       cols: MAX_GRID_PRESET.cols, rows: MAX_GRID_PRESET.rows, intensity: 8, fgTarget: 0, ambientPreset: 'server_room', filter: ['pong'] },
   { name: 'Life World',     style: 'phosphor',   cols: 8, rows: 5, intensity: 6,  fgTarget: 0,  ambientPreset: 'genetics_hum',     filter: ['game_of_life'] },
+  { name: 'Wireframe Flyover', style: 'phosphor', cols: 6, rows: 4, intensity: 8, fgTarget: 0, ambientPreset: 'circuit_board', filter: ['wireframe_flyover'] },
+  { name: 'Industrial Blueprint', style: 'blueprint', cols: 4, rows: 3, intensity: 6, fgTarget: 0, ambientPreset: 'steel_mill', filter: ['industrial_blueprint'] },
   { name: 'Feature Zoo',    style: 'dark',       cols: zooCols, rows: zooRows, intensity: 5,  fgTarget: 0,  ambientPreset: null, filter: null, slots: [...ACTIVITY_TYPES] },
 ];
 

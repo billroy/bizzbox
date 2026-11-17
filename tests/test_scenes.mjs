@@ -49,3 +49,13 @@ test('Planet Forge uses a 6x4 grid', () => {
   assert.equal(scene.cols, 6);
   assert.equal(scene.rows, 4);
 });
+
+test('new visual activities each have a dedicated scene', () => {
+  const flyover = scenesModule.namespace.SCENES.find(candidate => candidate.name === 'Wireframe Flyover');
+  const blueprint = scenesModule.namespace.SCENES.find(candidate => candidate.name === 'Industrial Blueprint');
+
+  assert.ok(flyover);
+  assert.deepEqual([...flyover.filter], ['wireframe_flyover']);
+  assert.ok(blueprint);
+  assert.deepEqual([...blueprint.filter], ['industrial_blueprint']);
+});

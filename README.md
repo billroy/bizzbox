@@ -6,10 +6,10 @@ No data is real. No databases required. Everything is procedurally generated in 
 
 ## Features
 
-- **59 activity types** — canvas-rendered visualizations (radar, globe arcs, wireframe 3D, game of life, weather radar, pong, tic tac toe, etc.) and DOM-based panels (terminals, log tails, data tables, stock tickers, AI agent, etc.)
+- **61 activity types** — canvas-rendered visualizations (radar, globe arcs, wireframe flyovers, live industrial blueprints, game of life, pong, etc.) and DOM-based panels (terminals, log tails, data tables, stock tickers, AI agent, etc.)
 - **24 color themes** — Dark, Light, Brutalist, Neon, Rainbow, Sunshine, Red, Black, LCARS, Amber, Arctic, Synthwave, Military, Ocean, Forest, Copper, Vapor, Infrared, Phosphor, Blueprint, Sunset, Matrix, Frost, Agent
 - **32 synthesized ambient soundscapes** — server room hum, forest rain, deep space drone, war room tension, warp engine, volcano, cathedral, and more — all generated via Web Audio API with zero audio files
-- **30 preset scenes** — War Room, Ambient, Hacker Den, Starship Bridge, Cyber Siege, Feature Zoo, and 24 more — plus custom scene save/load/export/import/share
+- **33 preset scenes** — War Room, Ambient, Hacker Den, Starship Bridge, Cyber Siege, Feature Zoo, and 27 more — plus custom scene save/load/export/import/share
 - **Scene vanity URLs** — `/war-room`, `/hacker-den`, `/starship-bridge`, etc.
 - **Configurable grid layouts** — from 2x1 to 10x7 background panels
 - **Draggable/resizable foreground windows** with z-ordering
@@ -132,7 +132,7 @@ URL parameters take priority over saved preferences. Vanity URLs also work: `/wa
 
 ## Scenes
 
-30 built-in scenes configure theme, layout, intensity, window count, ambient audio, and activity filters as a preset. A few highlights:
+33 built-in scenes configure theme, layout, intensity, window count, ambient audio, and activity filters as a preset. A few highlights:
 
 | Scene | Theme | Grid | Intensity | Ambient |
 |-------|-------|------|-----------|---------|
@@ -142,13 +142,15 @@ URL parameters take priority over saved preferences. Vanity URLs also work: `/wa
 | Starship Bridge | LCARS | 6x4 | 8 | Warp Engine |
 | Cyber Siege | Brutalist | 8x5 | 18 | Digital Warfare |
 | Agent Den | Agent | 8x5 | 10 | Agent Den |
-| Feature Zoo | Dark | 10x9 | 5 | — |
+| Wireframe Flyover | Phosphor | 6x4 | 8 | Circuit Board |
+| Industrial Blueprint | Blueprint | 4x3 | 6 | Steel Mill |
+| Feature Zoo | Dark | 10x10 | 5 | — |
 
 Custom scenes can be saved, loaded, exported, imported, and shared via URL from the header. They persist in localStorage. See [USERS-GUIDE.md](USERS-GUIDE.md) for the complete scene list.
 
 ## Activity Types
 
-### Canvas Visualizations (42)
+### Canvas Visualizations (45)
 
 | Activity | Description |
 |----------|-------------|
@@ -162,6 +164,8 @@ Custom scenes can be saved, loaded, exported, imported, and shared via URL from 
 | Globe Arcs | 3D globe with connection arcs between cities |
 | Weather Radar | Doppler-style precipitation map |
 | Wireframe 3D | Rotating 3D wireframe objects |
+| Wireframe Flyover | Drone, aircraft, and ground tracks through industrial sites |
+| Industrial Blueprint | Airplanes, rockets, launch pads, and facilities drafted live |
 | Game of Life | Conway's cellular automata with auto-reseed |
 | Matrix Rain | Falling green character streams |
 | Audio Spectrum | Frequency spectrum analyzer bars |
@@ -193,8 +197,10 @@ Custom scenes can be saved, loaded, exported, imported, and shared via URL from 
 | Mission Control | Flight director console with telemetry |
 | Pong | Classic two-paddle pong with AI opponents |
 | Tic Tac Toe | Automated X vs O games with commentary |
+| Aquarium | Procedural fish tank with animated aquatic life |
+| Ant Farm | Animated colony tunnels and ant traffic |
 
-### DOM/Text Panels (15)
+### DOM/Text Panels (16)
 
 | Activity | Description |
 |----------|-------------|
@@ -213,6 +219,7 @@ Custom scenes can be saved, loaded, exported, imported, and shared via URL from 
 | System Topology | System architecture diagram |
 | Graph | Dynamic line/bar/scatter chart |
 | AI Agent | Simulated AI agent CLI with strategy parodies |
+| Text | Shared editable text panel |
 
 Each activity type has multiple visual strategies (e.g., Game of Life has random soup, glider storm, oscillator garden, spaceship fleet, and methuselah seedings).
 
@@ -224,7 +231,7 @@ Client (Browser)                    Server (Python)
 Vue 3 reactive store     <──WS──>   Flask-SocketIO + gevent
   ├── BackgroundGrid                  ├── SyncManager (rooms, state sync)
   ├── ForegroundLayer                 ├── ActivityManager (lifecycle loop)
-  ├── AppHeader                       └── Generators (57 BaseActivity subclasses)
+  ├── AppHeader                       └── Generators (61 BaseActivity subclasses)
   └── Activity components                 └── Each produces state dicts at ~30 Hz
 ```
 

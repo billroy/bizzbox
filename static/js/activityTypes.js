@@ -63,6 +63,8 @@ export const ACTIVITY_TYPES = [
   'text',
   'aquarium',
   'ant_farm',
+  'wireframe_flyover',
+  'industrial_blueprint',
 ];
 
 /**
@@ -87,12 +89,12 @@ export const ACTIVITY_CATEGORIES = {
   ],
   'Infrastructure': [
     'network_topology', 'system_topology', 'server_rack', 'power_grid',
-    'process_monitor', 'resource_gauges', 'transit_map',
+    'process_monitor', 'resource_gauges', 'transit_map', 'wireframe_flyover',
   ],
   'Data & Comms': [
     'terminal', 'code_scroll', 'log_tail', 'hex_dump', 'data_table',
     'notifications', 'progress_bars', 'matrix_rain', 'wireframe_3d',
-    'graph', 'cipher_decrypt', 'ai_agent', 'text',
+    'graph', 'cipher_decrypt', 'ai_agent', 'text', 'industrial_blueprint',
   ],
   'Science': [
     'oscilloscope', 'seismograph', 'sdr_waterfall', 'qam_constellation',

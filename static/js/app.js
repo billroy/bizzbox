@@ -76,6 +76,8 @@ import ActivityAiAgent           from './components/activities/AiAgent.js';
 import ActivityText              from './components/activities/Text.js';
 import ActivityAquarium          from './components/activities/Aquarium.js';
 import ActivityAntFarm           from './components/activities/AntFarm.js';
+import ActivityWireframeFlyover  from './components/activities/WireframeFlyover.js';
+import ActivityIndustrialBlueprint from './components/activities/IndustrialBlueprint.js';
 
 const { createApp } = Vue;
 
@@ -287,6 +289,8 @@ app.component('activity-ai-agent',              ActivityAiAgent);
 app.component('activity-text',                  ActivityText);
 app.component('activity-aquarium',              ActivityAquarium);
 app.component('activity-ant-farm',              ActivityAntFarm);
+app.component('activity-wireframe-flyover',      ActivityWireframeFlyover);
+app.component('activity-industrial-blueprint',   ActivityIndustrialBlueprint);
 
 app.mount('#app');
 

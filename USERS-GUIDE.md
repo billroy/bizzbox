@@ -229,7 +229,7 @@ Each window's title bar shows the activity type. You can click the dropdown to r
 
 ## Activity Types
 
-BizzBox includes **59 activity types**, including canvas-based animated visualizations and DOM/text-based panels. Each type has strategy variants with different titles and data patterns.
+BizzBox includes **61 activity types**, including canvas-based animated visualizations and DOM/text-based panels. Each type has strategy variants with different titles and data patterns.
 
 ### Canvas Visualizations
 
@@ -245,6 +245,8 @@ BizzBox includes **59 activity types**, including canvas-based animated visualiz
 | **Globe Arcs** | 3D globe with animated connection arcs between cities |
 | **Weather Radar** | Doppler-style precipitation radar sweep |
 | **Wireframe 3D** | Rotating wireframe objects (cube, torus, icosahedron, etc.) |
+| **Wireframe Flyover** | Drone, aircraft, and ground tracks through buildings, factories, and launch sites |
+| **Industrial Blueprint** | Airplanes, rockets, launch pads, turbines, and facilities drafted live |
 | **Game of Life** | Conway's cellular automata with auto-reseed |
 | **Matrix Rain** | Falling green character streams |
 | **Audio Spectrum** | Frequency analyzer bars |
@@ -335,7 +337,7 @@ Scenes are preset combinations of theme, grid layout, intensity, window count, a
 
 ### Built-In Scenes
 
-BizzBox ships with 30 preset scenes. Each configures theme, grid, intensity, window count, ambient audio, and optionally an activity filter.
+BizzBox ships with 33 preset scenes. Each configures theme, grid, intensity, window count, ambient audio, and optionally an activity filter.
 
 | Scene | Theme | Grid | Intensity | Windows | Ambient | Filter |
 |-------|-------|------|-----------|---------|---------|--------|
@@ -367,8 +369,11 @@ BizzBox ships with 30 preset scenes. Each configures theme, grid, intensity, win
 | **Frozen Vault** | Frost | 5×4 | 8 | 2 | Ice Cave | Crypto & data |
 | **Agent Den** | Agent | 8×5 | 10 | 0 | Agent Den | AI Agent only |
 | **TTT** | Neon | 8×5 | 8 | 0 | Server Room | Tic Tac Toe only |
+| **Pong World** | Neon | 10×7 | 8 | 0 | Server Room | Pong only |
 | **Life World** | Phosphor | 8×5 | 6 | 0 | Genetics Hum | Game of Life only |
-| **Feature Zoo** | Dark | 10×9 | 5 | 0 | (none) | All 59 types |
+| **Wireframe Flyover** | Phosphor | 6×4 | 8 | 0 | Circuit Board | Wireframe Flyover only |
+| **Industrial Blueprint** | Blueprint | 4×3 | 6 | 0 | Steel Mill | Industrial Blueprint only |
+| **Feature Zoo** | Dark | 10×10 | 5 | 0 | (none) | All 61 types |
 
 ### Custom Scenes
 
@@ -480,7 +485,7 @@ http://localhost:5000/war-room?obs=1&vol=30
 http://localhost:5000/ambient?lock=1
 ```
 
-All 30 built-in scenes have vanity URLs.
+All 33 built-in scenes have vanity URLs.
 
 ---
 

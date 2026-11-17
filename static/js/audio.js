@@ -327,6 +327,14 @@ class AudioEngine {
       case 'wireframe_3d':
         this._tone(110, 110, 0.2, 'sine', 0.08);
         break;
+      case 'wireframe_flyover':
+        this._tone(90, 125, 0.22, 'sawtooth', 0.055); // turbine/drone pass
+        this._noise(0.05, 0.035);
+        break;
+      case 'industrial_blueprint':
+        this._tone(900, 1100, 0.045, 'square', 0.05); // drafting tick
+        this._tone(450, 520, 0.09, 'sine', 0.035);
+        break;
       case 'power_grid':
         this._tone(60, 60, 0.15, 'sawtooth', 0.06);
         this._noise(0.02, 0.04);

@@ -39,6 +39,8 @@ SCENE_SLUGS = {
     'ttt': 'TTT',
     'pong-world': 'Pong World',
     'life-world': 'Life World',
+    'wireframe-flyover': 'Wireframe Flyover',
+    'industrial-blueprint': 'Industrial Blueprint',
     'feature-zoo': 'Feature Zoo',
 }
 
